@@ -1,82 +1,49 @@
 "use client";
-import {Canvas,useFrame,useThree} from "@react-three/fiber";
-import {OrbitControls} from "@react-three/drei";
-import {useEffect,useRef} from "react";
-import * as THREE from "three";
+import {useEffect,useRef,useState} from "react";
 
-const shops=[
- {x:-8,z:-9,w:7,h:7,d:6,c:"#f3a7b5",sign:"SHOP"},
- {x:0,z:-9,w:7,h:10,d:6,c:"#d8c7f1",sign:"ゲーム"},
- {x:8,z:-9,w:7,h:8,d:6,c:"#a8d8c8",sign:"CAFE"},
- {x:-8,z:9,w:7,h:9,d:6,c:"#f4d58d",sign:"BOOKS"},
- {x:0,z:9,w:7,h:7,d:6,c:"#9fc5e8",sign:"24H"},
- {x:8,z:9,w:7,h:11,d:6,c:"#f7b267",sign:"RAMEN"}
-];
+declare global { interface Window { Cesium:any } }
 
-function Building({x,z,w,h,d,c}:{x:number,z:number,w:number,h:number,d:number,c:string}){
- const front=z<0?z+d/2+.02:z-d/2-.02;
- return <group>
-  <mesh position={[x,h/2,z]} castShadow receiveShadow><boxGeometry args={[w,h,d]}/><meshStandardMaterial color={c}/></mesh>
-  {[1.8,4,6.2,8.4].filter(y=>y<h-1).flatMap((y,ri)=>[-2,0,2].map((dx,i)=>
-   <mesh key={ri+"-"+i} position={[x+dx,y,front]} rotation={[0,z<0?0:Math.PI,0]}>
-    <planeGeometry args={[1.15,.9]}/><meshStandardMaterial color="#dff3ff" roughness={.25}/>
-   </mesh>))}
-  <mesh position={[x,h*.42,front+(z<0?.03:-.03)]} rotation={[0,z<0?0:Math.PI,0]}>
-   <planeGeometry args={[w*.72,1.15]}/><meshStandardMaterial color="#fff4df"/>
-  </mesh>
- </group>
-}
-
-function Tree({x,z}:{x:number,z:number}){
- return <group position={[x,0,z]}>
-  <mesh position={[0,1,0]} castShadow><cylinderGeometry args={[.18,.25,2,8]}/><meshStandardMaterial color="#7d5a42"/></mesh>
-  <mesh position={[0,2.5,0]} castShadow><dodecahedronGeometry args={[1.25,0]}/><meshStandardMaterial color="#69a96b"/></mesh>
- </group>
-}
-
-function CameraMover(){
- const keys=useRef<Record<string,boolean>>({});
- const {camera}=useThree();
- useEffect(()=>{
-  const down=(e:KeyboardEvent)=>keys.current[e.key.toLowerCase()]=true;
-  const up=(e:KeyboardEvent)=>keys.current[e.key.toLowerCase()]=false;
-  addEventListener("keydown",down);addEventListener("keyup",up);
-  return()=>{removeEventListener("keydown",down);removeEventListener("keyup",up)};
- },[]);
- useFrame((_,dt)=>{
-  const k=keys.current,speed=8*dt;
-  const f=new THREE.Vector3(); camera.getWorldDirection(f); f.y=0; f.normalize();
-  const r=new THREE.Vector3().crossVectors(f,camera.up).normalize();
-  if(k.w||k.arrowup) camera.position.addScaledVector(f,speed);
-  if(k.s||k.arrowdown) camera.position.addScaledVector(f,-speed);
-  if(k.a||k.arrowleft) camera.position.addScaledVector(r,-speed);
-  if(k.d||k.arrowright) camera.position.addScaledVector(r,speed);
- });
- return null;
-}
-
-function Street(){
- return <group>
-  <mesh rotation={[-Math.PI/2,0,0]} receiveShadow><planeGeometry args={[60,60]}/><meshStandardMaterial color="#d9d5c8"/></mesh>
-  <mesh position={[0,.025,0]} rotation={[-Math.PI/2,0,0]} receiveShadow><planeGeometry args={[60,10]}/><meshStandardMaterial color="#5e6268"/></mesh>
-  {[-20,-12,-4,4,12,20].map(z=><mesh key={z} position={[0,.055,z/5]} rotation={[-Math.PI/2,0,0]}><planeGeometry args={[3,.12]}/><meshBasicMaterial color="white"/></mesh>)}
-  {[-5,5].flatMap(x=>Array.from({length:9},(_,i)=><mesh key={x+"-"+i} position={[x,.06,-4+i]} rotation={[-Math.PI/2,0,0]}><planeGeometry args={[.42,.7]}/><meshBasicMaterial color="white"/></mesh>))}
-  {shops.map((b,i)=><Building key={i} {...b}/>)}
-  {[-12,-4,4,12].flatMap((x,i)=>[<Tree key={"a"+i} x={x} z={-5.8}/>,<Tree key={"b"+i} x={x} z={5.8}/>])}
-  {[-13,-5,3,11].map((x,i)=><group key={i} position={[x,0,-5.1]}>
-    <mesh position={[0,1.6,0]}><cylinderGeometry args={[.07,.07,3.2,8]}/><meshStandardMaterial color="#333"/></mesh>
-    <mesh position={[0,3.1,0]}><boxGeometry args={[.75,.32,.28]}/><meshStandardMaterial color="#333"/></mesh>
-   </group>)}
- </group>
-}
+const CESIUM_JS="https://cdn.jsdelivr.net/npm/cesium@1.133.0/Build/Cesium/Cesium.js";
+const CESIUM_CSS="https://cdn.jsdelivr.net/npm/cesium@1.133.0/Build/Cesium/Widgets/widgets.css";
+const OSAKA_BUILDINGS="https://api.plateauview.mlit.go.jp/datacatalog/3dtiles/27100-bldg-lod1-latest/tileset.json";
 
 export default function World(){
- return <Canvas shadows camera={{position:[14,10,18],fov:55}} dpr={[1,1.7]}>
-  <color attach="background" args={["#bfe3ff"]}/>
-  <fog attach="fog" args={["#bfe3ff",35,75]}/>
-  <ambientLight intensity={1.2}/>
-  <directionalLight position={[12,20,8]} intensity={2.2} castShadow shadow-mapSize={[1024,1024]}/>
-  <Street/><CameraMover/>
-  <OrbitControls target={[0,2,0]} enableDamping minDistance={4} maxDistance={35} maxPolarAngle={Math.PI/2.05}/>
- </Canvas>
+ const host=useRef<HTMLDivElement>(null);
+ const [status,setStatus]=useState("Loading real Osaka…");
+ useEffect(()=>{
+  let viewer:any;
+  const load=async()=>{
+   if(!document.querySelector('link[data-cesium]')){
+    const l=document.createElement("link");l.rel="stylesheet";l.href=CESIUM_CSS;l.dataset.cesium="1";document.head.appendChild(l);
+   }
+   if(!window.Cesium){
+    await new Promise<void>((resolve,reject)=>{
+     const s=document.createElement("script");s.src=CESIUM_JS;s.async=true;s.onload=()=>resolve();s.onerror=()=>reject(new Error("Cesium failed to load"));document.head.appendChild(s);
+    });
+   }
+   if(!host.current)return;
+   const C=window.Cesium;
+   viewer=new C.Viewer(host.current,{
+    animation:false,timeline:false,baseLayerPicker:false,geocoder:false,homeButton:false,
+    sceneModePicker:false,navigationHelpButton:false,fullscreenButton:false,infoBox:false,
+    selectionIndicator:false,shouldAnimate:true,baseLayer:false
+   });
+   viewer.scene.globe.baseColor=C.Color.fromCssColorString("#d8e5cf");
+   viewer.scene.backgroundColor=C.Color.fromCssColorString("#bfe3ff");
+   viewer.scene.globe.depthTestAgainstTerrain=true;
+   try{
+    const tileset=await C.Cesium3DTileset.fromUrl(OSAKA_BUILDINGS);
+    viewer.scene.primitives.add(tileset);
+    // Dotonbori / Namba, Osaka
+    viewer.camera.setView({
+     destination:C.Cartesian3.fromDegrees(135.5012,34.6687,190),
+     orientation:{heading:C.Math.toRadians(15),pitch:C.Math.toRadians(-32),roll:0}
+    });
+    setStatus("Dotonbori / Namba · Official PLATEAU 3D buildings");
+   }catch(e){console.error(e);setStatus("Could not load PLATEAU buildings");}
+  };
+  load().catch(e=>{console.error(e);setStatus("Could not start 3D viewer");});
+  return()=>viewer?.destroy();
+ },[]);
+ return <div className="worldWrap"><div ref={host} className="cesiumHost"/><div className="sourceBadge">{status}</div></div>;
 }
