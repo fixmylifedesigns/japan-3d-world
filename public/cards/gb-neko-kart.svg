@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <ellipse cx="100" cy="184" rx="56" ry="8" fill="#000" opacity=".12"/>
+  <path d="M44 16h104l12 12v144a8 8 0 0 1-8 8H48a8 8 0 0 1-8-8V20a4 4 0 0 1 4-4z" fill="#a7a7ab" stroke="#8d8d91" stroke-width="3"/>
+  <path d="M58 16v10h84V16" fill="none" stroke="#8d8d91" stroke-width="3"/>
+  <rect x="54" y="40" width="92" height="104" rx="6" fill="#ff9f43"/>
+  <rect x="54" y="40" width="92" height="22" rx="6" fill="#d9701b"/>
+  <text x="100" y="56" font-family="Arial Black,Arial,sans-serif" font-size="14" font-weight="900" text-anchor="middle" fill="#fff">NEKO KART</text>
+  <path d="M60 128h80" stroke="#fff" stroke-width="3" stroke-dasharray="8 6" opacity=".7"/>
+  <path d="M70 118h56l8-12H80z" fill="#3f7fd8"/>
+  <circle cx="80" cy="120" r="8" fill="#2b2b2b"/><circle cx="122" cy="120" r="8" fill="#2b2b2b"/>
+  <circle cx="100" cy="90" r="18" fill="#fff4e0"/>
+  <path d="M84 80l2-16 12 10zM116 80l-2-16-12 10z" fill="#fff4e0"/>
+  <path d="M88 76l1-8 6 5zM112 76l-1-8-6 5z" fill="#f5a3a3"/>
+  <circle cx="93" cy="90" r="2.5" fill="#2b2521"/><circle cx="107" cy="90" r="2.5" fill="#2b2521"/>
+  <path d="M96 96q4 4 8 0" stroke="#2b2521" stroke-width="2" fill="none"/>
+  <path d="M62 104h-6M60 112h-8" stroke="#fff" stroke-width="3" stroke-linecap="round"/>
+  <g fill="#6d6d71"><rect x="70" y="160" width="6" height="14"/><rect x="82" y="160" width="6" height="14"/><rect x="94" y="160" width="6" height="14"/><rect x="106" y="160" width="6" height="14"/><rect x="118" y="160" width="6" height="14"/></g>
+</svg>

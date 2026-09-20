@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <ellipse cx="100" cy="184" rx="56" ry="8" fill="#000" opacity=".12"/>
+  <path d="M44 16h104l12 12v144a8 8 0 0 1-8 8H48a8 8 0 0 1-8-8V20a4 4 0 0 1 4-4z" fill="#a7a7ab" stroke="#8d8d91" stroke-width="3"/>
+  <path d="M58 16v10h84V16" fill="none" stroke="#8d8d91" stroke-width="3"/>
+  <rect x="54" y="40" width="92" height="104" rx="6" fill="#5fb86f"/>
+  <rect x="54" y="40" width="92" height="22" rx="6" fill="#2f7a3f"/>
+  <text x="100" y="56" font-family="Arial Black,Arial,sans-serif" font-size="13" font-weight="900" text-anchor="middle" fill="#fff">PIXEL QUEST</text>
+  <g fill="#1d3b22"><rect x="90" y="72" width="20" height="8"/><rect x="86" y="80" width="28" height="4"/><rect x="92" y="84" width="16" height="16"/><rect x="88" y="100" width="8" height="12"/><rect x="104" y="100" width="8" height="12"/><rect x="114" y="82" width="4" height="22"/></g>
+  <g fill="#ffe36a"><rect x="96" y="88" width="3" height="3"/><rect x="102" y="88" width="3" height="3"/></g>
+  <path d="M60 138l16-18 12 10 16-20 18 16 18-12v24z" fill="#2f7a3f" opacity=".7"/>
+  <g fill="#6d6d71"><rect x="70" y="160" width="6" height="14"/><rect x="82" y="160" width="6" height="14"/><rect x="94" y="160" width="6" height="14"/><rect x="106" y="160" width="6" height="14"/><rect x="118" y="160" width="6" height="14"/></g>
+</svg>
