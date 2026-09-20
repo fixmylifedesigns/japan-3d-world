@@ -4,8 +4,8 @@ import { type Face } from "./worldData";
 import { CITIES, type CityId } from "./cities";
 import type { Look } from "./art";
 
-export type ShopId = "konbini" | "retro";
-export type ItemModel = "onigiri" | "bento" | "sando" | "handheld" | "cart" | "console" | "disc" | "box";
+export type ShopId = "konbini" | "retro" | "gacha" | "deli" | "pizza";
+export type ItemModel = "onigiri" | "bento" | "sando" | "handheld" | "cart" | "console" | "disc" | "box" | "roll" | "hero" | "bagel" | "slice" | "knots" | "gacha";
 
 export type Item = {
   id: string;
@@ -30,6 +30,9 @@ export type Shop = {
   sign: { text: string; bg: string; fg: string };
   theme: { wall: string; trim: string; band: string; floorA: string; floorB: string; accent: string; light: string };
   clerk: { name: string; look: Look };
+  dark?: boolean; // moody lighting (retro store)
+  welcome?: string; // banner over the entrance, inside
+  posters?: [string, string, string][]; // back-wall posters: big text, small text, color
   items: Item[]; // up to 12, in SLOTS order: center gondola, wall case, then the rack by the left wall
 };
 
@@ -61,6 +64,7 @@ export const SHOPS: Record<ShopId, Shop> = {
     face: "w",
     doorOffset: 0.5,
     sign: { text: "RETRO GAMES", bg: "#3b2a6b", fg: "#ffd84a" },
+    dark: true,
     theme: { wall: "#2f2748", trim: "#ffd84a", band: "#ff5fa2", floorA: "#3a3350", floorB: "#2c263f", accent: "#44d7e8", light: "#e9dcff" },
     clerk: { name: "Ken", look: { skin: "#f5c6a5", hair: "#4a3025", hat: "#ff5fa2", top: "#6c5ce7", pants: "#2f3a4a", shoes: "#f2f2f2" } },
     items: [
@@ -76,6 +80,63 @@ export const SHOPS: Record<ShopId, Shop> = {
       { id: "pokemon-gold", name: "Pocket Monsters Gold", jp: "ポケモン 金", price: 8, model: "box", color: "#d9a520", image: "/cards/boxes/pokemon-gold.webp", desc: "Boxed Game Boy Color copy of Pocket Monsters Gold." },
       { id: "pokemon-silver", name: "Pocket Monsters Silver", jp: "ポケモン 銀", price: 8, model: "box", color: "#9aa3b5", image: "/cards/boxes/pokemon-silver.webp", desc: "Boxed Game Boy Color copy of Pocket Monsters Silver." },
       { id: "pokemon-crystal", name: "Pocket Monsters Crystal", jp: "ポケモン クリスタル", price: 10, model: "box", color: "#5aa9e6", image: "/cards/boxes/pokemon-crystal.webp", desc: "Boxed Game Boy Color copy of Pocket Monsters Crystal." },
+    ],
+  },
+  gacha: {
+    id: "gacha",
+    city: "street",
+    name: "Gachapon",
+    jp: "ガチャガチャ",
+    building: 0,
+    face: "s",
+    doorOffset: 3,
+    sign: { text: "ガチャガチャ", bg: "#ff5fa2", fg: "#ffffff" },
+    theme: { wall: "#fff2f7", trim: "#ff5fa2", band: "#44d7e8", floorA: "#fff8e8", floorB: "#ffe3ef", accent: "#ffd84a", light: "#fffafc" },
+    clerk: { name: "Mika", look: { skin: "#ffe3d0", hair: "#3b2a2a", hat: "#44d7e8", top: "#ff8fb1", pants: "#39495e", shoes: "#ffffff" } },
+    welcome: "ガチャガチャ",
+    posters: [["ガチャ", "1回2コイン", "#ff5fa2"], ["NEW!", "カプセル", "#2fb3c4"], ["だるま", "おまもり", "#e8433a"]],
+    items: [
+      { id: "gacha-sushi-cat", name: "Sushi Cat Capsule", jp: "すしネコ", price: 2, model: "gacha", color: "#ff5fa2", desc: "A cat curled up on a piece of salmon nigiri." },
+      { id: "gacha-shinkansen", name: "Mini Bullet Train", jp: "ミニ新幹線", price: 3, model: "gacha", color: "#44d7e8", desc: "A pocket-sized bullet train with a pull-back motor." },
+      { id: "gacha-daruma", name: "Lucky Daruma", jp: "だるま", price: 2, model: "gacha", color: "#e8433a", desc: "A tiny red daruma charm for making wishes." },
+    ],
+  },
+  deli: {
+    id: "deli",
+    city: "timesq",
+    name: "Deli",
+    jp: "デリ",
+    building: 7,
+    face: "n",
+    doorOffset: 2,
+    sign: { text: "NY DELI", bg: "#c8102e", fg: "#ffffff" },
+    theme: { wall: "#f6f0e4", trim: "#c8102e", band: "#f6c945", floorA: "#f2efe8", floorB: "#2f3238", accent: "#1f7a4d", light: "#fff6e6" },
+    clerk: { name: "Luis", look: { skin: "#d9a07a", hair: "#2b2220", hat: "#1f2a44", top: "#ffffff", pants: "#2f3a4a", shoes: "#2b2b2b" } },
+    welcome: "WELCOME · OPEN 24/7",
+    posters: [["BEC", "$4", "#c8102e"], ["ベーグル", "BAGELS", "#d98b2b"], ["DELI", "24/7", "#1f7a4d"]],
+    items: [
+      { id: "bec", name: "Bacon, Egg & Cheese", jp: "ベーコンエッグチーズ", price: 4, model: "roll", color: "#f6c945", desc: "Bacon, fried egg and melted cheese on a kaiser roll." },
+      { id: "chopped-cheese", name: "Chopped Cheese", jp: "チョップドチーズ", price: 5, model: "hero", color: "#c8102e", desc: "Chopped beef, onions and cheese on a hero roll." },
+      { id: "bagel-cc", name: "Bagel & Cream Cheese", jp: "ベーグル＆クリームチーズ", price: 3, model: "bagel", color: "#d98b2b", desc: "A toasted everything bagel with a thick schmear." },
+    ],
+  },
+  pizza: {
+    id: "pizza",
+    city: "timesq",
+    name: "Pizza",
+    jp: "ピザ",
+    building: 11,
+    face: "n",
+    doorOffset: -2,
+    sign: { text: "PIZZA", bg: "#1f7a4d", fg: "#ffffff" },
+    theme: { wall: "#fff8ee", trim: "#1f7a4d", band: "#c8102e", floorA: "#f6efe6", floorB: "#d9463b", accent: "#f2b632", light: "#fff4e0" },
+    clerk: { name: "Gina", look: { skin: "#f5c6a5", hair: "#5a3a2c", top: "#c8102e", pants: "#2f3a4a", shoes: "#2b2b2b" } },
+    welcome: "FRESH SLICES",
+    posters: [["SLICE", "$3", "#c8102e"], ["ピザ", "NY STYLE", "#1f7a4d"], ["KNOTS", "GARLIC", "#d98b2b"]],
+    items: [
+      { id: "cheese-slice", name: "Cheese Slice", jp: "チーズピザ", price: 3, model: "slice", color: "#f6c945", desc: "A big, thin, foldable New York slice." },
+      { id: "pepperoni-slice", name: "Pepperoni Slice", jp: "ペパロニピザ", price: 4, model: "slice", color: "#c8102e", desc: "The classic slice with crispy pepperoni cups." },
+      { id: "garlic-knots", name: "Garlic Knots", jp: "ガーリックノット", price: 2, model: "knots", color: "#e8c07a", desc: "Knotted dough brushed with garlic butter and parsley." },
     ],
   },
 };
