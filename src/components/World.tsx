@@ -9,7 +9,7 @@ import {
 } from "./worldData";
 import { SHOPS as SHOPS_BY_ID, SHOP_LIST, shopInteractables, streetInteractables, type Interactable, type Shop } from "./shops";
 import { InteriorRoom, interiorEnv } from "./Interior";
-import { CITIES, isCity, type City, type CityId, type Prop } from "./cities";
+import { CITIES, isCity, type City, type CityId, type Plaza, type Prop } from "./cities";
 import { Chibi, PALETTE, aspect, canvasTex, hSign, repeated, rng, shade, std, vSign, type Anim, type Look } from "./art";
 
 /* ---------- canvas textures (no external assets, JP text renders with system fonts) ---------- */
@@ -217,7 +217,7 @@ function BoxBuilding({ b, i, city }: { b: Building; i: number; city: City }) {
         <meshStandardMaterial color="#c7ccd4" />
       </mesh>
       {b.faces.map((f, k) => nyc
-        ? <NycDeco key={f} b={b} face={f} seed={i * 3 + k} />
+        ? <NycDeco key={f} b={b} face={f} seed={i * 3 + k} shop={SHOP_LIST.find((s) => s.city === city.id && s.building === i && s.face === f)} />
         : <FaceDeco key={f} b={b} face={f} seed={i * 3 + k} shop={SHOP_LIST.find((s) => s.city === city.id && s.building === i && s.face === f)} />)}
       {nyc && b.h > 55 && <mesh position={[b.x, b.h + 2.6, b.z]} castShadow><icosahedronGeometry args={[1.6, 1]} /><meshStandardMaterial color="#e8f0ff" emissive="#bcd4ff" emissiveIntensity={0.6} flatShading metalness={0.4} roughness={0.25} /></mesh>}
     </group>
@@ -313,13 +313,49 @@ function adTex(seed: number) {
   });
 }
 const JP_FALLBACK = '"Hiragino Sans","Noto Sans JP",sans-serif';
+// Billboard for the project itself: Hana's portrait with "Learn Japanese". The portrait is drawn in once it loads.
+function hanaAdTex() {
+  const t = canvasTex("ad-hana", 512, 288, (g) => {
+    const gr = g.createLinearGradient(0, 0, 512, 288);
+    gr.addColorStop(0, "#ff8fb1"); gr.addColorStop(1, "#6c5ce7");
+    g.fillStyle = gr; g.fillRect(0, 0, 512, 288);
+    g.fillStyle = "rgba(255,255,255,.18)"; g.beginPath(); g.arc(110, 160, 120, 0, Math.PI * 2); g.fill();
+    g.fillStyle = "#ffffff"; g.textAlign = "left"; g.textBaseline = "middle";
+    g.font = `900 52px Impact, "Arial Black", ${JP_FALLBACK}`; g.fillText("LEARN", 222, 92); g.fillText("JAPANESE", 222, 148);
+    g.font = `800 30px ${JP_FALLBACK}`; g.fillStyle = "#fff6c8"; g.fillText("日本語をまなぼう！", 224, 204);
+    g.font = `700 18px Arial, ${JP_FALLBACK}`; g.fillStyle = "#ffffff"; g.fillText("JAPAN 3D WORLD", 226, 246);
+  });
+  const c = t.image as HTMLCanvasElement & { hana?: boolean };
+  if (!c.hana) {
+    c.hana = true;
+    const img = new Image();
+    img.onload = () => {
+      const g = c.getContext("2d")!, h = 270, w = (img.width / img.height) * h;
+      g.drawImage(img, 110 - w / 2, 288 - h, w, h);
+      t.needsUpdate = true;
+    };
+    img.src = "/guide/hana.webp";
+  }
+  return t;
+}
+const fmlAdTex = () =>
+  canvasTex("ad-fml", 512, 288, (g) => {
+    g.fillStyle = "#111418"; g.fillRect(0, 0, 512, 288);
+    const gr = g.createLinearGradient(0, 0, 512, 0);
+    gr.addColorStop(0, "#44d7e8"); gr.addColorStop(0.5, "#ff5fa2"); gr.addColorStop(1, "#ffd84a");
+    g.fillStyle = gr; g.fillRect(0, 0, 512, 10); g.fillRect(0, 278, 512, 10);
+    g.fillStyle = "#ffffff"; g.textAlign = "center"; g.textBaseline = "middle";
+    g.font = `900 58px Impact, "Arial Black", sans-serif`; g.fillText("fixmylifeco.com", 256, 128);
+    g.fillStyle = gr; g.font = `800 26px Arial, sans-serif`; g.fillText("VISIT US ONLINE", 256, 196);
+  });
+const specialAd = (id?: string) => (id === "hana" ? hanaAdTex() : id === "fml" ? fmlAdTex() : null);
 const tickerTex = () =>
   canvasTex("ticker", 1024, 64, (g) => {
     g.fillStyle = "#07090d"; g.fillRect(0, 0, 1024, 64);
     g.fillStyle = "#ffb13b"; g.font = `800 36px Arial, ${JP_FALLBACK}`; g.textBaseline = "middle";
     g.fillText("★ WELCOME TO TIMES SQUARE ★ 42ND ST ★ ようこそニューヨークへ ★ SHOWS TONIGHT 8PM ★", 12, 34);
   });
-const NYC_SHOPS = ["DELI", "PIZZA", "THEATER", "SOUVENIRS", "COFFEE", "RAMEN", "SHOES", "BAGELS"];
+const NYC_SHOPS = ["THEATER", "SOUVENIRS", "COFFEE", "RAMEN", "SHOES", "TICKETS", "GIFTS", "PHARMACY"]; // real shops (deli, pizza) get their own signs
 // Shop window for New York storefronts: lit interior, display tables, clothing racks and a door.
 const nycStoreTex = () =>
   canvasTex("nycstore", 256, 192, (g) => {
@@ -340,7 +376,7 @@ const nycStoreTex = () =>
   });
 
 // Decoration for one street-facing side of a New York building: shopfront, ticker and stacked billboards.
-function NycDeco({ b, face, seed }: { b: Building; face: Face; seed: number }) {
+function NycDeco({ b, face, seed, shop }: { b: Building; face: Face; seed: number; shop?: Shop }) {
   const [px, pz, rot, fw] = faceFrame(b, face);
   const tower = b.h > 55 && fw <= 10;
   const ticker = useMemo(() => repeated(tickerTex(), Math.max(1, Math.round(fw / 8)), 1), [fw]);
@@ -350,8 +386,9 @@ function NycDeco({ b, face, seed }: { b: Building; face: Face; seed: number }) {
     const glass = new THREE.MeshStandardMaterial({ map: repeated(nycStoreTex(), Math.max(1, Math.round(fw / 4)), 1), roughness: 0.4, emissive: "#fff1d0", emissiveIntensity: 0.25 });
     return [frame, frame, frame, frame, glass, frame];
   }, [fw]);
-  const sign = hSign(NYC_SHOPS[seed % NYC_SHOPS.length], PALETTE[(seed + 1) % PALETTE.length]);
-  const signW = Math.min(3.6, fw * 0.4);
+  const sign = shop ? hSign(shop.sign.text, shop.sign.bg, shop.sign.fg) : hSign(NYC_SHOPS[seed % NYC_SHOPS.length], PALETTE[(seed + 1) % PALETTE.length]);
+  const signW = shop ? 4 : Math.min(3.6, fw * 0.4);
+  const signX = shop ? shop.doorOffset : fw * 0.2;
   // Stack as many billboards as fit; the narrow tower gets a full column of screens.
   const pw = fw - 1.2, ph = Math.min(pw * 0.56, tower ? 6.2 : 7.5);
   const top = tower ? b.h - 6 : Math.min(b.h - 4, 30);
@@ -362,16 +399,17 @@ function NycDeco({ b, face, seed }: { b: Building; face: Face; seed: number }) {
       <mesh position={[0, 1.6, 0.12]} material={front} castShadow receiveShadow>
         <boxGeometry args={[fw - 0.6, 3.2, 0.3]} />
       </mesh>
-      <mesh position={[fw * 0.2, 3.75, 0.3]}>
+      <mesh position={[signX, 3.75, 0.3]}>
         <planeGeometry args={[signW, signW * aspect(sign)]} />
         <meshStandardMaterial map={sign} emissive="#ffffff" emissiveMap={sign} emissiveIntensity={0.35} />
       </mesh>
+      {shop && <ShopDoor shop={shop} />}
       <mesh position={[0, 4.9, 0.14]}>
         <planeGeometry args={[fw - 0.6, 0.8]} />
         <meshStandardMaterial map={ticker} emissive="#ffffff" emissiveMap={ticker} emissiveIntensity={0.9} />
       </mesh>
       {boards.map((y, k) => {
-        const t = adTex(seed * 5 + k * 3);
+        const t = specialAd(b.ads?.[k]) ?? adTex(seed * 5 + k * 3);
         return (
           <group key={k} position={[0, y, 0.16]}>
             <mesh position={[0, 0, -0.06]}><boxGeometry args={[pw + 0.3, ph + 0.3, 0.1]} /><meshStandardMaterial color="#15181e" /></mesh>
@@ -384,10 +422,74 @@ function NycDeco({ b, face, seed }: { b: Building; face: Face; seed: number }) {
 }
 
 function StreetProp({ p }: { p: Prop }) {
-  if (p.kind === "steps") return <RedSteps x={p.x} z={p.z} />;
+  if (p.kind === "steps") return <group rotation={[0, p.rot, 0]} position={[p.x, 0, p.z]}><RedSteps x={0} z={0} /></group>;
+  if (p.kind === "statue") return <Statue x={p.x} z={p.z} rot={p.rot} />;
+  if (p.kind === "planter") return <Planter x={p.x} z={p.z} />;
+  if (p.kind === "table") return <CafeTable x={p.x} z={p.z} />;
   if (p.kind === "subway") return <SubwayEntrance x={p.x} z={p.z} />;
   if (p.kind === "hotdog") return <HotDogCart x={p.x} z={p.z} />;
   return <StreetLamp x={p.x} z={p.z} />;
+}
+
+// Bronze figure on a granite pedestal at the foot of the red steps.
+function Statue({ x, z, rot }: { x: number; z: number; rot: number }) {
+  const bronze = <meshStandardMaterial color="#5a4a36" metalness={0.6} roughness={0.45} />;
+  return (
+    <group position={[x, 0.15, z]} rotation={[0, rot, 0]}>
+      <mesh position={[0, 0.9, 0]} castShadow><boxGeometry args={[1.2, 1.8, 1.2]} /><meshStandardMaterial color="#8e8a84" roughness={0.9} /></mesh>
+      <mesh position={[0, 2.5, 0]} castShadow><cylinderGeometry args={[0.28, 0.4, 1.5, 12]} />{bronze}</mesh>
+      <mesh position={[0, 3.45, 0]} castShadow><sphereGeometry args={[0.24, 14, 12]} />{bronze}</mesh>
+      <mesh position={[0.3, 2.9, 0.15]} rotation={[0.4, 0, -0.3]} castShadow><cylinderGeometry args={[0.08, 0.08, 0.7, 8]} />{bronze}</mesh>
+    </group>
+  );
+}
+function Planter({ x, z }: { x: number; z: number }) {
+  return (
+    <group position={[x, 0.15, z]}>
+      <mesh position={[0, 0.35, 0]} castShadow receiveShadow><boxGeometry args={[1.6, 0.7, 1.6]} /><meshStandardMaterial color="#3a3f48" /></mesh>
+      <mesh position={[0, 0.95, 0]} castShadow><icosahedronGeometry args={[0.75, 1]} /><meshStandardMaterial color="#6fb35f" flatShading /></mesh>
+    </group>
+  );
+}
+function CafeTable({ x, z }: { x: number; z: number }) {
+  const metal = <meshStandardMaterial color="#2f3542" metalness={0.4} roughness={0.5} />;
+  return (
+    <group position={[x, 0.15, z]}>
+      <mesh position={[0, 0.72, 0]} castShadow><cylinderGeometry args={[0.45, 0.45, 0.05, 18]} />{metal}</mesh>
+      <mesh position={[0, 0.36, 0]}><cylinderGeometry args={[0.04, 0.06, 0.72, 8]} />{metal}</mesh>
+      {[0, Math.PI].map((a) => (
+        <group key={a} position={[Math.sin(a) * 0.75, 0, Math.cos(a) * 0.75]}>
+          <mesh position={[0, 0.45, 0]}><boxGeometry args={[0.42, 0.05, 0.42]} />{metal}</mesh>
+          <mesh position={[0, 0.22, 0]}><cylinderGeometry args={[0.03, 0.03, 0.45, 6]} />{metal}</mesh>
+        </group>
+      ))}
+    </group>
+  );
+}
+
+// Pedestrian plaza strip (Broadway through Times Square): grey pavers with a light border.
+function PlazaStrip({ plaza }: { plaza: Plaza }) {
+  const [ax, az] = plaza.a, [bx, bz] = plaza.b;
+  const len = Math.hypot(bx - ax, bz - az), ang = Math.atan2(bx - ax, bz - az);
+  const tex = useMemo(() => repeated(canvasTex("pavers", 128, 128, (g) => {
+    g.fillStyle = "#8f8b86"; g.fillRect(0, 0, 128, 128);
+    g.strokeStyle = "rgba(0,0,0,.18)"; g.lineWidth = 2;
+    for (let i = 0; i <= 128; i += 32) { g.beginPath(); g.moveTo(i, 0); g.lineTo(i, 128); g.stroke(); g.beginPath(); g.moveTo(0, i); g.lineTo(128, i); g.stroke(); }
+  }), plaza.w / 2, len / 2), [plaza.w, len]);
+  return (
+    <group position={[(ax + bx) / 2, 0.158, (az + bz) / 2]} rotation={[0, ang, 0]}>
+      <mesh rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
+        <planeGeometry args={[plaza.w, len]} />
+        <meshStandardMaterial map={tex} roughness={0.9} />
+      </mesh>
+      {[-1, 1].map((sd) => (
+        <mesh key={sd} position={[sd * (plaza.w / 2 - 0.12), 0.002, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+          <planeGeometry args={[0.24, len]} />
+          <meshStandardMaterial color="#d6d0c6" />
+        </mesh>
+      ))}
+    </group>
+  );
 }
 
 // Red glass bleacher steps, rising away from 42nd Street (the street side is +z).
@@ -652,7 +754,7 @@ const PLAYER_LOOK: Look = { skin: "#ffdcc4", hair: "#5a3a2c", hat: "#f7f4ee", to
 const R = 0.42;
 const treeScale = (i: number) => 0.9 + ((i * 37) % 10) / 30;
 // Collision footprint (half sizes) of each New York street prop.
-const PROP_BOX: Record<Prop["kind"], [number, number]> = { steps: [5.2, 5.2], subway: [0.9, 2.2], hotdog: [1.1, 0.65], lamp: [0.18, 0.18] };
+const PROP_BOX: Record<Prop["kind"], [number, number]> = { steps: [4.4, 4.4], subway: [0.9, 2.2], hotdog: [1.1, 0.65], lamp: [0.18, 0.18], statue: [0.7, 0.7], planter: [0.85, 0.85], table: [0.6, 0.6] };
 
 // Collisions for a city: buildings, trees, props, signal poles, people and cars.
 const makeResolve = (city: City) => (x: number, z: number) => {
@@ -1112,6 +1214,7 @@ function StreetScene({ city, onCoin }: { city: City; onCoin: () => void }) {
       <Sky />
       <Sun />
       <Street city={city} />
+      {city.plaza && <PlazaStrip plaza={city.plaza} />}
       {city.buildings.map((b, i) => (b.round ? <RoundBuilding key={i} b={b} /> : <BoxBuilding key={i} b={b} i={i} city={city} />))}
       {city.trees.map(([x, z], i) => <Tree key={i} x={x} z={z} s={treeScale(i)} />)}
       {SIGNAL_POLES.map(([x, z], i) => <Signal key={i} x={x} z={z} />)}
