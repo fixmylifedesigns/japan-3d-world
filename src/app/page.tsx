@@ -7,6 +7,7 @@ import { BinderPanel, CardViewer, CollectionViewer, DialoguePanel, LangPicker, M
 import { PLACE_NAME, SHOP_NAMES, cardName } from "@/components/cards";
 import { isJapanese, pick, t, useLang, type UIKey } from "@/components/i18n";
 import type { Choice } from "@/components/dialogue";
+import { applySave, loadSave, writeSave } from "@/components/save";
 import { Avatar, Icon, Joystick, Minimap } from "@/components/Hud";
 
 const START_WALLET = 10;
@@ -47,6 +48,20 @@ export default function Home() {
     store.focus = panel?.kind === "item" ? { ...itemFocus(panel.id), dist: itemFocus(panel.id).dist * (innerWidth < innerHeight ? 1.45 : 1) } : panel?.kind === "talk" || panel?.kind === "menu" ? clerkFocus(p.x, p.z) : null;
   }, [panel]);
   useEffect(() => { store.focus = null; }, [scene]);
+
+  // Restore the last scene, position and facing on load, then keep saving them (every second and when the tab is hidden).
+  const sceneRef = useRef(scene);
+  sceneRef.current = scene;
+  useEffect(() => {
+    const saved = loadSave();
+    if (saved) { applySave(saved); sceneRef.current = saved.scene; setScene(saved.scene); }
+    const save = () => writeSave(sceneRef.current);
+    const onHide = () => { if (document.visibilityState === "hidden") save(); };
+    const timer = setInterval(save, 1000);
+    addEventListener("pagehide", save);
+    document.addEventListener("visibilitychange", onHide);
+    return () => { clearInterval(timer); removeEventListener("pagehide", save); document.removeEventListener("visibilitychange", onHide); };
+  }, []);
   // Tell the 3D view how much of the screen the open panel covers, so it can frame the item above it.
   useEffect(() => {
     const measure = () => {
@@ -68,12 +83,12 @@ export default function Home() {
     if (it.kind === "door") {
       Object.assign(p, { x: INSIDE_SPAWN.x, y: 0, z: INSIDE_SPAWN.z, ry: INSIDE_SPAWN.ry });
       store.camYaw = 0;
-      setPanel(null); setScene(it.shop);
+      sceneRef.current = it.shop; setPanel(null); setScene(it.shop);
     } else if (it.kind === "exit") {
       const d = doorFrame(SHOPS[it.shop]);
       Object.assign(p, { x: d.stand[0], y: 0.15, z: d.stand[1], ry: d.outward });
       store.camYaw = d.outward + 0.9;
-      setPanel(null); setScene("street");
+      sceneRef.current = "street"; setPanel(null); setScene("street");
     } else if (it.kind === "clerk") {
       setPanel({ kind: "talk", shop: it.shop, node: "greet" });
     } else {
