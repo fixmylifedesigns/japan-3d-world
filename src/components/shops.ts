@@ -33,6 +33,7 @@ export type Shop = {
   dark?: boolean; // moody lighting (retro store)
   welcome?: string; // banner over the entrance, inside
   posters?: [string, string, string][]; // back-wall posters: big text, small text, color
+  showcase?: boolean; // food sits in a refrigerated glass display case instead of out on the shelf
   items: Item[]; // up to 12, in SLOTS order: center gondola, wall case, then the rack by the left wall
 };
 
@@ -113,6 +114,7 @@ export const SHOPS: Record<ShopId, Shop> = {
     theme: { wall: "#f6f0e4", trim: "#c8102e", band: "#f6c945", floorA: "#f2efe8", floorB: "#2f3238", accent: "#1f7a4d", light: "#fff6e6" },
     clerk: { name: "Luis", look: { skin: "#d9a07a", hair: "#2b2220", hat: "#1f2a44", top: "#ffffff", pants: "#2f3a4a", shoes: "#2b2b2b" } },
     welcome: "WELCOME · OPEN 24/7",
+    showcase: true,
     posters: [["BEC", "$4", "#c8102e"], ["ベーグル", "BAGELS", "#d98b2b"], ["DELI", "24/7", "#1f7a4d"]],
     items: [
       { id: "bec", name: "Bacon, Egg & Cheese", jp: "ベーコンエッグチーズ", price: 4, model: "roll", color: "#f6c945", desc: "Bacon, fried egg and melted cheese on a kaiser roll." },
