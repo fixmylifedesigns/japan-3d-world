@@ -352,7 +352,8 @@ function Slice({ color }: { color: string }) {
   return (
     <group position={[0, 0.03, 0]} rotation={[-Math.PI / 2, 0, 0]}>
       <mesh castShadow><extrudeGeometry args={[shape, { depth: 0.03, bevelEnabled: false }]} /><meshStandardMaterial color="#f2c14e" roughness={0.7} /></mesh>
-      <mesh position={[0, -0.15, 0.02]} rotation={[0, Math.PI / 2, 0]}><cylinderGeometry args={[0.035, 0.035, 0.42, 10]} /><meshStandardMaterial color="#d58f3d" /></mesh>
+      {/* crust: a rolled edge lying along the wide end of the slice */}
+      <mesh position={[0, -0.15, 0.015]} rotation={[0, 0, Math.PI / 2]} castShadow><cylinderGeometry args={[0.045, 0.045, 0.4, 12]} /><meshStandardMaterial color="#d58f3d" roughness={0.8} /></mesh>
       {color === "#c8102e" && [[0, 0.1], [-0.07, -0.03], [0.07, -0.03]].map(([x, y], k) => (
         <mesh key={k} position={[x, y, 0.035]} rotation={[Math.PI / 2, 0, 0]}><cylinderGeometry args={[0.04, 0.04, 0.012, 14]} /><meshStandardMaterial color="#b3261e" /></mesh>
       ))}
@@ -404,6 +405,37 @@ function ItemModel({ item }: { item: Item }) {
   }
 }
 
+// Refrigerated deli case: a steel tray on a chilled base, with glass sides and a sloped glass front,
+// so the food is displayed behind glass rather than sitting out in the open. Drawn in slot space (+z is the aisle).
+function DisplayCase({ accent }: { accent: string }) {
+  const glass = <meshStandardMaterial color="#dbeefb" transparent opacity={0.3} roughness={0.04} metalness={0.2} side={THREE.DoubleSide} depthWrite={false} />;
+  const steel = <meshStandardMaterial color="#c2c8d0" metalness={0.55} roughness={0.32} />;
+  const post = (x: number, z: number, h: number, y: number, k: string) => (
+    <mesh key={k} position={[x, y, z]}><boxGeometry args={[0.05, h, 0.05]} />{steel}</mesh>
+  );
+  return (
+    <group>
+      {/* chilled base and tray */}
+      <mesh position={[0, -0.1, 0]} castShadow receiveShadow><boxGeometry args={[1.02, 0.12, 0.8]} />{steel}</mesh>
+      <mesh position={[0, -0.025, 0]} receiveShadow><boxGeometry args={[0.92, 0.04, 0.7]} /><meshStandardMaterial color={accent} roughness={0.55} /></mesh>
+      {/* glass sides, back and sloped front */}
+      {[-0.5, 0.5].map((x) => (
+        <mesh key={x} position={[x, 0.27, 0]} rotation={[0, Math.PI / 2, 0]}><planeGeometry args={[0.8, 0.58]} />{glass}</mesh>
+      ))}
+      <mesh position={[0, 0.27, -0.4]}><planeGeometry args={[1.0, 0.58]} />{glass}</mesh>
+      <mesh position={[0, 0.3, 0.33]} rotation={[0.42, 0, 0]}><planeGeometry args={[1.0, 0.64]} />{glass}</mesh>
+      {/* steel frame: corner posts, bottom rails and the top rail the glass hangs from */}
+      {[[-0.5, -0.4], [0.5, -0.4]].map(([x, z], i) => post(x, z, 0.62, 0.27, `b${i}`))}
+      {[[-0.5, 0.38], [0.5, 0.38]].map(([x, z], i) => post(x, z, 0.3, 0.11, `f${i}`))}
+      <mesh position={[0, 0.56, -0.05]}><boxGeometry args={[1.04, 0.05, 0.72]} />{steel}</mesh>
+      <mesh position={[0, -0.02, 0.38]}><boxGeometry args={[1.04, 0.05, 0.05]} />{steel}</mesh>
+      {[-0.5, 0.5].map((x) => (
+        <mesh key={`r${x}`} position={[x, 0.12, 0.09]} rotation={[0.42, 0, 0]}><boxGeometry args={[0.05, 0.05, 0.66]} />{steel}</mesh>
+      ))}
+    </group>
+  );
+}
+
 function ItemDisplay({ item, shop, slot }: { item: Item; shop: Shop; slot: number }) {
   const s = SLOTS[slot];
   const lift = useRef<THREE.Group>(null!);
@@ -423,6 +455,7 @@ function ItemDisplay({ item, shop, slot }: { item: Item; shop: Shop; slot: numbe
         <meshBasicMaterial ref={ring} color={shop.theme.accent} transparent opacity={0} depthWrite={false} />
       </mesh>
       <group ref={lift}><ItemModel item={item} /></group>
+      {shop.showcase && <DisplayCase accent={shop.theme.trim} />}
       <mesh position={[0, -0.14, s.edge + 0.005]}>
         <planeGeometry args={[0.62, 0.25]} />
         <meshStandardMaterial map={tag} roughness={0.7} />
