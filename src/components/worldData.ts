@@ -47,10 +47,24 @@ export const phase = (t: number) => {
 };
 
 export type Activity = "idle" | "walk" | "run" | "jump";
+export type SceneId = "street" | "konbini" | "retro";
+
+// A walkable space: collisions, ground height and how far the follow camera may pull back.
+export type Env = {
+  resolve: (x: number, z: number) => readonly [number, number];
+  ground: (x: number, z: number) => number;
+  boom: (tx: number, ty: number, tz: number, yaw: number, pitch: number, dist: number) => number;
+  dist: number;
+  maxDist: number;
+  pitch?: number;
+};
 export const store = {
   player: { x: -7.6, y: 0.15, z: 11.2, ry: 2.6 },
   camYaw: -0.05,
-  input: { joyX: 0, joyY: 0, jump: false, zoom: 0, recenter: false },
+  input: { joyX: 0, joyY: 0, jump: false, zoom: 0, recenter: false, locked: false },
+  near: null as string | null,
+  // When set, the camera frames this point instead of following the player (used for items and conversations).
+  focus: null as null | { x: number; y: number; z: number; yaw: number; pitch: number; dist: number; hidePlayer?: boolean },
   npcs: [] as { x: number; z: number }[],
   cars: [] as { x: number; z: number; hx: number; hz: number }[],
   got: COINS.map(() => false),

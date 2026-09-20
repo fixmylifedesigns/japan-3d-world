@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useRef } from "react";
 import { BUILDINGS, COINS, ROAD, TREES, store } from "./worldData";
+import { SHOP_LIST, doorFrame } from "./shops";
 
 export function Minimap() {
   const ref = useRef<HTMLCanvasElement>(null);
@@ -34,6 +35,11 @@ export function Minimap() {
         if (b.round) g.arc(X(b.x), Y(b.z), (b.w / 2) * S, 0, Math.PI * 2);
         else g.roundRect(X(b.x - b.w / 2), Y(b.z - b.d / 2), b.w * S, b.d * S, 2);
         g.fill(); g.stroke();
+      }
+      for (const s of SHOP_LIST) {
+        const [dx, dz] = doorFrame(s).door;
+        g.fillStyle = s.theme.accent; g.strokeStyle = "#fff"; g.lineWidth = 1.5;
+        g.beginPath(); g.roundRect(X(dx) - 4, Y(dz) - 4, 8, 8, 2); g.fill(); g.stroke();
       }
       g.fillStyle = "#86c373";
       for (const [x, z] of TREES) { g.beginPath(); g.arc(X(x), Y(z), 1.1 * S, 0, Math.PI * 2); g.fill(); }
@@ -108,6 +114,7 @@ export const Icon = {
   focus: <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M4 8V5a1 1 0 0 1 1-1h3M16 4h3a1 1 0 0 1 1 1v3M20 16v3a1 1 0 0 1-1 1h-3M8 20H5a1 1 0 0 1-1-1v-3" /><circle cx="12" cy="12" r="2.5" /></svg>,
   help: <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><circle cx="12" cy="12" r="9" /><path d="M9.6 9.3a2.5 2.5 0 0 1 4.8.9c0 1.7-2.4 2.1-2.4 3.6" /><circle cx="12" cy="17" r=".6" fill="currentColor" /></svg>,
   walk: <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="13" cy="4" r="1.8" fill="currentColor" stroke="none" /><path d="M9 21l2.5-6 2.5 3v3M11.5 15l1-5 3 3h2.5M12.5 10L9 11.5 8 14" /></svg>,
+  bag: <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round"><path d="M5 8h14l-1 12H6L5 8z" /><path d="M9 8V6a3 3 0 0 1 6 0v2" strokeLinecap="round" /></svg>,
   run: <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="15" cy="4" r="1.8" fill="currentColor" stroke="none" /><path d="M6 20l3.5-3.5 2-1 2 2.5-1 3.5M11.5 15.5l2-5.5 3 3 3-.5M13.5 10l-4-.5L7 12" /></svg>,
 };
 
