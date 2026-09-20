@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <ellipse cx="100" cy="186" rx="60" ry="8" fill="#000" opacity=".12"/>
+  <rect x="42" y="10" width="116" height="170" rx="6" fill="#10131c"/>
+  <rect x="48" y="16" width="104" height="158" rx="3" fill="#2d3a8c"/>
+  <rect x="48" y="16" width="104" height="16" fill="#0b0d14"/>
+  <text x="56" y="28" font-family="Arial,sans-serif" font-size="9" font-weight="700" fill="#fff">PS2</text>
+  <circle cx="122" cy="62" r="18" fill="#fff6c8"/>
+  <path d="M48 128l14-10 12 6 10-12 18 10 12-8 12 8 14-10 12 8v54H48z" fill="#141a3c"/>
+  <path d="M60 118h24l-12-10zM96 116h28l-14-12z" fill="#1e2656"/>
+  <g fill="#0b0d14" transform="translate(88 70)">
+    <circle cx="12" cy="6" r="7"/><path d="M4 12h16l6 18-10-4-4 16-4-16-10 4z"/><path d="M20 10l18-8" stroke="#0b0d14" stroke-width="3"/>
+  </g>
+  <path d="M90 76h20" stroke="#c0392b" stroke-width="3"/>
+  <text x="100" y="164" font-family="Arial Black,Arial,sans-serif" font-size="13" font-weight="900" text-anchor="middle" fill="#fff">SHADOW NINJA</text>
+</svg>
