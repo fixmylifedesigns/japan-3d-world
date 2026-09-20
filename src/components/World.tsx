@@ -338,16 +338,74 @@ function hanaAdTex() {
   }
   return t;
 }
-const fmlAdTex = () =>
-  canvasTex("ad-fml", 512, 288, (g) => {
-    g.fillStyle = "#111418"; g.fillRect(0, 0, 512, 288);
-    const gr = g.createLinearGradient(0, 0, 512, 0);
+// fixmylifeco.com billboard: the studio video playing above the domain name. The video is drawn into a
+// canvas every frame so its edges can fade out into the black background the same way they do on the
+// portfolio site (opaque through the middle, transparent at the border). If the video is missing or the
+// browser will not play it, the billboard falls back to plain text on black.
+// The browser takes the first source it can play: mp4 (H.264) everywhere, webm as an optional extra.
+const FML_VIDEO = ["/vid.mp4", "/vid.webm"];
+let fmlCached: THREE.CanvasTexture | null = null;
+function fmlAdTex(): THREE.CanvasTexture {
+  if (fmlCached) return fmlCached;
+  const c = document.createElement("canvas");
+  c.width = 512; c.height = 288;
+  const g = c.getContext("2d")!;
+  const tex = new THREE.CanvasTexture(c);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  tex.anisotropy = 4;
+
+  const BOX = 176, X = (512 - BOX) / 2, Y = 6, FADE = BOX * 0.15;
+  const draw = (video?: HTMLVideoElement) => {
+    g.fillStyle = "#07090d"; g.fillRect(0, 0, 512, 288);
+    if (video && video.readyState >= 2) {
+      g.drawImage(video, X, Y, BOX, BOX);
+      // Fade each edge into the black behind it: same mask as the site, done by painting black gradients.
+      const band = (x0: number, y0: number, x1: number, y1: number, rx: number, ry: number, rw: number, rh: number) => {
+        const gr = g.createLinearGradient(x0, y0, x1, y1);
+        gr.addColorStop(0, "#07090d"); gr.addColorStop(1, "rgba(7,9,13,0)");
+        g.fillStyle = gr; g.fillRect(rx, ry, rw, rh);
+      };
+      band(X, 0, X + FADE, 0, X, Y, FADE, BOX);
+      band(X + BOX, 0, X + BOX - FADE, 0, X + BOX - FADE, Y, FADE, BOX);
+      band(0, Y, 0, Y + FADE, X, Y, BOX, FADE);
+      band(0, Y + BOX, 0, Y + BOX - FADE, X, Y + BOX - FADE, BOX, FADE);
+    }
+    g.textAlign = "center"; g.textBaseline = "middle";
+    g.fillStyle = "#ffffff";
+    g.font = `900 46px Impact, "Arial Black", sans-serif`;
+    g.fillText("fixmylifeco.com", 256, 232);
+    const gr = g.createLinearGradient(140, 0, 372, 0);
     gr.addColorStop(0, "#44d7e8"); gr.addColorStop(0.5, "#ff5fa2"); gr.addColorStop(1, "#ffd84a");
-    g.fillStyle = gr; g.fillRect(0, 0, 512, 10); g.fillRect(0, 278, 512, 10);
-    g.fillStyle = "#ffffff"; g.textAlign = "center"; g.textBaseline = "middle";
-    g.font = `900 58px Impact, "Arial Black", sans-serif`; g.fillText("fixmylifeco.com", 256, 128);
-    g.fillStyle = gr; g.font = `800 26px Arial, sans-serif`; g.fillText("VISIT US ONLINE", 256, 196);
-  });
+    g.fillStyle = gr; g.fillRect(140, 262, 232, 5);
+    tex.needsUpdate = true;
+  };
+
+  draw();
+  const v = document.createElement("video");
+  for (const src of FML_VIDEO) {
+    const s = document.createElement("source");
+    s.src = src; s.type = src.endsWith(".webm") ? "video/webm" : "video/mp4";
+    v.appendChild(s);
+  }
+  v.muted = true; v.loop = true; v.playsInline = true; v.preload = "auto";
+  v.setAttribute("playsinline", ""); v.setAttribute("muted", "");
+  let raf = 0, even = false;
+  const tick = () => {
+    even = !even;
+    if (even) draw(v); // the billboard is small on screen, so half frame rate is plenty
+    raf = requestAnimationFrame(tick);
+  };
+  v.addEventListener("loadeddata", () => { if (!raf) tick(); });
+  v.addEventListener("error", () => { if (raf) cancelAnimationFrame(raf); raf = 0; draw(); });
+  const start = () => { v.play().catch(() => {}); };
+  start();
+  // Some browsers hold even muted video until the page is touched; try again on the first interaction.
+  addEventListener("pointerdown", start, { once: true });
+  addEventListener("keydown", start, { once: true });
+
+  fmlCached = tex;
+  return tex;
+}
 const specialAd = (id?: string) => (id === "hana" ? hanaAdTex() : id === "fml" ? fmlAdTex() : null);
 const tickerTex = () =>
   canvasTex("ticker", 1024, 64, (g) => {
