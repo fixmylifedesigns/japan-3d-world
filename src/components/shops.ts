@@ -131,11 +131,3 @@ export function shopInteractables(shop: Shop): Interactable[] {
     }),
   ];
 }
-
-export function promptLabel(it: Interactable) {
-  const shop = SHOPS[it.shop];
-  if (it.kind === "door") return `Enter ${shop.name}`;
-  if (it.kind === "exit") return "Leave shop";
-  if (it.kind === "clerk") return `Talk to ${shop.clerk.name}`;
-  return `Look at ${ITEMS[it.item].name}`;
-}

@@ -3,7 +3,7 @@ import { useEffect, useRef } from "react";
 import { BUILDINGS, COINS, ROAD, TREES, store } from "./worldData";
 import { SHOP_LIST, doorFrame } from "./shops";
 
-export function Minimap() {
+export function Minimap({ caption }: { caption: string }) {
   const ref = useRef<HTMLCanvasElement>(null);
   useEffect(() => {
     const c = ref.current!;
@@ -66,7 +66,7 @@ export function Minimap() {
   return (
     <figure className="map">
       <canvas ref={ref} aria-label="Neighborhood map" />
-      <figcaption>Explore the neighborhood</figcaption>
+      <figcaption>{caption}</figcaption>
     </figure>
   );
 }
