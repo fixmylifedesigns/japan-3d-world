@@ -61,6 +61,8 @@ export type Env = {
 export const store = {
   player: { x: -7.6, y: 0.15, z: 11.2, ry: 2.6 },
   camYaw: -0.05,
+  camDrag: false, // true while the player is dragging the view
+  speed: 0, // current ground speed of the character, used by the follow camera
   input: { joyX: 0, joyY: 0, jump: false, zoom: 0, recenter: false, locked: false },
   near: null as string | null,
   viewInset: 0, // px of screen covered by a HUD panel at the bottom; the focused thing is framed above it

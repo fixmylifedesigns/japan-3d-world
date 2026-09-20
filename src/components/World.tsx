@@ -487,7 +487,7 @@ function Player({ env, runRef, onActivity }: { env: Env; runRef: MutableRefObjec
   const g = useRef<THREE.Group>(null!);
   const anim = useRef<Anim>({ speed: 0, phase: 0, air: false });
   const keys = useRef<Record<string, boolean>>({});
-  const st = useRef({ vx: 0, vz: 0, vy: 0, act: "idle" as Activity });
+  const st = useRef({ vx: 0, vz: 0, vy: 0, act: "idle" as Activity, frame: null as number | null, dir: 0 });
   useEffect(() => {
     const block = ["Space", "ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"];
     const d = (e: KeyboardEvent) => { keys.current[e.code] = true; if (block.includes(e.code)) e.preventDefault(); };
@@ -503,7 +503,16 @@ function Player({ env, runRef, onActivity }: { env: Env; runRef: MutableRefObjec
     if (inp.locked) { ix = 0; iz = 0; }
     const len = Math.hypot(ix, iz);
     if (len > 1) { ix /= len; iz /= len; }
-    const yaw = store.camYaw;
+    // Movement is relative to the camera, but the camera now swings behind the character while it moves.
+    // Hold the input frame steady while the same direction is held so sideways running goes straight instead of circling;
+    // re-anchor it when the direction changes, input stops, or the player drags the view.
+    if (len < 0.05) s.frame = null;
+    else {
+      const dir = Math.atan2(ix, iz);
+      if (s.frame === null || store.camDrag || Math.abs(angleLerp(s.dir, dir, 1) - s.dir) > 0.35) s.frame = store.camYaw;
+      s.dir = dir;
+    }
+    const yaw = s.frame ?? store.camYaw;
     const mx = ix * Math.cos(yaw) + iz * Math.sin(yaw);
     const mz = -ix * Math.sin(yaw) + iz * Math.cos(yaw);
     const running = runRef.current !== !!(k.ShiftLeft || k.ShiftRight);
@@ -524,6 +533,7 @@ function Player({ env, runRef, onActivity }: { env: Env; runRef: MutableRefObjec
     const air = p.y > gy + 0.05;
 
     const v = Math.hypot(s.vx, s.vz);
+    store.speed = v;
     anim.current.speed = v; anim.current.air = air;
     anim.current.phase += dt * v * 2.3;
     const act: Activity = air ? "jump" : v < 0.4 ? "idle" : running ? "run" : "walk";
@@ -790,18 +800,18 @@ function CameraRig({ env }: { env: Env }) {
   const { camera, gl, size } = useThree();
   const inset = useRef(0);
   useEffect(() => () => (camera as THREE.PerspectiveCamera).clearViewOffset(), [camera]);
-  const s = useRef({ pitch: env.pitch ?? 0.3, saved: null as number | null, dist: env.dist, cur: env.dist, drag: false, lx: 0, ly: 0, tgt: new THREE.Vector3(store.player.x, 1.5, store.player.z) });
+  const s = useRef({ pitch: env.pitch ?? 0.3, saved: null as number | null, dragEnd: 0, dist: env.dist, cur: env.dist, drag: false, lx: 0, ly: 0, tgt: new THREE.Vector3(store.player.x, 1.5, store.player.z) });
   useEffect(() => {
     const el = gl.domElement, st = s.current;
     el.style.touchAction = "none";
-    const down = (e: PointerEvent) => { st.drag = true; st.lx = e.clientX; st.ly = e.clientY; el.setPointerCapture(e.pointerId); el.style.cursor = "grabbing"; };
+    const down = (e: PointerEvent) => { st.drag = true; store.camDrag = true; st.lx = e.clientX; st.ly = e.clientY; el.setPointerCapture(e.pointerId); el.style.cursor = "grabbing"; };
     const move = (e: PointerEvent) => {
       if (!st.drag) return;
       store.camYaw -= (e.clientX - st.lx) * 0.006;
       st.pitch = Math.max(0.06, Math.min(1.15, st.pitch + (e.clientY - st.ly) * 0.004));
       st.lx = e.clientX; st.ly = e.clientY;
     };
-    const up = () => { st.drag = false; el.style.cursor = "grab"; };
+    const up = () => { st.drag = false; store.camDrag = false; st.dragEnd = performance.now(); el.style.cursor = "grab"; };
     const wheel = (e: WheelEvent) => { e.preventDefault(); st.dist = Math.max(3, Math.min(env.maxDist, st.dist + e.deltaY * 0.01)); };
     el.style.cursor = "grab";
     el.addEventListener("pointerdown", down); el.addEventListener("pointermove", move);
@@ -821,6 +831,14 @@ function CameraRig({ env }: { env: Env }) {
       if (Math.abs(angleLerp(store.camYaw, p.ry + Math.PI, 1) - store.camYaw) < 0.01) inp.recenter = false;
     }
     const f = store.focus, kf = 1 - Math.exp(-dt * 5);
+    // Follow camera: while the character moves, ease the view around behind it. Strongest when heading away from
+    // the camera, gentle when strafing, and off when walking back toward it. Paused briefly after a manual drag.
+    if (!f && !st.drag && !inp.recenter && store.speed > 0.5 && performance.now() - st.dragEnd > 900) {
+      const behind = p.ry + Math.PI;
+      const away = Math.cos(angleLerp(store.camYaw, behind, 1) - store.camYaw);
+      const weight = Math.max(0, Math.min(1, (away + 0.5) / 1.5)) * Math.min(1, store.speed / 4.2);
+      store.camYaw = angleLerp(store.camYaw, behind, 1 - Math.exp(-dt * 2.4 * weight));
+    }
     if (f) {
       if (st.saved === null) st.saved = st.pitch;
       store.camYaw = angleLerp(store.camYaw, f.yaw, kf);
