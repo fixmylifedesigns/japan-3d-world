@@ -56,7 +56,8 @@ export type Env = {
   boom: (tx: number, ty: number, tz: number, yaw: number, pitch: number, dist: number) => number;
   dist: number;
   maxDist: number;
-  pitch?: number;
+  pitch?: number; // starting pitch
+  minPitch?: number; // how far up the view can tilt (outdoors it goes below the horizon to see the towers)
 };
 export const store = {
   player: { x: -7.6, y: 0.15, z: 11.2, ry: 2.6 },
