@@ -146,7 +146,8 @@ function posterTex(shop: Shop, text: string, sub: string, bg: string) {
     g.fillStyle = bg; g.fillRect(10, 10, 180, 240);
     g.fillStyle = "#fff"; g.font = `800 40px ${JP}`; g.textAlign = "center"; g.textBaseline = "middle";
     const chars = [...text];
-    if (chars.length <= 4) g.fillText(text, 100, 110);
+    if (/^[\x20-\x7e]+$/.test(text)) { g.font = `800 ${Math.min(48, Math.floor(260 / Math.max(3, chars.length)))}px ${JP}`; g.fillText(text, 100, 112); }
+    else if (chars.length <= 4) g.fillText(text, 100, 110);
     else { g.fillText(chars.slice(0, 3).join(""), 100, 88); g.fillText(chars.slice(3).join(""), 100, 136); }
     g.font = `800 26px ${JP}`; g.fillStyle = "#fff6c8"; g.fillText(sub, 100, 208);
   });
@@ -314,6 +315,76 @@ function BoxArt({ item }: { item: Item }) {
   );
 }
 
+// Deli, pizza and gachapon items.
+function Roll({ color }: { color: string }) {
+  return (
+    <group position={[0, 0.02, 0]}>
+      <mesh position={[0, 0.06, 0]} scale={[1, 0.45, 1]} castShadow><sphereGeometry args={[0.2, 18, 12]} /><meshStandardMaterial color="#d9a35c" roughness={0.8} /></mesh>
+      <mesh position={[0, 0.12, 0]}><cylinderGeometry args={[0.2, 0.2, 0.03, 18]} /><meshStandardMaterial color="#b5462f" /></mesh>
+      <mesh position={[0, 0.145, 0]}><cylinderGeometry args={[0.19, 0.19, 0.03, 18]} /><meshStandardMaterial color={color} /></mesh>
+      <mesh position={[0, 0.2, 0]} scale={[1, 0.5, 1]} castShadow><sphereGeometry args={[0.2, 18, 12, 0, Math.PI * 2, 0, Math.PI / 2]} /><meshStandardMaterial color="#e0ad66" roughness={0.8} /></mesh>
+      <mesh position={[0.02, 0.012, 0.28]}><boxGeometry args={[0.46, 0.01, 0.2]} /><meshStandardMaterial color="#f2efe6" /></mesh>
+    </group>
+  );
+}
+function Hero() {
+  return (
+    <group position={[0, 0.02, 0]} rotation={[0, 0.2, 0]}>
+      <mesh position={[0, 0.08, 0]} rotation={[0, 0, Math.PI / 2]} scale={[1, 1, 0.8]} castShadow><capsuleGeometry args={[0.1, 0.4, 6, 12]} /><meshStandardMaterial color="#d9a35c" roughness={0.8} /></mesh>
+      <mesh position={[0, 0.14, 0]}><boxGeometry args={[0.46, 0.06, 0.14]} /><meshStandardMaterial color="#6b3b22" /></mesh>
+      <mesh position={[0, 0.17, 0]}><boxGeometry args={[0.44, 0.02, 0.15]} /><meshStandardMaterial color="#f6c945" /></mesh>
+      <mesh position={[0.08, 0.19, 0.02]}><boxGeometry args={[0.2, 0.02, 0.1]} /><meshStandardMaterial color="#7cc06a" /></mesh>
+    </group>
+  );
+}
+function Bagel({ color }: { color: string }) {
+  return (
+    <group position={[0, 0.02, 0]}>
+      <mesh position={[0, 0.06, 0]} rotation={[Math.PI / 2, 0, 0]} castShadow><torusGeometry args={[0.15, 0.075, 12, 24]} /><meshStandardMaterial color={color} roughness={0.8} /></mesh>
+      <mesh position={[0, 0.1, 0]}><cylinderGeometry args={[0.2, 0.2, 0.02, 24]} /><meshStandardMaterial color="#fbf7ee" /></mesh>
+      <mesh position={[0, 0.15, 0]} rotation={[Math.PI / 2, 0, 0]} castShadow><torusGeometry args={[0.15, 0.07, 12, 24]} /><meshStandardMaterial color={color} roughness={0.8} /></mesh>
+      {[0, 1, 2, 3, 4, 5].map((k) => <mesh key={k} position={[Math.cos(k) * 0.15, 0.21, Math.sin(k) * 0.15]}><sphereGeometry args={[0.012, 6, 5]} /><meshStandardMaterial color={k % 2 ? "#2b2521" : "#f5f0e0"} /></mesh>)}
+    </group>
+  );
+}
+function Slice({ color }: { color: string }) {
+  const shape = useMemo(() => { const sh = new THREE.Shape(); sh.moveTo(0, 0.32); sh.lineTo(-0.2, -0.14); sh.lineTo(0.2, -0.14); sh.closePath(); return sh; }, []);
+  return (
+    <group position={[0, 0.03, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+      <mesh castShadow><extrudeGeometry args={[shape, { depth: 0.03, bevelEnabled: false }]} /><meshStandardMaterial color="#f2c14e" roughness={0.7} /></mesh>
+      <mesh position={[0, -0.15, 0.02]} rotation={[0, Math.PI / 2, 0]}><cylinderGeometry args={[0.035, 0.035, 0.42, 10]} /><meshStandardMaterial color="#d58f3d" /></mesh>
+      {color === "#c8102e" && [[0, 0.1], [-0.07, -0.03], [0.07, -0.03]].map(([x, y], k) => (
+        <mesh key={k} position={[x, y, 0.035]} rotation={[Math.PI / 2, 0, 0]}><cylinderGeometry args={[0.04, 0.04, 0.012, 14]} /><meshStandardMaterial color="#b3261e" /></mesh>
+      ))}
+    </group>
+  );
+}
+function Knots() {
+  return (
+    <group position={[0, 0.03, 0]}>
+      {[[-0.12, 0], [0.12, 0], [0, 0.12], [0, -0.12]].map(([x, z], k) => (
+        <mesh key={k} position={[x, 0.05, z]} rotation={[Math.PI / 2, 0, k]} castShadow><torusKnotGeometry args={[0.05, 0.022, 32, 6, 2, 3]} /><meshStandardMaterial color="#e8c07a" roughness={0.8} /></mesh>
+      ))}
+    </group>
+  );
+}
+// A small capsule machine: base, clear dome full of capsules, coin knob.
+function GachaMachine({ color }: { color: string }) {
+  const caps = [color, "#ffd84a", "#44d7e8", "#ffffff", "#8ed16f", "#ff8fb1"];
+  return (
+    <group>
+      <RoundedBox args={[0.42, 0.34, 0.36]} radius={0.04} position={[0, 0.17, 0]} castShadow>{std(color)}</RoundedBox>
+      <mesh position={[0.02, 0.19, 0.185]}><cylinderGeometry args={[0.06, 0.06, 0.03, 16]} /><meshStandardMaterial color="#e8e8e8" metalness={0.5} roughness={0.3} /></mesh>
+      <mesh position={[-0.12, 0.08, 0.185]}><boxGeometry args={[0.1, 0.07, 0.02]} /><meshStandardMaterial color="#2f3542" /></mesh>
+      {Array.from({ length: 9 }, (_, k) => (
+        <mesh key={k} position={[((k % 3) - 1) * 0.1, 0.4 + Math.floor(k / 3) * 0.08, ((k * 7) % 3 - 1) * 0.07]}><sphereGeometry args={[0.05, 10, 8]} /><meshStandardMaterial color={caps[k % caps.length]} /></mesh>
+      ))}
+      <mesh position={[0, 0.47, 0]}><boxGeometry args={[0.4, 0.28, 0.34]} /><meshStandardMaterial color="#ffffff" transparent opacity={0.25} roughness={0.05} /></mesh>
+      <mesh position={[0, 0.62, 0]}><boxGeometry args={[0.42, 0.03, 0.36]} />{std(color)}</mesh>
+    </group>
+  );
+}
+
 function ItemModel({ item }: { item: Item }) {
   switch (item.model) {
     case "onigiri": return <group>{[-0.2, 0, 0.2].map((x) => <group key={x} position={[x, 0, 0]}><Onigiri color={item.color} /></group>)}</group>;
@@ -324,6 +395,12 @@ function ItemModel({ item }: { item: Item }) {
     case "console": return <Console color={item.color} />;
     case "disc": return <Disc color={item.color} label={item.label ?? item.name} />;
     case "box": return <BoxArt item={item} />;
+    case "roll": return <Roll color={item.color} />;
+    case "hero": return <Hero />;
+    case "bagel": return <Bagel color={item.color} />;
+    case "slice": return <Slice color={item.color} />;
+    case "knots": return <Knots />;
+    case "gacha": return <GachaMachine color={item.color} />;
   }
 }
 
@@ -394,9 +471,11 @@ export function InteriorRoom({ shop }: { shop: Shop }) {
     shelf: shelfTex(shop),
     unit: backUnitTex(shop),
     title: hSign(shop.jp, t.trim, retro ? "#2f2748" : "#ffffff"),
-    welcome: hSign(retro ? "PLAY • TRADE • COLLECT" : "いらっしゃいませ", retro ? "#15111f" : t.band, retro ? t.accent : "#ffffff"),
+    welcome: hSign(shop.welcome ?? (retro ? "PLAY • TRADE • COLLECT" : "いらっしゃいませ"), retro ? "#15111f" : t.band, retro ? t.accent : "#ffffff"),
   }), [shop, t, retro]);
-  const posters = retro
+  const posters = shop.posters
+    ? shop.posters.map(([a, b, c]) => posterTex(shop, a, b, c))
+    : retro
     ? [spriteTex(3, "#ff5fa2", "#2f2748", "HERO"), spriteTex(8, "#44d7e8", "#2f2748", "BOSS"), spriteTex(14, "#6c5ce7", "#ffd84a", "ROBO")]
     : [posterTex(shop, "おにぎり", "2 coins", "#1f7a4d"), posterTex(shop, "たまごサンド", "NEW!", "#f28c28"), posterTex(shop, "お弁当", "あたためます", "#e8433a")];
   const H = ROOM.h, W = ROOM.hw * 2, D = ROOM.hd * 2;
