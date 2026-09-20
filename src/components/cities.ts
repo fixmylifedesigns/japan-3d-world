@@ -78,7 +78,7 @@ const TIMES_SQUARE: City = {
   },
   // Layout follows the real Times Square: 42nd Street runs east-west, 7th Avenue north-south, and Broadway cuts
   // diagonally across as a pedestrian plaza, crossing 7th Avenue further north (the "bowtie"). One Times Square fills
-  // the narrow wedge at 42nd Street between 7th Avenue and Broadway; the red steps sit at the north end (Duffy Square).
+  // the corner block at 42nd Street where 7th Avenue meets Broadway; the red steps sit at the north end (Duffy Square).
   buildings: [
     { x: -16, z: -17, w: 12, d: 14, h: 48, color: "#9aa4ae", faces: ["s", "e"], ads: ["hana"] },
     { x: -31, z: -31, w: 12, d: 12, h: 30, color: "#8f9aa8", faces: [] },
@@ -93,10 +93,11 @@ const TIMES_SQUARE: City = {
     { x: 16, z: 31, w: 12, d: 10, h: 38, color: "#c9c2b6", faces: ["w"] },
     { x: 16, z: 17, w: 12, d: 14, h: 46, color: "#a39a8e", faces: ["n", "w"] }, // pizza on 42nd St
     { x: 31, z: 31, w: 12, d: 12, h: 28, color: "#8f9aa8", faces: [] },
-    // One Times Square: the narrow tower of screens in the wedge between 7th Avenue and Broadway.
-    { x: 9, z: -4, w: 4.5, d: 5, h: 64, color: "#5f6875", faces: ["s", "n"], ads: ["hana", "fml"] },
-    // Billboard wall closing the view up 7th Avenue.
-    { x: -4, z: -50, w: 14, d: 8, h: 50, color: "#6f7c8c", faces: ["s"], ads: ["fml"] },
+    // One Times Square: the tower of screens on the corner where Broadway meets 7th Avenue at 42nd Street.
+    // It stands on the sidewalk block, clear of both roadways, the taxi lanes and the pedestrian routes.
+    { x: 13, z: -13.5, w: 6, d: 7, h: 64, color: "#5f6875", faces: ["s", "w"], ads: ["hana", "fml"] },
+    // Billboard wall closing the view up 7th Avenue, set back beyond the end of the traffic lanes.
+    { x: -4, z: -66, w: 14, d: 8, h: 50, color: "#6f7c8c", faces: ["s"], ads: ["fml"] },
   ],
   trees: [],
   vending: [],
@@ -106,15 +107,15 @@ const TIMES_SQUARE: City = {
     { kind: "statue", x: -8.1, z: -27.5, rot: 0.69 },
     { kind: "subway", x: -8.1, z: 24, rot: 0 },
     { kind: "hotdog", x: -26, z: 8.0, rot: 0 },
-    { kind: "planter", x: 12.5, z: -11, rot: 0 },
-    { kind: "table", x: 15, z: -7, rot: 0 },
-    { kind: "table", x: 14, z: -14, rot: 0 },
+    { kind: "planter", x: 9.2, z: -19, rot: 0 },
+    { kind: "table", x: 16, z: -7.5, rot: 0 },
+    { kind: "table", x: 19, z: -7.5, rot: 0 },
     { kind: "planter", x: -16, z: -36, rot: 0 },
     ...[-30, -20, 20, 30].flatMap((d) => [
       { kind: "lamp" as const, x: d, z: -6.6, rot: 0 }, { kind: "lamp" as const, x: d, z: 6.6, rot: 0 },
     ]),
   ],
-  coins: [[0, 0], [0, -12], [-12, 0], [12, 0], [0, 12], [-20, -8.2], [20, 8.2], [-8.2, 18], [30, -8], [-32, 8.2], [15, -10], [-9, -22]],
+  coins: [[0, 0], [0, -12], [-12, 0], [12, 0], [0, 12], [-20, -8.2], [20, 8.2], [-8.2, 18], [30, -8], [-32, 8.2], [18, -8], [-9, -22]],
   scramble: false,
   vehicles: [
     { kind: "taxi", color: "#f6c945" },
