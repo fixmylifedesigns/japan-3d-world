@@ -1,9 +1,10 @@
 "use client";
 import { useEffect, useRef } from "react";
-import { BUILDINGS, COINS, ROAD, TREES, store } from "./worldData";
+import { ROAD, store } from "./worldData";
+import type { City } from "./cities";
 import { SHOP_LIST, doorFrame } from "./shops";
 
-export function Minimap({ caption }: { caption: string }) {
+export function Minimap({ caption, city }: { caption: string; city: City }) {
   const ref = useRef<HTMLCanvasElement>(null);
   useEffect(() => {
     const c = ref.current!;
@@ -29,22 +30,28 @@ export function Minimap({ caption }: { caption: string }) {
         g.beginPath(); g.moveTo(X(a), Y(b)); g.lineTo(X(c2), Y(d)); g.stroke();
       }
       g.setLineDash([]);
-      for (const b of BUILDINGS) {
+      for (const b of city.buildings) {
         g.fillStyle = b.color; g.strokeStyle = "rgba(60,60,80,.18)"; g.lineWidth = 1;
         g.beginPath();
         if (b.round) g.arc(X(b.x), Y(b.z), (b.w / 2) * S, 0, Math.PI * 2);
         else g.roundRect(X(b.x - b.w / 2), Y(b.z - b.d / 2), b.w * S, b.d * S, 2);
         g.fill(); g.stroke();
       }
-      for (const s of SHOP_LIST) {
+      for (const pr of city.props) {
+        if (pr.kind === "lamp") continue;
+        g.fillStyle = pr.kind === "steps" ? "#d8262e" : pr.kind === "subway" ? "#2f5d45" : "#2f6db5";
+        const [w, d] = pr.kind === "steps" ? [10, 10] : pr.kind === "subway" ? [1.6, 4] : [2, 1];
+        g.fillRect(X(pr.x - w / 2), Y(pr.z - d / 2), w * S, d * S);
+      }
+      for (const s of SHOP_LIST.filter((sh) => sh.city === city.id)) {
         const [dx, dz] = doorFrame(s).door;
         g.fillStyle = s.theme.accent; g.strokeStyle = "#fff"; g.lineWidth = 1.5;
         g.beginPath(); g.roundRect(X(dx) - 4, Y(dz) - 4, 8, 8, 2); g.fill(); g.stroke();
       }
       g.fillStyle = "#86c373";
-      for (const [x, z] of TREES) { g.beginPath(); g.arc(X(x), Y(z), 1.1 * S, 0, Math.PI * 2); g.fill(); }
-      COINS.forEach(([x, z], i) => {
-        if (store.got[i]) return;
+      for (const [x, z] of city.trees) { g.beginPath(); g.arc(X(x), Y(z), 1.1 * S, 0, Math.PI * 2); g.fill(); }
+      city.coins.forEach(([x, z], i) => {
+        if (store.got[city.id]?.[i]) return;
         g.fillStyle = "#f2b632"; g.strokeStyle = "#fff"; g.lineWidth = 1.5;
         g.beginPath(); g.arc(X(x), Y(z), 3, 0, Math.PI * 2); g.fill(); g.stroke();
       });
@@ -62,7 +69,7 @@ export function Minimap({ caption }: { caption: string }) {
     };
     draw();
     return () => cancelAnimationFrame(raf);
-  }, []);
+  }, [city]);
   return (
     <figure className="map">
       <canvas ref={ref} aria-label="Neighborhood map" />

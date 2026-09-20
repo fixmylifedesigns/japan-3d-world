@@ -3,7 +3,7 @@
 import { store, type SceneId } from "./worldData";
 
 const KEY = "jw-save-v1";
-const SCENES: SceneId[] = ["street", "konbini", "retro"];
+const SCENES: SceneId[] = ["street", "timesq", "konbini", "retro"];
 export type Save = { scene: SceneId; x: number; y: number; z: number; ry: number; camYaw: number };
 
 export function loadSave(): Save | null {

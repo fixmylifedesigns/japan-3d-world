@@ -1,6 +1,7 @@
 // Shop definitions: where each door sits on the street, how the inside is decorated, who works there and what they sell.
 // Every shop shares one interior layout; the theme, wall decor and stock are what make each one feel different.
-import { BUILDINGS, type Face } from "./worldData";
+import { type Face } from "./worldData";
+import { CITIES, type CityId } from "./cities";
 import type { Look } from "./art";
 
 export type ShopId = "konbini" | "retro";
@@ -22,7 +23,8 @@ export type Shop = {
   id: ShopId;
   name: string;
   jp: string;
-  building: number; // index into BUILDINGS
+  city: CityId; // which city the shop is in
+  building: number; // index into that city's buildings
   face: Face;
   doorOffset: number; // along the facade, in world units from its center
   sign: { text: string; bg: string; fg: string };
@@ -34,6 +36,7 @@ export type Shop = {
 export const SHOPS: Record<ShopId, Shop> = {
   konbini: {
     id: "konbini",
+    city: "street",
     name: "7-Eleven",
     jp: "セブンイレブン",
     building: 6,
@@ -51,6 +54,7 @@ export const SHOPS: Record<ShopId, Shop> = {
   },
   retro: {
     id: "retro",
+    city: "street",
     name: "Retro Games",
     jp: "レトロゲーム",
     building: 9,
@@ -82,7 +86,7 @@ export const ITEMS: Record<string, Item & { shop: ShopId }> = Object.fromEntries
 
 // Door position on the street: `door` sits on the facade, `stand` is where the player enters/exits from.
 export function doorFrame(shop: Shop) {
-  const b = BUILDINGS[shop.building];
+  const b = CITIES[shop.city].buildings[shop.building];
   const f = shop.face;
   const rot = f === "s" ? 0 : f === "n" ? Math.PI : f === "e" ? Math.PI / 2 : -Math.PI / 2;
   const [cx, cz] = f === "s" ? [b.x, b.z + b.d / 2] : f === "n" ? [b.x, b.z - b.d / 2] : f === "e" ? [b.x + b.w / 2, b.z] : [b.x - b.w / 2, b.z];
@@ -130,8 +134,8 @@ export type Interactable =
   | { kind: "clerk"; id: string; x: number; z: number; r: number; shop: ShopId }
   | { kind: "item"; id: string; x: number; z: number; r: number; shop: ShopId; item: string };
 
-export function streetInteractables(): Interactable[] {
-  return SHOP_LIST.map((s) => {
+export function streetInteractables(city: CityId): Interactable[] {
+  return SHOP_LIST.filter((s) => s.city === city).map((s) => {
     const { stand } = doorFrame(s);
     return { kind: "door", id: `door-${s.id}`, x: stand[0], z: stand[1], r: 1.7, shop: s.id };
   });

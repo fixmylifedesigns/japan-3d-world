@@ -1,10 +1,12 @@
 "use client";
 import dynamic from "next/dynamic";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { COINS, store, type Activity, type SceneId } from "@/components/worldData";
+import { store, type Activity, type SceneId } from "@/components/worldData";
+import { CITIES, isCity, type CityId } from "@/components/cities";
+import { TRAVEL_UI, TravelPanel } from "@/components/Travel";
 import { INSIDE_SPAWN, ITEMS, SHOPS, clerkFocus, doorFrame, itemFocus, type Interactable } from "@/components/shops";
 import { BinderPanel, CardViewer, CollectionViewer, DialoguePanel, LangPicker, MenuPanel, Prompt, type Panel } from "@/components/ShopHud";
-import { PLACE_NAME, SHOP_NAMES, cardName } from "@/components/cards";
+import { SHOP_NAMES, cardName } from "@/components/cards";
 import { isJapanese, pick, t, useLang, type UIKey } from "@/components/i18n";
 import type { Choice } from "@/components/dialogue";
 import { applySave, loadSave, writeSave } from "@/components/save";
@@ -26,7 +28,7 @@ const MOOD: Record<Activity, [UIKey, UIKey]> = {
 export default function Home() {
   const [lang, setLang] = useLang();
   const [running, setRunning] = useState(false);
-  const [coins, setCoins] = useState(0);
+  const [found, setFound] = useState<Record<string, number>>({}); // coins found, per city
   const [activity, setActivity] = useState<Activity>("idle");
   const [questOpen, setQuestOpen] = useState(false);
   const [helpOpen, setHelpOpen] = useState(false);
@@ -36,9 +38,12 @@ export default function Home() {
   const [wallet, setWallet] = useState(START_WALLET);
   const [bag, setBag] = useState<Record<string, number>>({});
   const [toast, setToast] = useState<string | null>(null);
-  const onCoin = useCallback(() => { setCoins((c) => c + 1); setWallet((w) => w + COIN_VALUE); }, []);
-  const done = coins >= COINS.length;
-  const shop = scene === "street" ? null : SHOPS[scene];
+  const onCoin = useCallback(() => { const c = store.city; setFound((f) => ({ ...f, [c]: (f[c] ?? 0) + 1 })); setWallet((w) => w + COIN_VALUE); }, []);
+  const shop = isCity(scene) ? null : SHOPS[scene];
+  const cityId: CityId = isCity(scene) ? scene : SHOPS[scene].city;
+  const city = CITIES[cityId];
+  const coins = found[cityId] ?? 0, totalCoins = city.coins.length;
+  const done = coins >= totalCoins;
   const shopName = shop ? pick(SHOP_NAMES[shop.id], lang) : "";
   const cardCount = Object.values(bag).reduce((a, b) => a + b, 0);
 
@@ -90,13 +95,23 @@ export default function Home() {
       const d = doorFrame(SHOPS[it.shop]);
       Object.assign(p, { x: d.stand[0], y: 0.15, z: d.stand[1], ry: d.outward });
       store.camYaw = d.outward + 0.9;
-      sceneRef.current = "street"; setPanel(null); setScene("street");
+      const home = SHOPS[it.shop].city;
+      sceneRef.current = home; setPanel(null); setScene(home);
     } else if (it.kind === "clerk") {
       setPanel({ kind: "talk", shop: it.shop, node: "greet" });
     } else {
       setPanel({ kind: "item", id: it.item });
     }
   }, []);
+
+  // Travel to another city: drop the player at its spawn point.
+  const travel = useCallback((id: CityId) => {
+    const s = CITIES[id].spawn;
+    Object.assign(store.player, { x: s.x, y: s.y, z: s.z, ry: s.ry });
+    store.camYaw = s.camYaw;
+    sceneRef.current = id; setPanel(null); setScene(id);
+    setToast(pick(TRAVEL_UI.arrived, lang, { city: pick(CITIES[id].name, lang) }));
+  }, [lang]);
 
   // Buying an item adds its card to the collection.
   const buy = useCallback((id: string) => {
@@ -144,19 +159,20 @@ export default function Home() {
           {questOpen && (
             <div className="card quest">
               <b>{t(done ? "questDone" : "coinHunt", lang)}</b>
-              <p>{done ? t("questAll", lang) : t("questFind", lang, { n: COINS.length })}</p>
-              <div className="bar"><i style={{ width: `${(coins / COINS.length) * 100}%` }} /></div>
-              <small>{t("questProgress", lang, { a: coins, n: COINS.length, v: COIN_VALUE })}</small>
+              <p>{done ? t("questAll", lang) : t("questFind", lang, { n: totalCoins })}</p>
+              <div className="bar"><i style={{ width: `${(coins / totalCoins) * 100}%` }} /></div>
+              <small>{t("questProgress", lang, { a: coins, n: totalCoins, v: COIN_VALUE })}</small>
             </div>
           )}
           <LangPicker lang={lang} setLang={setLang} />
           <GuideButton lang={lang} onOpen={() => setPanel({ kind: "guide" })} />
         </div>
 
-        <div className="pill place">
-          {Icon.pin}<b>{shop ? shopName : pick(PLACE_NAME, lang)}</b>
-          {!isJapanese(lang) && <span className="jp">{shop ? SHOP_NAMES[shop.id].ja : "渋谷"}</span>}
-        </div>
+        <button className="pill place" onClick={() => setPanel({ kind: "travel" })} aria-label={pick(TRAVEL_UI.title, lang)}>
+          {Icon.pin}<b>{shop ? shopName : pick(city.name, lang)}</b>
+          {!isJapanese(lang) && <span className="jp">{shop ? SHOP_NAMES[shop.id].ja : city.jp}</span>}
+          <span className="caret" aria-hidden>▾</span>
+        </button>
 
         <div className="tr">
           <div className="pill coins" aria-live="polite">
@@ -213,6 +229,7 @@ export default function Home() {
           />
         )}
 
+        {panel?.kind === "travel" && <TravelPanel current={cityId} lang={lang} onGo={travel} onClose={() => setPanel(null)} />}
         {panel?.kind === "guide" && <GuideIntro lang={lang} setLang={setLang} onClose={() => setPanel(null)} />}
 
         <div className="card mood">
@@ -237,7 +254,7 @@ export default function Home() {
           </div>
         </div>
 
-        {scene === "street" && <Minimap caption={t("explore", lang)} />}
+        {isCity(scene) && <Minimap caption={t("explore", lang)} city={city} />}
         <Joystick />
       </div>
     </main>

@@ -4,11 +4,12 @@ import { RoundedBox } from "@react-three/drei";
 import { useEffect, useMemo, useRef, type MutableRefObject } from "react";
 import * as THREE from "three";
 import {
-  BUILDINGS, TREES, SIGNAL_POLES, COINS, ROAD, BOUND, groundY, phase, store,
+  SIGNAL_POLES, ROAD, BOUND, groundY, phase, store,
   type Activity, type Building, type Env, type Face, type SceneId,
 } from "./worldData";
 import { SHOPS as SHOPS_BY_ID, SHOP_LIST, shopInteractables, streetInteractables, type Interactable, type Shop } from "./shops";
 import { InteriorRoom, interiorEnv } from "./Interior";
+import { CITIES, isCity, type City, type CityId, type Prop } from "./cities";
 import { Chibi, PALETTE, aspect, canvasTex, hSign, repeated, rng, shade, std, vSign, type Anim, type Look } from "./art";
 
 /* ---------- canvas textures (no external assets, JP text renders with system fonts) ---------- */
@@ -190,13 +191,14 @@ function ShopDoor({ shop }: { shop: Shop }) {
   );
 }
 
-function BoxBuilding({ b, i }: { b: Building; i: number }) {
+function BoxBuilding({ b, i, city }: { b: Building; i: number; city: City }) {
+  const nyc = city.style === "nyc";
   const mats = useMemo(() => {
-    const f = facadeTex(b.color);
+    const f = nyc ? nycFacadeTex(b.color) : facadeTex(b.color);
     const side = (fw: number) => new THREE.MeshStandardMaterial({ map: repeated(f, Math.max(1, Math.round(fw / 3)), Math.round(b.h / 3)), roughness: 0.85 });
     const top = new THREE.MeshStandardMaterial({ color: shade(b.color, -0.06), roughness: 0.9 });
     return [side(b.d), side(b.d), top, top, side(b.w), side(b.w)];
-  }, [b]);
+  }, [b, nyc]);
   return (
     <group>
       <mesh position={[b.x, b.h / 2, b.z]} material={mats} castShadow receiveShadow>
@@ -214,7 +216,10 @@ function BoxBuilding({ b, i }: { b: Building; i: number }) {
         <cylinderGeometry args={[0.8, 0.8, 1.4, 16]} />
         <meshStandardMaterial color="#c7ccd4" />
       </mesh>
-      {b.faces.map((f, k) => <FaceDeco key={f} b={b} face={f} seed={i * 3 + k} shop={SHOP_LIST.find((s) => s.building === i && s.face === f)} />)}
+      {b.faces.map((f, k) => nyc
+        ? <NycDeco key={f} b={b} face={f} seed={i * 3 + k} />
+        : <FaceDeco key={f} b={b} face={f} seed={i * 3 + k} shop={SHOP_LIST.find((s) => s.city === city.id && s.building === i && s.face === f)} />)}
+      {nyc && b.h > 55 && <mesh position={[b.x, b.h + 2.6, b.z]} castShadow><icosahedronGeometry args={[1.6, 1]} /><meshStandardMaterial color="#e8f0ff" emissive="#bcd4ff" emissiveIntensity={0.6} flatShading metalness={0.4} roughness={0.25} /></mesh>}
     </group>
   );
 }
@@ -262,6 +267,198 @@ function RoundBuilding({ b }: { b: Building }) {
   );
 }
 
+/* ---------- New York: billboards, ticker and street props ---------- */
+// Office/stone facade with many small windows, a few lit.
+const nycFacadeTex = (color: string) =>
+  canvasTex("nycfacade" + color, 128, 128, (g) => {
+    const r = rng(color.length * 7 + color.charCodeAt(2));
+    g.fillStyle = color; g.fillRect(0, 0, 128, 128);
+    for (let y = 8; y < 128; y += 30) for (let x = 8; x < 128; x += 30) {
+      const lit = r() < 0.25;
+      g.fillStyle = lit ? "#ffe9b0" : "#2f3a4a"; g.fillRect(x, y, 20, 20);
+      g.fillStyle = "rgba(255,255,255,.18)"; g.fillRect(x, y, 20, 3);
+    }
+    g.fillStyle = "rgba(0,0,0,.12)"; g.fillRect(0, 124, 128, 4);
+  });
+
+// Original billboard ads (no real brands): bold headline, tagline and a simple graphic.
+const ADS: [string, string, string, string][] = [
+  ["BROADWAY TONIGHT", "TICKETS AT THE BOX OFFICE", "#e8413a", "#ffd23f"],
+  ["NEW YORK PIZZA", "A SLICE FOR $1", "#1f7a4d", "#ffffff"],
+  ["STARLIGHT", "THE MUSICAL", "#2a1f5c", "#ffcf4a"],
+  ["MEGA SALE", "50% OFF THIS WEEK", "#ff3d7f", "#ffffff"],
+  ["ラーメン NYC", "NOODLES · 24 HOURS", "#101418", "#ff6b3d"],
+  ["SNEAKER DROP", "SATURDAY 10AM", "#0f6fd6", "#ffffff"],
+  ["BIG APPLE NEWS", "LIVE ON CHANNEL 42", "#c1121f", "#ffffff"],
+  ["COFFEE & BAGELS", "OPEN ALL NIGHT", "#6b3e26", "#ffe8c2"],
+  ["SUMMER HITS", "NEW ALBUM OUT NOW", "#7a2bd6", "#9ef0ff"],
+  ["WELCOME TO 42ND ST", "SAY HELLO · こんにちは", "#0b8a8a", "#ffffff"],
+];
+function adTex(seed: number) {
+  const [head, sub, bg, fg] = ADS[seed % ADS.length];
+  return canvasTex(`ad-${seed % ADS.length}`, 512, 288, (g) => {
+    const gr = g.createLinearGradient(0, 0, 512, 288);
+    gr.addColorStop(0, bg); gr.addColorStop(1, shade(bg, 0.12));
+    g.fillStyle = gr; g.fillRect(0, 0, 512, 288);
+    const r = rng(seed + 3);
+    g.globalAlpha = 0.18; g.fillStyle = fg;
+    for (let k = 0; k < 6; k++) { g.beginPath(); g.arc(r() * 512, r() * 288, 30 + r() * 90, 0, Math.PI * 2); g.fill(); }
+    g.globalAlpha = 1;
+    g.fillStyle = fg; g.textAlign = "center"; g.textBaseline = "middle";
+    g.font = `900 ${head.length > 14 ? 50 : 64}px Impact, "Arial Black", ${JP_FALLBACK}`;
+    g.fillText(head, 256, 130);
+    g.font = `700 26px Arial, ${JP_FALLBACK}`;
+    g.fillText(sub, 256, 200);
+    g.strokeStyle = fg; g.lineWidth = 6; g.strokeRect(14, 14, 484, 260);
+  });
+}
+const JP_FALLBACK = '"Hiragino Sans","Noto Sans JP",sans-serif';
+const tickerTex = () =>
+  canvasTex("ticker", 1024, 64, (g) => {
+    g.fillStyle = "#07090d"; g.fillRect(0, 0, 1024, 64);
+    g.fillStyle = "#ffb13b"; g.font = `800 36px Arial, ${JP_FALLBACK}`; g.textBaseline = "middle";
+    g.fillText("★ WELCOME TO TIMES SQUARE ★ 42ND ST ★ ようこそニューヨークへ ★ SHOWS TONIGHT 8PM ★", 12, 34);
+  });
+const NYC_SHOPS = ["DELI", "PIZZA", "THEATER", "SOUVENIRS", "COFFEE", "RAMEN", "SHOES", "BAGELS"];
+// Shop window for New York storefronts: lit interior, display tables, clothing racks and a door.
+const nycStoreTex = () =>
+  canvasTex("nycstore", 256, 192, (g) => {
+    const r = rng(19);
+    g.fillStyle = "#1d2129"; g.fillRect(0, 0, 256, 192);
+    const gr = g.createLinearGradient(0, 30, 0, 184);
+    gr.addColorStop(0, "#fff3d6"); gr.addColorStop(1, "#f1d9a8");
+    g.fillStyle = gr; g.fillRect(10, 30, 110, 150); g.fillRect(136, 30, 110, 150);
+    for (const ox of [10, 136]) {
+      g.fillStyle = "#9b7b55"; g.fillRect(ox + 10, 140, 90, 10); // display table
+      for (let k = 0; k < 5; k++) { g.fillStyle = PALETTE[Math.floor(r() * PALETTE.length)]; g.fillRect(ox + 16 + k * 17, 122, 12, 18); }
+      g.fillStyle = "#6b6f78"; g.fillRect(ox + 8, 66, 94, 3); // clothing rack
+      for (let k = 0; k < 7; k++) { g.fillStyle = PALETTE[Math.floor(r() * PALETTE.length)]; g.fillRect(ox + 12 + k * 13, 69, 10, 30 + r() * 12); }
+    }
+    g.fillStyle = "#3a3f48"; g.fillRect(120, 30, 16, 150);
+    g.fillStyle = "rgba(255,255,255,.28)";
+    g.beginPath(); g.moveTo(22, 180); g.lineTo(62, 30); g.lineTo(78, 30); g.lineTo(38, 180); g.fill();
+  });
+
+// Decoration for one street-facing side of a New York building: shopfront, ticker and stacked billboards.
+function NycDeco({ b, face, seed }: { b: Building; face: Face; seed: number }) {
+  const [px, pz, rot, fw] = faceFrame(b, face);
+  const tower = b.h > 55 && fw <= 10;
+  const ticker = useMemo(() => repeated(tickerTex(), Math.max(1, Math.round(fw / 8)), 1), [fw]);
+  useFrame((_, dt) => { ticker.offset.x = (ticker.offset.x + dt * 0.06) % 1; });
+  const front = useMemo(() => {
+    const frame = new THREE.MeshStandardMaterial({ color: "#23272f", roughness: 0.6 });
+    const glass = new THREE.MeshStandardMaterial({ map: repeated(nycStoreTex(), Math.max(1, Math.round(fw / 4)), 1), roughness: 0.4, emissive: "#fff1d0", emissiveIntensity: 0.25 });
+    return [frame, frame, frame, frame, glass, frame];
+  }, [fw]);
+  const sign = hSign(NYC_SHOPS[seed % NYC_SHOPS.length], PALETTE[(seed + 1) % PALETTE.length]);
+  const signW = Math.min(3.6, fw * 0.4);
+  // Stack as many billboards as fit; the narrow tower gets a full column of screens.
+  const pw = fw - 1.2, ph = Math.min(pw * 0.56, tower ? 6.2 : 7.5);
+  const top = tower ? b.h - 6 : Math.min(b.h - 4, 30);
+  const boards: number[] = [];
+  for (let y = 6.2 + ph / 2; y + ph / 2 <= top && boards.length < (tower ? 8 : 3); y += ph + 0.6) boards.push(y);
+  return (
+    <group position={[px, 0, pz]} rotation={[0, rot, 0]}>
+      <mesh position={[0, 1.6, 0.12]} material={front} castShadow receiveShadow>
+        <boxGeometry args={[fw - 0.6, 3.2, 0.3]} />
+      </mesh>
+      <mesh position={[fw * 0.2, 3.75, 0.3]}>
+        <planeGeometry args={[signW, signW * aspect(sign)]} />
+        <meshStandardMaterial map={sign} emissive="#ffffff" emissiveMap={sign} emissiveIntensity={0.35} />
+      </mesh>
+      <mesh position={[0, 4.9, 0.14]}>
+        <planeGeometry args={[fw - 0.6, 0.8]} />
+        <meshStandardMaterial map={ticker} emissive="#ffffff" emissiveMap={ticker} emissiveIntensity={0.9} />
+      </mesh>
+      {boards.map((y, k) => {
+        const t = adTex(seed * 5 + k * 3);
+        return (
+          <group key={k} position={[0, y, 0.16]}>
+            <mesh position={[0, 0, -0.06]}><boxGeometry args={[pw + 0.3, ph + 0.3, 0.1]} /><meshStandardMaterial color="#15181e" /></mesh>
+            <mesh><planeGeometry args={[pw, ph]} /><meshStandardMaterial map={t} emissive="#ffffff" emissiveMap={t} emissiveIntensity={0.75} /></mesh>
+          </group>
+        );
+      })}
+    </group>
+  );
+}
+
+function StreetProp({ p }: { p: Prop }) {
+  if (p.kind === "steps") return <RedSteps x={p.x} z={p.z} />;
+  if (p.kind === "subway") return <SubwayEntrance x={p.x} z={p.z} />;
+  if (p.kind === "hotdog") return <HotDogCart x={p.x} z={p.z} />;
+  return <StreetLamp x={p.x} z={p.z} />;
+}
+
+// Red glass bleacher steps, rising away from 42nd Street (the street side is +z).
+function RedSteps({ x, z }: { x: number; z: number }) {
+  const n = 6, depth = 1.65, rise = 0.7;
+  return (
+    <group position={[x, 0.15, z]}>
+      {Array.from({ length: n }, (_, k) => {
+        const h = rise * (k + 1);
+        return (
+          <mesh key={k} position={[0, h / 2, 4.95 - depth / 2 - k * depth]} castShadow receiveShadow>
+            <boxGeometry args={[10, h, depth]} />
+            <meshStandardMaterial color="#d8262e" roughness={0.2} metalness={0.1} emissive="#7a0a10" emissiveIntensity={0.35} />
+          </mesh>
+        );
+      })}
+      <mesh position={[0, rise * n + 0.5, -4.9]}><boxGeometry args={[10.2, 0.08, 0.08]} /><meshStandardMaterial color="#c9ced6" metalness={0.6} roughness={0.3} /></mesh>
+    </group>
+  );
+}
+
+function SubwayEntrance({ x, z }: { x: number; z: number }) {
+  const sign = hSign("SUBWAY 42 St", "#1c1f24", "#ffffff");
+  return (
+    <group position={[x, 0.15, z]}>
+      <mesh position={[0, -0.02, 0]} rotation={[-Math.PI / 2, 0, 0]}><planeGeometry args={[1.5, 4]} /><meshStandardMaterial color="#1a1c20" /></mesh>
+      {Array.from({ length: 7 }, (_, k) => (
+        <mesh key={k} position={[0, 0.001 + k * 0.001, -1.8 + k * 0.55]} rotation={[-Math.PI / 2, 0, 0]}><planeGeometry args={[1.4, 0.08]} /><meshBasicMaterial color="#3a3e46" /></mesh>
+      ))}
+      {[-0.8, 0.8].map((sx) => (
+        <mesh key={sx} position={[sx, 0.55, 0]} castShadow><boxGeometry args={[0.08, 1.1, 4.1]} /><meshStandardMaterial color="#2f5d45" metalness={0.3} roughness={0.5} /></mesh>
+      ))}
+      <mesh position={[0, 0.55, 2.05]} castShadow><boxGeometry args={[1.68, 1.1, 0.08]} /><meshStandardMaterial color="#2f5d45" metalness={0.3} roughness={0.5} /></mesh>
+      {[-0.8, 0.8].map((sx) => (
+        <group key={sx} position={[sx, 0, -2.0]}>
+          <mesh position={[0, 1.1, 0]}><cylinderGeometry args={[0.05, 0.06, 2.2, 8]} /><meshStandardMaterial color="#2f5d45" /></mesh>
+          <mesh position={[0, 2.3, 0]}><sphereGeometry args={[0.18, 14, 12]} /><meshStandardMaterial color="#8fe39b" emissive="#5fd26f" emissiveIntensity={1.1} /></mesh>
+        </group>
+      ))}
+      <mesh position={[0, 1.55, -2.0]} rotation={[0, Math.PI, 0]}><planeGeometry args={[1.5, 1.5 * aspect(sign)]} /><meshStandardMaterial map={sign} side={THREE.DoubleSide} /></mesh>
+    </group>
+  );
+}
+
+function HotDogCart({ x, z }: { x: number; z: number }) {
+  const sign = hSign("HOT DOGS", "#ffd23f", "#c1121f");
+  return (
+    <group position={[x, 0.15, z]}>
+      <RoundedBox args={[2.0, 0.9, 1.0]} radius={0.08} position={[0, 0.75, 0]} castShadow>{std("#c9ced6")}</RoundedBox>
+      <mesh position={[0, 0.8, 0.505]}><planeGeometry args={[1.4, 1.4 * aspect(sign)]} /><meshStandardMaterial map={sign} /></mesh>
+      {[-0.7, 0.7].map((wx) => (
+        <mesh key={wx} position={[wx, 0.25, 0.52]} rotation={[0, 0, Math.PI / 2]}><cylinderGeometry args={[0.22, 0.22, 0.08, 14]} /><meshStandardMaterial color="#2b2f36" /></mesh>
+      ))}
+      <mesh position={[0, 1.9, 0]}><cylinderGeometry args={[0.04, 0.04, 1.8, 8]} /><meshStandardMaterial color="#8a8f98" /></mesh>
+      <mesh position={[0, 2.75, 0]} castShadow><coneGeometry args={[1.5, 0.55, 12, 1, true]} /><meshStandardMaterial color="#2f6db5" side={THREE.DoubleSide} /></mesh>
+      <mesh position={[0, 2.77, 0]}><coneGeometry args={[1.52, 0.55, 12, 1, true, 0, Math.PI / 6]} /><meshStandardMaterial color="#ffd23f" side={THREE.DoubleSide} /></mesh>
+    </group>
+  );
+}
+
+function StreetLamp({ x, z }: { x: number; z: number }) {
+  const out = z > 0 ? -1 : 1; // lamp head leans over the road
+  return (
+    <group position={[x, 0.15, z]}>
+      <mesh position={[0, 2.6, 0]} castShadow><cylinderGeometry args={[0.07, 0.1, 5.2, 8]} /><meshStandardMaterial color="#2a2f38" /></mesh>
+      <mesh position={[0, 5.1, out * 0.6]}><boxGeometry args={[0.08, 0.08, 1.2]} /><meshStandardMaterial color="#2a2f38" /></mesh>
+      <mesh position={[0, 5.0, out * 1.15]}><boxGeometry args={[0.3, 0.14, 0.5]} /><meshStandardMaterial color="#fff4d6" emissive="#ffe6a8" emissiveIntensity={0.9} /></mesh>
+    </group>
+  );
+}
+
 /* ---------- street ---------- */
 const ROAD_C = "#7c85b2";
 function Crosswalk({ x, z, rot, len }: { x: number; z: number; rot: number; len: number }) {
@@ -278,37 +475,39 @@ function Crosswalk({ x, z, rot, len }: { x: number; z: number; rot: number; len:
   );
 }
 
-function Street() {
+function Street({ city }: { city: City }) {
+  const nyc = city.style === "nyc";
+  const road = nyc ? "#4d525e" : ROAD_C, walk = nyc ? "#cdc8bf" : "#ece6da", ground = nyc ? "#c3beb5" : "#e7e1d4";
   const corners = [[-1, -1], [1, -1], [-1, 1], [1, 1]];
   const dashes = [12, 16, 20, 24, 28, 32, 36, 40];
   return (
     <group>
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.01, 0]} receiveShadow>
         <planeGeometry args={[240, 240]} />
-        <meshStandardMaterial color="#e7e1d4" />
+        <meshStandardMaterial color={ground} />
       </mesh>
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.002, 0]} receiveShadow>
         <planeGeometry args={[110, ROAD * 2]} />
-        <meshStandardMaterial color={ROAD_C} roughness={0.95} />
+        <meshStandardMaterial color={road} roughness={0.95} />
       </mesh>
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.003, 0]} receiveShadow>
         <planeGeometry args={[ROAD * 2, 110]} />
-        <meshStandardMaterial color={ROAD_C} roughness={0.95} />
+        <meshStandardMaterial color={road} roughness={0.95} />
       </mesh>
       {corners.map(([sx, sz], i) => (
         <group key={i}>
           <mesh position={[sx * 30, 0.075, sz * 30]} receiveShadow>
             <boxGeometry args={[48, 0.15, 48]} />
-            <meshStandardMaterial color="#ece6da" roughness={0.95} />
+            <meshStandardMaterial color={walk} roughness={0.95} />
           </mesh>
-          {/* yellow tactile paving at crossings */}
+          {/* tactile paving at crossings: yellow in Tokyo, red in New York */}
           <mesh position={[sx * 6.45, 0.155, sz * 8]} rotation={[-Math.PI / 2, 0, 0]}>
             <planeGeometry args={[0.45, 3]} />
-            <meshStandardMaterial color="#f2c230" />
+            <meshStandardMaterial color={nyc ? "#b8453a" : "#f2c230"} />
           </mesh>
           <mesh position={[sx * 8, 0.155, sz * 6.45]} rotation={[-Math.PI / 2, 0, 0]}>
             <planeGeometry args={[3, 0.45]} />
-            <meshStandardMaterial color="#f2c230" />
+            <meshStandardMaterial color={nyc ? "#b8453a" : "#f2c230"} />
           </mesh>
           {[11.5, 13, 14.5].map((d) => (
             <group key={d}>
@@ -318,7 +517,12 @@ function Street() {
           ))}
         </group>
       ))}
-      {dashes.flatMap((d) => [-1, 1].flatMap((s) => [
+      {nyc && [-1, 1].flatMap((s) => [
+        // double yellow center lines between the crosswalks
+        ...[-0.12, 0.12].map((o) => <mesh key={`cx${s}${o}`} position={[s * 29.5, 0.011, o]} rotation={[-Math.PI / 2, 0, 0]}><planeGeometry args={[39, 0.1]} /><meshBasicMaterial color="#f2c230" /></mesh>),
+        ...[-0.12, 0.12].map((o) => <mesh key={`cz${s}${o}`} position={[o, 0.011, s * 29.5]} rotation={[-Math.PI / 2, 0, 0]}><planeGeometry args={[0.1, 39]} /><meshBasicMaterial color="#f2c230" /></mesh>),
+      ])}
+      {!nyc && dashes.flatMap((d) => [-1, 1].flatMap((s) => [
         <mesh key={`x${d}${s}`} position={[s * d, 0.01, 0]} rotation={[-Math.PI / 2, 0, 0]}><planeGeometry args={[2, 0.14]} /><meshBasicMaterial color="#eef0f8" /></mesh>,
         <mesh key={`z${d}${s}`} position={[0, 0.01, s * d]} rotation={[-Math.PI / 2, 0, 0]}><planeGeometry args={[0.14, 2]} /><meshBasicMaterial color="#eef0f8" /></mesh>,
       ]))}
@@ -331,8 +535,8 @@ function Street() {
       <Crosswalk x={0} z={8} rot={0} len={12} />
       <Crosswalk x={8} z={0} rot={Math.PI / 2} len={12} />
       <Crosswalk x={-8} z={0} rot={Math.PI / 2} len={12} />
-      <Crosswalk x={0} z={0} rot={-Math.PI / 4} len={15} />
-      <Crosswalk x={0} z={0} rot={Math.PI / 4} len={15} />
+      {city.scramble && <Crosswalk x={0} z={0} rot={-Math.PI / 4} len={15} />}
+      {city.scramble && <Crosswalk x={0} z={0} rot={Math.PI / 4} len={15} />}
     </group>
   );
 }
@@ -420,7 +624,6 @@ function Signal({ x, z }: { x: number; z: number }) {
   );
 }
 
-const VENDING = [{ x: -9.55, z: -13, rot: Math.PI / 2 }, { x: 9.55, z: 13.5, rot: -Math.PI / 2 }];
 function Vending({ x, z, rot }: { x: number; z: number; rot: number }) {
   const tex = useMemo(() => canvasTex("vending", 128, 256, (g) => {
     g.fillStyle = "#e84b4b"; g.fillRect(0, 0, 128, 256);
@@ -447,9 +650,12 @@ function Vending({ x, z, rot }: { x: number; z: number; rot: number }) {
 
 const PLAYER_LOOK: Look = { skin: "#ffdcc4", hair: "#5a3a2c", hat: "#f7f4ee", top: "#f1ece2", pants: "#4d6c9c", shoes: "#6b4a3a", bag: "#34414f" };
 const R = 0.42;
-const TREE_S = TREES.map((_, i) => 0.9 + ((i * 37) % 10) / 30);
+const treeScale = (i: number) => 0.9 + ((i * 37) % 10) / 30;
+// Collision footprint (half sizes) of each New York street prop.
+const PROP_BOX: Record<Prop["kind"], [number, number]> = { steps: [5.2, 5.2], subway: [0.9, 2.2], hotdog: [1.1, 0.65], lamp: [0.18, 0.18] };
 
-function resolve(x: number, z: number) {
+// Collisions for a city: buildings, trees, props, signal poles, people and cars.
+const makeResolve = (city: City) => (x: number, z: number) => {
   const box = (cx: number, cz: number, hx: number, hz: number) => {
     const qx = Math.max(cx - hx, Math.min(x, cx + hx)), qz = Math.max(cz - hz, Math.min(z, cz + hz));
     const dx = x - qx, dz = z - qz, d2 = dx * dx + dz * dz;
@@ -462,26 +668,32 @@ function resolve(x: number, z: number) {
     const dx = x - cx, dz = z - cz, d = Math.hypot(dx, dz), m = r + R;
     if (d < m && d > 1e-5) { x = cx + (dx / d) * m; z = cz + (dz / d) * m; }
   };
-  for (const b of BUILDINGS) {
+  for (const b of city.buildings) {
     if (b.round) circle(b.x, b.z, b.w / 2 + 0.2);
     else box(b.x, b.z, b.w / 2 + 0.3, b.d / 2 + 0.3);
   }
-  TREES.forEach(([tx, tz], i) => box(tx, tz, 0.55 * TREE_S[i], 0.55 * TREE_S[i]));
+  city.trees.forEach(([tx, tz], i) => box(tx, tz, 0.55 * treeScale(i), 0.55 * treeScale(i)));
   for (const [sx, sz] of SIGNAL_POLES) circle(sx, sz, 0.12);
-  for (const v of VENDING) box(v.x, v.z, 0.45, 0.6);
+  for (const v of city.vending) box(v.x, v.z, 0.45, 0.6);
+  for (const pr of city.props) { const [hx, hz] = PROP_BOX[pr.kind]; box(pr.x, pr.z, hx, hz); }
   for (const n of store.npcs) if (n) circle(n.x, n.z, 0.35);
   for (const c of store.cars) box(c.x, c.z, c.hx, c.hz);
   x = Math.max(-BOUND, Math.min(BOUND, x));
   z = Math.max(-BOUND, Math.min(BOUND, z));
   return [x, z] as const;
-}
+};
 const angleLerp = (a: number, b: number, t: number) => {
   let d = ((b - a + Math.PI) % (Math.PI * 2)) - Math.PI;
   if (d < -Math.PI) d += Math.PI * 2;
   return a + d * t;
 };
 
-const STREET_ENV: Env = { resolve, ground: groundY, boom: boomLength, dist: 8.5, maxDist: 18 };
+const envCache = new Map<CityId, Env>();
+const cityEnv = (city: City): Env => {
+  let e = envCache.get(city.id);
+  if (!e) { e = { resolve: makeResolve(city), ground: groundY, boom: makeBoom(city), dist: 8.5, maxDist: 18 }; envCache.set(city.id, e); }
+  return e;
+};
 
 function Player({ env, runRef, onActivity }: { env: Env; runRef: MutableRefObject<boolean>; onActivity: (a: Activity) => void }) {
   const g = useRef<THREE.Group>(null!);
@@ -575,8 +787,7 @@ const PANTS = ["#46597a", "#5b4b3f", "#39495e", "#7a6a58", "#2f3a4a"];
 const HATS = [undefined, "#f4f1ea", undefined, "#e8836f", undefined, "#6f8fbf", undefined];
 const BAGS = [undefined, "#34414f", "#8a5b38", undefined, "#5d7f6a"];
 
-function Npc({ i }: { i: number }) {
-  const route = ROUTES[i];
+function Npc({ i, route }: { i: number; route: (typeof ROUTES)[number] }) {
   const look: Look = useMemo(() => ({
     skin: SKINS[i % SKINS.length], hair: HAIRS[(i * 3) % HAIRS.length], hat: HATS[i % HATS.length],
     top: TOPS[(i * 5) % TOPS.length], pants: PANTS[(i * 2) % PANTS.length], shoes: "#5a463a", bag: BAGS[i % BAGS.length],
@@ -623,7 +834,7 @@ const VEHICLES: Veh[] = [
 ];
 const LEN = { car: 3.6, taxi: 3.6, van: 4.2, bus: 8.5 };
 
-function VehicleBody({ kind, color }: { kind: Veh["kind"]; color: string }) {
+function VehicleBody({ kind, color, stripe = "#58b08a" }: { kind: Veh["kind"]; color: string; stripe?: string }) {
   const L = LEN[kind];
   const wheels = [-1, 1].flatMap((sx) => [-1, 1].map((sz) => [sx * 0.92, sz * L * 0.32] as const));
   const glass = "#43618a";
@@ -633,7 +844,7 @@ function VehicleBody({ kind, color }: { kind: Veh["kind"]; color: string }) {
         <>
           <RoundedBox args={[2.3, 2.5, L]} radius={0.25} position={[0, 1.55, 0]} castShadow>{std(color)}</RoundedBox>
           <RoundedBox args={[2.34, 0.8, L * 0.92]} radius={0.1} position={[0, 2.1, -0.1]}>{std(glass)}</RoundedBox>
-          <RoundedBox args={[2.34, 0.28, L]} radius={0.1} position={[0, 1.05, 0]}>{std("#58b08a")}</RoundedBox>
+          <RoundedBox args={[2.34, 0.28, L]} radius={0.1} position={[0, 1.05, 0]}>{std(stripe)}</RoundedBox>
         </>
       ) : (
         <>
@@ -659,7 +870,7 @@ function VehicleBody({ kind, color }: { kind: Veh["kind"]; color: string }) {
   );
 }
 
-function Vehicle({ v, idx }: { v: Veh; idx: number }) {
+function Vehicle({ v, idx, stripe }: { v: Veh; idx: number; stripe?: string }) {
   const g = useRef<THREE.Group>(null!);
   const s = useRef({ q: v.start, speed: 6 });
   const L = LEN[v.kind];
@@ -682,31 +893,33 @@ function Vehicle({ v, idx }: { v: Veh; idx: number }) {
     store.cars[idx] = v.axis === "x" ? { x: pos.x, z: pos.z, hx: L / 2, hz: 1.0 } : { x: pos.x, z: pos.z, hx: 1.0, hz: L / 2 };
   });
   const ry = v.axis === "x" ? (v.dir > 0 ? Math.PI / 2 : -Math.PI / 2) : v.dir > 0 ? 0 : Math.PI;
-  return <group ref={g} rotation={[0, ry, 0]}><VehicleBody kind={v.kind} color={v.color} /></group>;
+  return <group ref={g} rotation={[0, ry, 0]}><VehicleBody kind={v.kind} color={v.color} stripe={stripe} /></group>;
 }
 
 /* ---------- coins ---------- */
-function Coins({ onCoin }: { onCoin: () => void }) {
+function Coins({ city, onCoin }: { city: City; onCoin: () => void }) {
   const refs = useRef<(THREE.Group | null)[]>([]);
+  const coins = city.coins;
+  const got = (store.got[city.id] ??= coins.map(() => false));
   useFrame(({ clock }, dt) => {
     const t = clock.elapsedTime, p = store.player;
-    COINS.forEach(([x, z], i) => {
+    coins.forEach(([x, z], i) => {
       const g = refs.current[i];
       if (!g || !g.visible) return;
-      if (store.got[i]) {
+      if (got[i]) {
         g.position.y += dt * 4; g.scale.multiplyScalar(0.88);
         if (g.scale.x < 0.03) g.visible = false;
         return;
       }
       g.rotation.y = t * 2.4 + i;
       g.position.y = groundY(x, z) + 1 + Math.sin(t * 2.2 + i) * 0.12;
-      if (Math.hypot(p.x - x, p.z - z) < 1 && Math.abs(p.y + 1 - g.position.y) < 1.5) { store.got[i] = true; onCoin(); }
+      if (Math.hypot(p.x - x, p.z - z) < 1 && Math.abs(p.y + 1 - g.position.y) < 1.5) { got[i] = true; onCoin(); }
     });
   });
   return (
     <>
-      {COINS.map(([x, z], i) => (
-        <group key={i} position={[x, 1, z]} ref={(el) => { refs.current[i] = el; }} visible={!store.got[i]}>
+      {coins.map(([x, z], i) => (
+        <group key={i} position={[x, 1, z]} ref={(el) => { refs.current[i] = el; }} visible={!got[i]}>
           <mesh rotation={[Math.PI / 2, 0, 0]} castShadow>
             <cylinderGeometry args={[0.4, 0.4, 0.1, 28]} />
             <meshStandardMaterial color="#f4bf36" metalness={0.35} roughness={0.35} emissive="#c98a00" emissiveIntensity={0.35} />
@@ -772,12 +985,12 @@ function Sun() {
 }
 
 // Shorten the camera boom when a building sits between the character and the camera.
-function boomLength(tx: number, ty: number, tz: number, yaw: number, pitch: number, dist: number) {
+const makeBoom = (city: City) => (tx: number, ty: number, tz: number, yaw: number, pitch: number, dist: number) => {
   const ox = Math.sin(yaw), oz = Math.cos(yaw), cp = Math.cos(pitch), sp = Math.sin(pitch);
   const reach = cp * dist;
   let best = reach;
   const hit = (t: number, h: number) => { if (t > 0 && t < best && ty + (sp / cp) * t < h + 0.6) best = t; };
-  for (const b of BUILDINGS) {
+  for (const b of city.buildings) {
     if (b.round) {
       const r = b.w / 2 + 0.6, fx = tx - b.x, fz = tz - b.z;
       const bq = fx * ox + fz * oz, c = fx * fx + fz * fz - r * r, disc = bq * bq - c;
@@ -794,7 +1007,7 @@ function boomLength(tx: number, ty: number, tz: number, yaw: number, pitch: numb
     if (t0 <= t1) hit(t0, b.h);
   }
   return Math.max(1.5, (best / reach) * dist - (best < reach ? 0.3 : 0));
-}
+};
 
 function CameraRig({ env }: { env: Env }) {
   const { camera, gl, size } = useThree();
@@ -889,33 +1102,37 @@ function Interactions({ list, onNear }: { list: Interactable[]; onNear: (it: Int
 /* ---------- scene ---------- */
 type SceneProps = { scene: SceneId; runRef: MutableRefObject<boolean>; onCoin: () => void; onActivity: (a: Activity) => void; onNear: (it: Interactable | null) => void };
 
-function StreetScene({ onCoin }: { onCoin: () => void }) {
+function StreetScene({ city, onCoin }: { city: City; onCoin: () => void }) {
+  const nyc = city.style === "nyc";
+  // Diagonal crossings only exist where the city has a scramble crossing.
+  const routes = ROUTES.filter((r) => city.scramble || r.a[0] === r.b[0] || r.a[1] === r.b[1]);
   return (
     <>
       <fog attach="fog" args={[HORIZON, 48, 110]} />
       <Sky />
       <Sun />
-      <Street />
-      {BUILDINGS.map((b, i) => (b.round ? <RoundBuilding key={i} b={b} /> : <BoxBuilding key={i} b={b} i={i} />))}
-      {TREES.map(([x, z], i) => <Tree key={i} x={x} z={z} s={TREE_S[i]} />)}
+      <Street city={city} />
+      {city.buildings.map((b, i) => (b.round ? <RoundBuilding key={i} b={b} /> : <BoxBuilding key={i} b={b} i={i} city={city} />))}
+      {city.trees.map(([x, z], i) => <Tree key={i} x={x} z={z} s={treeScale(i)} />)}
       {SIGNAL_POLES.map(([x, z], i) => <Signal key={i} x={x} z={z} />)}
-      {VENDING.map((v, i) => <Vending key={i} {...v} />)}
-      {VEHICLES.map((v, i) => <Vehicle key={i} v={v} idx={i} />)}
-      {ROUTES.map((_, i) => <Npc key={i} i={i} />)}
-      <Coins onCoin={onCoin} />
+      {city.vending.map((v, i) => <Vending key={i} {...v} />)}
+      {city.props.map((p, i) => <StreetProp key={i} p={p} />)}
+      {VEHICLES.map((v, i) => <Vehicle key={i} v={{ ...v, ...city.vehicles[i] }} idx={i} stripe={nyc ? "#2f6db5" : undefined} />)}
+      {routes.map((r, i) => <Npc key={i} i={i} route={r} />)}
+      <Coins city={city} onCoin={onCoin} />
     </>
   );
 }
 
-const STREET_INTERACTABLES = streetInteractables();
-
 function Scene({ scene, runRef, onCoin, onActivity, onNear }: SceneProps) {
-  const inside = scene !== "street";
-  const env = useMemo(() => (inside ? interiorEnv() : STREET_ENV), [inside]);
-  const list = useMemo(() => (inside ? shopInteractables(SHOPS_BY_ID[scene]) : STREET_INTERACTABLES), [inside, scene]);
+  const inside = !isCity(scene);
+  const city = CITIES[isCity(scene) ? scene : SHOPS_BY_ID[scene].city];
+  store.city = city.id;
+  const env = useMemo(() => (inside ? interiorEnv() : cityEnv(city)), [inside, city]);
+  const list = useMemo(() => (isCity(scene) ? streetInteractables(scene) : shopInteractables(SHOPS_BY_ID[scene])), [scene]);
   return (
     <>
-      {inside ? <InteriorRoom shop={SHOPS_BY_ID[scene]} /> : <StreetScene onCoin={onCoin} />}
+      {isCity(scene) ? <StreetScene key={scene} city={city} onCoin={onCoin} /> : <InteriorRoom shop={SHOPS_BY_ID[scene]} />}
       <Player key={`p-${scene}`} env={env} runRef={runRef} onActivity={onActivity} />
       <CameraRig key={`c-${scene}`} env={env} />
       <Interactions list={list} onNear={onNear} />
