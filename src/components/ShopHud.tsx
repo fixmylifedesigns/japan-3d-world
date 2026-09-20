@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { CONVERSATIONS, speak, type Choice } from "./dialogue";
-import { CARDS, CARD_IDS, CLERK_NAMES, SET_NAME, SHOP_NAMES, cardName } from "./cards";
+import { CARDS, CARD_IDS, CITY_SET, CLERK_NAMES, SET_NAME, SHOP_NAMES, cardName } from "./cards";
 import { LANGS, isJapanese, pick, t, type Lang } from "./i18n";
 import { ITEMS, SHOPS, type Interactable, type ShopId } from "./shops";
 
@@ -143,7 +143,7 @@ export function TradingCard({ id, lang, locked = false }: { id: string; lang: La
       )}
       <footer>
         <span>No.{String(c.no).padStart(3, "0")}/{String(CARD_IDS.length).padStart(3, "0")}</span>
-        <span>{pick(SET_NAME, lang)}</span>
+        <span>{pick(CITY_SET[SHOPS[item.shop].city], lang)}</span>
         <Coin n={item.price} />
       </footer>
     </article>
