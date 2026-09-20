@@ -4,6 +4,7 @@
 import type { L, Lang } from "./i18n";
 import { pick } from "./i18n";
 import type { ShopId } from "./shops";
+import type { CityId } from "./cities";
 
 export type Card = {
   no: number;
@@ -16,15 +17,26 @@ export type Card = {
 };
 
 export const SET_NAME: L = { ja: "渋谷コレクション", kana: "しぶやコレクション", romaji: "Shibuya Korekushon", en: "Shibuya Collection", es: "Colección Shibuya", zh: "涩谷收藏", fr: "Collection Shibuya" };
+// Each city's cards form their own set.
+export const CITY_SET: Record<CityId, L> = {
+  street: SET_NAME,
+  timesq: { ja: "ニューヨークコレクション", kana: "ニューヨークコレクション", romaji: "Nyūyōku Korekushon", en: "New York Collection", es: "Colección Nueva York", zh: "纽约收藏", fr: "Collection New York" },
+};
 export const PLACE_NAME: L = { ja: "渋谷スクランブル交差点", kana: "しぶや スクランブル こうさてん", romaji: "Shibuya Sukuranburu Kōsaten", en: "Shibuya Crossing", es: "Cruce de Shibuya", zh: "涩谷十字路口", fr: "Carrefour de Shibuya" };
 
 export const SHOP_NAMES: Record<ShopId, L> = {
   konbini: { ja: "セブン-イレブン", kana: "セブン-イレブン", romaji: "Sebun-Irebun", en: "7-Eleven", es: "7-Eleven", zh: "7-11便利店", fr: "7-Eleven" },
   retro: { ja: "レトロゲーム", kana: "レトロゲーム", romaji: "Retoro Gēmu", en: "Retro Games", es: "Juegos Retro", zh: "复古游戏店", fr: "Jeux Rétro" },
+  gacha: { ja: "ガチャガチャ", kana: "ガチャガチャ", romaji: "Gachagacha", en: "Gachapon", es: "Gachapon", zh: "扭蛋店", fr: "Gachapon" },
+  deli: { ja: "デリ", kana: "デリ", romaji: "Deri", en: "Deli", es: "Deli", zh: "熟食店", fr: "Deli" },
+  pizza: { ja: "ピザ屋", kana: "ピザや", romaji: "Piza-ya", en: "Pizza Shop", es: "Pizzería", zh: "披萨店", fr: "Pizzeria" },
 };
 export const CLERK_NAMES: Record<ShopId, L> = {
   konbini: { ja: "ユキ", kana: "ユキ", romaji: "Yuki", en: "Yuki", es: "Yuki", zh: "由纪", fr: "Yuki" },
   retro: { ja: "ケン", kana: "ケン", romaji: "Ken", en: "Ken", es: "Ken", zh: "健", fr: "Ken" },
+  gacha: { ja: "ミカ", kana: "ミカ", romaji: "Mika", en: "Mika", es: "Mika", zh: "美香", fr: "Mika" },
+  deli: { ja: "ルイス", kana: "ルイス", romaji: "Ruisu", en: "Luis", es: "Luis", zh: "路易斯", fr: "Luis" },
+  pizza: { ja: "ジーナ", kana: "ジーナ", romaji: "Jīna", en: "Gina", es: "Gina", zh: "吉娜", fr: "Gina" },
 };
 
 export const CARDS: Record<string, Card> = {
@@ -123,6 +135,60 @@ export const CARDS: Record<string, Card> = {
     name: { ja: "ポケットモンスター クリスタル", kana: "ポケットモンスター クリスタル", romaji: "Poketto Monsutā Kurisutaru", en: "Pocket Monsters Crystal", es: "Pocket Monsters Cristal", zh: "宝可梦 水晶", fr: "Pocket Monsters Cristal" },
     desc: { ja: "ゲームボーイカラー専用。戦闘でモンスターが動き出す。", kana: "ゲームボーイカラー せんよう。せんとうで モンスターが うごきだす。", romaji: "Gēmu Bōi Karā sen'yō. Sentō de monsutā ga ugokidasu.", en: "Game Boy Color only. Monsters animate when a battle starts.", es: "Solo para Game Boy Color. Los monstruos se animan al empezar el combate.", zh: "Game Boy Color专用。战斗开始时怪兽会动起来。", fr: "Game Boy Color uniquement. Les monstres s'animent au début des combats." },
     history: { ja: "2000年12月14日発売。シリーズで初めて女の子の主人公を選べるようになった。", kana: "2000ねん 12がつ 14にち はつばい。シリーズで はじめて おんなのこの しゅじんこうを えらべるように なった。", romaji: "2000-nen 12-gatsu 14-nichi hatsubai. Shirīzu de hajimete onna no ko no shujinkō o eraberu yō ni natta.", en: "Released Dec 14, 2000. The first in the series to let you play as a girl.", es: "Salió el 14 de diciembre de 2000. El primero de la serie en permitir jugar como chica.", zh: "2000年12月14日发售。系列中首次可以选择女孩作为主角。", fr: "Sorti le 14 décembre 2000. Le premier de la série où l'on peut jouer une fille." },
+  },
+  "gacha-sushi-cat": {
+    no: 17, rarity: 3, image: "/cards/gacha-sushi-cat.svg",
+    name: { ja: "すしネコ", kana: "すしネコ", romaji: "Sushi Neko", en: "Sushi Cat", es: "Gato sushi", zh: "寿司猫", fr: "Chat sushi" },
+    desc: { ja: "鮭のにぎりの上でまるくなるネコのカプセルトイ。", kana: "さけの にぎりの うえで まるくなる ネコの カプセルトイ。", romaji: "Sake no nigiri no ue de maruku naru neko no kapuseru toi.", en: "A capsule toy of a cat curled up on salmon nigiri.", es: "Un juguete de cápsula: un gato acurrucado sobre un nigiri de salmón.", zh: "一只蜷在鲑鱼握寿司上的猫咪扭蛋。", fr: "Un jouet en capsule : un chat roulé en boule sur un nigiri au saumon." },
+    history: { ja: "ガチャガチャという名前は、ハンドルを回す「ガチャ」という音から。1960年代に日本に広まった。", kana: "ガチャガチャという なまえは、ハンドルを まわす「ガチャ」という おとから。1960ねんだいに にほんに ひろまった。", romaji: "Gachagacha to iu namae wa, handoru o mawasu \"gacha\" to iu oto kara. 1960-nendai ni Nihon ni hiromatta.", en: "Gachapon is named for the \"gacha\" sound of turning the crank. The machines spread across Japan in the 1960s.", es: "Gachapon viene del sonido \"gacha\" al girar la manivela. Las máquinas se extendieron por Japón en los años 60.", zh: "扭蛋的日文名字来自转动手柄时\u201c咔嚓\u201d的声音。扭蛋机在20世纪60年代传遍日本。", fr: "Le nom vient du bruit \"gacha\" de la manivelle. Les machines se sont répandues au Japon dans les années 1960." },
+  },
+  "gacha-shinkansen": {
+    no: 18, rarity: 4, image: "/cards/gacha-shinkansen.svg",
+    name: { ja: "ミニ新幹線", kana: "ミニしんかんせん", romaji: "Mini Shinkansen", en: "Mini Bullet Train", es: "Mini tren bala", zh: "迷你新干线", fr: "Mini TGV japonais" },
+    desc: { ja: "ポケットサイズの新幹線。うしろに引くと走り出す。", kana: "ポケットサイズの しんかんせん。うしろに ひくと はしりだす。", romaji: "Poketto saizu no shinkansen. Ushiro ni hiku to hashiridasu.", en: "A pocket-sized bullet train. Pull it back and it zooms off.", es: "Un tren bala de bolsillo. Tira hacia atrás y sale disparado.", zh: "口袋大小的新干线。往后一拉就会跑起来。", fr: "Un train à grande vitesse de poche. Tirez-le en arrière et il file." },
+    history: { ja: "新幹線は1964年、東京オリンピックの年に東京と新大阪の間で走り始めた。", kana: "しんかんせんは 1964ねん、とうきょう オリンピックの としに とうきょうと しんおおさかの あいだで はしりはじめた。", romaji: "Shinkansen wa 1964-nen, Tōkyō Orinpikku no toshi ni Tōkyō to Shin-Ōsaka no aida de hashirihajimeta.", en: "The Shinkansen began running between Tokyo and Shin-Osaka in 1964, the year of the Tokyo Olympics.", es: "El Shinkansen empezó a circular entre Tokio y Shin-Osaka en 1964, el año de los Juegos de Tokio.", zh: "新干线于1964年东京奥运会那年开通，连接东京和新大阪。", fr: "Le Shinkansen a été mis en service entre Tokyo et Shin-Osaka en 1964, l'année des JO de Tokyo." },
+  },
+  "gacha-daruma": {
+    no: 19, rarity: 2, image: "/cards/gacha-daruma.svg",
+    name: { ja: "だるま", kana: "だるま", romaji: "Daruma", en: "Lucky Daruma", es: "Daruma de la suerte", zh: "达摩不倒翁", fr: "Daruma porte-bonheur" },
+    desc: { ja: "願いごとをする小さな赤いだるま。", kana: "ねがいごとを する ちいさな あかい だるま。", romaji: "Negaigoto o suru chiisana akai daruma.", en: "A tiny red daruma for making wishes.", es: "Un pequeño daruma rojo para pedir deseos.", zh: "用来许愿的红色小达摩。", fr: "Un petit daruma rouge pour faire des vœux." },
+    history: { ja: "目標を決めたら片方の目を、かなったらもう片方の目を書き入れる。", kana: "もくひょうを きめたら かたほうの めを、かなったら もうかたほうの めを かきいれる。", romaji: "Mokuhyō o kimetara katahō no me o, kanattara mō katahō no me o kakiireru.", en: "Paint in one eye when you set a goal, and the other when it comes true.", es: "Se pinta un ojo al fijar una meta y el otro cuando se cumple.", zh: "定下目标时画上一只眼睛，实现后再画上另一只。", fr: "On peint un œil en se fixant un but, et l'autre quand il est atteint." },
+  },
+  bec: {
+    no: 20, rarity: 2, image: "/cards/bec.svg",
+    name: { ja: "ベーコンエッグチーズ", kana: "ベーコンエッグチーズ", romaji: "Bēkon Eggu Chīzu", en: "Bacon, Egg & Cheese", es: "Bacon, huevo y queso", zh: "培根鸡蛋芝士", fr: "Bacon, œuf et fromage" },
+    desc: { ja: "カイザーロールにベーコン、目玉焼き、とろけるチーズ。", kana: "カイザーロールに ベーコン、めだまやき、とろける チーズ。", romaji: "Kaizā rōru ni bēkon, medamayaki, torokeru chīzu.", en: "Bacon, a fried egg and melted cheese on a kaiser roll.", es: "Bacon, huevo frito y queso fundido en un pan kaiser.", zh: "凯撒面包夹培根、煎蛋和融化的芝士。", fr: "Bacon, œuf au plat et fromage fondu dans un pain kaiser." },
+    history: { ja: "ニューヨークのデリの朝ごはんの定番。「BEC」と呼ばれ、塩・こしょう・ケチャップで食べる人が多い。", kana: "ニューヨークの デリの あさごはんの ていばん。「BEC」と よばれ、しお・こしょう・ケチャップで たべる ひとが おおい。", romaji: "Nyūyōku no deri no asagohan no teiban. \"BEC\" to yobare, shio, koshō, kechappu de taberu hito ga ōi.", en: "The classic New York deli breakfast. Locals call it a \"BEC\" and often add salt, pepper and ketchup.", es: "El desayuno clásico de los delis de Nueva York. Lo llaman \"BEC\" y suelen añadir sal, pimienta y kétchup.", zh: "纽约熟食店的经典早餐，当地人叫它\u201cBEC\u201d，常加盐、胡椒和番茄酱。", fr: "Le petit-déjeuner classique des delis new-yorkais, surnommé « BEC », souvent avec sel, poivre et ketchup." },
+  },
+  "chopped-cheese": {
+    no: 21, rarity: 3, image: "/cards/chopped-cheese.svg",
+    name: { ja: "チョップドチーズ", kana: "チョップドチーズ", romaji: "Choppudo Chīzu", en: "Chopped Cheese", es: "Chopped cheese", zh: "碎牛肉芝士三明治", fr: "Chopped cheese" },
+    desc: { ja: "鉄板で刻んだ牛ひき肉と玉ねぎとチーズをヒーロー・ロールに。", kana: "てっぱんで きざんだ ぎゅうひきにくと たまねぎと チーズを ヒーロー・ロールに。", romaji: "Teppan de kizanda gyū-hikiniku to tamanegi to chīzu o hīrō rōru ni.", en: "Ground beef, onions and cheese chopped on the grill, on a hero roll.", es: "Carne picada, cebolla y queso picados en la plancha, en un pan hero.", zh: "在铁板上剁碎的牛肉末、洋葱和芝士，夹在长面包里。", fr: "Bœuf haché, oignons et fromage hachés sur la plaque, dans un pain hero." },
+    history: { ja: "イースト・ハーレムのデリで生まれたと言われる、ニューヨークのデリの名物。", kana: "イースト・ハーレムの デリで うまれたと いわれる、ニューヨークの デリの めいぶつ。", romaji: "Īsuto Hāremu no deri de umareta to iwareru, Nyūyōku no deri no meibutsu.", en: "A New York deli favorite said to have started at a deli in East Harlem.", es: "Un favorito de los delis de Nueva York que, según dicen, nació en un deli de East Harlem.", zh: "据说起源于东哈莱姆区的一家熟食店，是纽约熟食店的招牌。", fr: "Un classique des delis new-yorkais, né, dit-on, dans un deli d'East Harlem." },
+  },
+  "bagel-cc": {
+    no: 22, rarity: 1, image: "/cards/bagel-cc.svg",
+    name: { ja: "ベーグル＆クリームチーズ", kana: "ベーグル＆クリームチーズ", romaji: "Bēguru & Kurīmu Chīzu", en: "Bagel & Cream Cheese", es: "Bagel con queso crema", zh: "贝果配奶油奶酪", fr: "Bagel au cream cheese" },
+    desc: { ja: "トーストしたエブリシング・ベーグルにクリームチーズたっぷり。", kana: "トーストした エブリシング・ベーグルに クリームチーズ たっぷり。", romaji: "Tōsuto shita eburishingu bēguru ni kurīmu chīzu tappuri.", en: "A toasted everything bagel with a thick schmear of cream cheese.", es: "Un bagel \"everything\" tostado con mucho queso crema.", zh: "烤过的全料贝果，抹上厚厚的奶油奶酪。", fr: "Un bagel « everything » grillé avec une bonne couche de cream cheese." },
+    history: { ja: "ベーグルは19世紀の終わりごろ、東ヨーロッパからのユダヤ系移民によってニューヨークに伝わった。", kana: "ベーグルは 19せいきの おわりごろ、ひがしヨーロッパからの ユダヤけい いみんに よって ニューヨークに つたわった。", romaji: "Bēguru wa 19-seiki no owari goro, Higashi Yōroppa kara no Yudaya-kei imin ni yotte Nyūyōku ni tsutawatta.", en: "Bagels came to New York with Jewish immigrants from Eastern Europe in the late 1800s.", es: "Los bagels llegaron a Nueva York con inmigrantes judíos de Europa del Este a finales del siglo XIX.", zh: "贝果在19世纪末随东欧犹太移民传入纽约。", fr: "Les bagels sont arrivés à New York avec les immigrés juifs d'Europe de l'Est à la fin du XIXe siècle." },
+  },
+  "cheese-slice": {
+    no: 23, rarity: 1, image: "/cards/cheese-slice.svg",
+    name: { ja: "チーズピザ", kana: "チーズピザ", romaji: "Chīzu Piza", en: "Cheese Slice", es: "Porción de queso", zh: "芝士披萨", fr: "Part de pizza au fromage" },
+    desc: { ja: "大きくて薄い、折りたたんで食べるニューヨークのピザ。", kana: "おおきくて うすい、おりたたんで たべる ニューヨークの ピザ。", romaji: "Ōkikute usui, oritatande taberu Nyūyōku no piza.", en: "A big, thin New York slice you fold to eat.", es: "Una porción grande y fina de Nueva York que se dobla para comer.", zh: "又大又薄、要对折着吃的纽约披萨。", fr: "Une grande part fine à la new-yorkaise, qu'on plie pour la manger." },
+    history: { ja: "ニューヨークでは1900年代のはじめにピザ屋が開店し、大きな一切れが街の名物になった。", kana: "ニューヨークでは 1900ねんだいの はじめに ピザやが かいてんし、おおきな ひときれが まちの めいぶつに なった。", romaji: "Nyūyōku de wa 1900-nendai no hajime ni piza-ya ga kaiten shi, ōkina hitokire ga machi no meibutsu ni natta.", en: "New York's first pizzerias opened in the early 1900s, and the big slice became a city icon.", es: "Las primeras pizzerías de Nueva York abrieron a principios del siglo XX y la gran porción se volvió un icono.", zh: "纽约的第一批披萨店开在20世纪初，大块披萨成了这座城市的标志。", fr: "Les premières pizzerias de New York ont ouvert au début du XXe siècle, et la grande part est devenue une icône." },
+  },
+  "pepperoni-slice": {
+    no: 24, rarity: 2, image: "/cards/pepperoni-slice.svg",
+    name: { ja: "ペパロニピザ", kana: "ペパロニピザ", romaji: "Peparoni Piza", en: "Pepperoni Slice", es: "Porción de pepperoni", zh: "意式辣香肠披萨", fr: "Part au pepperoni" },
+    desc: { ja: "焼けてカップ形になったペパロニがのった定番。", kana: "やけて カップがたに なった ペパロニが のった ていばん。", romaji: "Yakete kappu-gata ni natta peparoni ga notta teiban.", en: "The classic, topped with pepperoni baked into crispy cups.", es: "La clásica, con pepperoni que se dora en forma de copita.", zh: "经典口味，辣香肠烤得卷成酥脆的小碗状。", fr: "La classique, avec du pepperoni qui grille en petites coupelles." },
+    history: { ja: "ペパロニはアメリカでいちばん人気のあるピザのトッピングの一つ。", kana: "ペパロニは アメリカで いちばん にんきの ある ピザの トッピングの ひとつ。", romaji: "Peparoni wa Amerika de ichiban ninki no aru piza no toppingu no hitotsu.", en: "Pepperoni is one of the most popular pizza toppings in the United States.", es: "El pepperoni es uno de los ingredientes de pizza más populares de Estados Unidos.", zh: "辣香肠是美国最受欢迎的披萨配料之一。", fr: "Le pepperoni est l'une des garnitures de pizza les plus populaires aux États-Unis." },
+  },
+  "garlic-knots": {
+    no: 25, rarity: 2, image: "/cards/garlic-knots.svg",
+    name: { ja: "ガーリックノット", kana: "ガーリックノット", romaji: "Gārikku Notto", en: "Garlic Knots", es: "Nudos de ajo", zh: "蒜香面包结", fr: "Nœuds à l'ail" },
+    desc: { ja: "結んだ生地を焼いて、ガーリックバターとパセリをぬったもの。", kana: "むすんだ きじを やいて、ガーリックバターと パセリを ぬった もの。", romaji: "Musunda kiji o yaite, gārikku batā to paseri o nutta mono.", en: "Knotted dough, baked and brushed with garlic butter and parsley.", es: "Masa anudada, horneada y pintada con mantequilla de ajo y perejil.", zh: "打成结的面团烤好后，刷上蒜香黄油和欧芹。", fr: "Pâte nouée, cuite puis badigeonnée de beurre à l'ail et de persil." },
+    history: { ja: "ピザ生地の残りを使うために、ニューヨークのピザ屋で生まれたと言われる。", kana: "ピザきじの のこりを つかう ために、ニューヨークの ピザやで うまれたと いわれる。", romaji: "Piza kiji no nokori o tsukau tame ni, Nyūyōku no piza-ya de umareta to iwareru.", en: "Said to have started in New York pizzerias as a way to use leftover dough.", es: "Dicen que nacieron en pizzerías de Nueva York para aprovechar la masa sobrante.", zh: "据说起源于纽约的披萨店，用来消耗剩余的面团。", fr: "Nés, dit-on, dans les pizzerias new-yorkaises pour utiliser les restes de pâte." },
   },
 };
 export const CARD_IDS = Object.keys(CARDS).sort((a, b) => CARDS[a].no - CARDS[b].no);
