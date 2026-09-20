@@ -787,7 +787,9 @@ function boomLength(tx: number, ty: number, tz: number, yaw: number, pitch: numb
 }
 
 function CameraRig({ env }: { env: Env }) {
-  const { camera, gl } = useThree();
+  const { camera, gl, size } = useThree();
+  const inset = useRef(0);
+  useEffect(() => () => (camera as THREE.PerspectiveCamera).clearViewOffset(), [camera]);
   const s = useRef({ pitch: env.pitch ?? 0.3, saved: null as number | null, dist: env.dist, cur: env.dist, drag: false, lx: 0, ly: 0, tgt: new THREE.Vector3(store.player.x, 1.5, store.player.z) });
   useEffect(() => {
     const el = gl.domElement, st = s.current;
@@ -836,6 +838,15 @@ function CameraRig({ env }: { env: Env }) {
       st.tgt.z + Math.cos(store.camYaw) * cp * st.cur,
     );
     camera.lookAt(st.tgt);
+    // While a panel covers the bottom of the screen, shift the picture up so the focused thing sits in the visible part.
+    const want2 = f ? store.viewInset : 0;
+    const next = Math.abs(want2 - inset.current) < 0.5 ? want2 : inset.current + (want2 - inset.current) * (1 - Math.exp(-dt * 8));
+    const cam = camera as THREE.PerspectiveCamera;
+    if (next !== inset.current || (next > 0 && cam.view?.fullWidth !== size.width)) {
+      inset.current = next;
+      if (next > 0.5) cam.setViewOffset(size.width, size.height, 0, next / 2, size.width, size.height);
+      else cam.clearViewOffset();
+    }
   });
   return null;
 }

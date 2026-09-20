@@ -4,7 +4,7 @@ import { BUILDINGS, type Face } from "./worldData";
 import type { Look } from "./art";
 
 export type ShopId = "konbini" | "retro";
-export type ItemModel = "onigiri" | "bento" | "sando" | "handheld" | "cart" | "console" | "disc";
+export type ItemModel = "onigiri" | "bento" | "sando" | "handheld" | "cart" | "console" | "disc" | "box";
 
 export type Item = {
   id: string;
@@ -15,6 +15,7 @@ export type Item = {
   model: ItemModel;
   color: string; // wrapper / label / body color
   label?: string; // text printed on carts and disc cases
+  image?: string; // box art shown standing on the shelf (model "box")
 };
 
 export type Shop = {
@@ -27,7 +28,7 @@ export type Shop = {
   sign: { text: string; bg: string; fg: string };
   theme: { wall: string; trim: string; band: string; floorA: string; floorB: string; accent: string; light: string };
   clerk: { name: string; look: Look };
-  items: Item[]; // up to 6: first 3 go on the center gondola, the rest in the wall case
+  items: Item[]; // up to 12, in SLOTS order: center gondola, wall case, then the rack by the left wall
 };
 
 export const SHOPS: Record<ShopId, Shop> = {
@@ -65,6 +66,12 @@ export const SHOPS: Record<ShopId, Shop> = {
       { id: "ps2", name: "PlayStation 2", jp: "プレイステーション2", price: 15, model: "console", color: "#1e2230", desc: "Black tower, blue light, DVD drive. Comes with one controller." },
       { id: "ps2-shadow-ninja", name: "Shadow Ninja (PS2)", jp: "シャドウニンジャ", price: 5, model: "disc", color: "#2d3a8c", label: "SHADOW NINJA", desc: "Stealth action across the rooftops of old Edo." },
       { id: "ps2-street-racer", name: "Tokyo Street Racer (PS2)", jp: "東京ストリートレーサー", price: 5, model: "disc", color: "#c0392b", label: "STREET RACER", desc: "Night races on the Shuto expressway. The car list is huge." },
+      { id: "pokemon-red", name: "Pocket Monsters Red", jp: "ポケモン 赤", price: 6, model: "box", color: "#e8433a", image: "/cards/boxes/pokemon-red.webp", desc: "Boxed Game Boy copy of Pocket Monsters Red." },
+      { id: "pokemon-green", name: "Pocket Monsters Green", jp: "ポケモン 緑", price: 6, model: "box", color: "#2e9b5a", image: "/cards/boxes/pokemon-green.webp", desc: "Boxed Game Boy copy of Pocket Monsters Green." },
+      { id: "pokemon-blue", name: "Pocket Monsters Blue", jp: "ポケモン 青", price: 7, model: "box", color: "#2f7de1", image: "/cards/boxes/pokemon-blue.webp", desc: "Boxed Game Boy copy of Pocket Monsters Blue." },
+      { id: "pokemon-gold", name: "Pocket Monsters Gold", jp: "ポケモン 金", price: 8, model: "box", color: "#d9a520", image: "/cards/boxes/pokemon-gold.webp", desc: "Boxed Game Boy Color copy of Pocket Monsters Gold." },
+      { id: "pokemon-silver", name: "Pocket Monsters Silver", jp: "ポケモン 銀", price: 8, model: "box", color: "#9aa3b5", image: "/cards/boxes/pokemon-silver.webp", desc: "Boxed Game Boy Color copy of Pocket Monsters Silver." },
+      { id: "pokemon-crystal", name: "Pocket Monsters Crystal", jp: "ポケモン クリスタル", price: 10, model: "box", color: "#5aa9e6", image: "/cards/boxes/pokemon-crystal.webp", desc: "Boxed Game Boy Color copy of Pocket Monsters Crystal." },
     ],
   },
 };
@@ -91,18 +98,26 @@ export const COUNTER = { x: -3.3, z: -3.2, hw: 1.8, hd: 0.5, h: 1.05 };
 export const CLERK_POS = { x: -3.3, z: -4.3 };
 export const GONDOLA = { x: 2.3, z: -1.2, hw: 0.5, hd: 2.8, h: 1.0 };
 export const CASE = { x: 5.85, z: -1.2, hw: 0.6, hd: 2.8, h: 1.0 };
-export const RACK = { x: -6.1, z: 1.5, hw: 0.4, hd: 2.2, h: 1.6 }; // magazine / cartridge rack on the left wall
-export const SLOTS: { x: number; z: number; face: number }[] = [
-  { x: 2.3, z: -3.0, face: -Math.PI / 2 }, { x: 2.3, z: -1.2, face: -Math.PI / 2 }, { x: 2.3, z: 0.6, face: -Math.PI / 2 },
-  { x: 5.75, z: -3.0, face: -Math.PI / 2 }, { x: 5.75, z: -1.2, face: -Math.PI / 2 }, { x: 5.75, z: 0.6, face: -Math.PI / 2 },
+export const RACK = { x: -6.1, z: 1.4, hw: 0.4, hd: 2.9, h: 1.6 }; // magazine / cartridge rack on the left wall
+// Where each item sits: position on the fixture top (y), which way it faces, and how far its front edge is.
+export type Slot = { x: number; z: number; y: number; face: number; edge: number };
+const onGondola = (z: number): Slot => ({ x: 2.3, z, y: GONDOLA.h, face: -Math.PI / 2, edge: 0.5 });
+const inCase = (z: number): Slot => ({ x: 5.75, z, y: CASE.h, face: -Math.PI / 2, edge: 0.5 });
+const onRack = (z: number): Slot => ({ x: RACK.x, z, y: RACK.h, face: Math.PI / 2, edge: RACK.hw });
+export const SLOTS: Slot[] = [
+  onGondola(-3.0), onGondola(-1.2), onGondola(0.6),
+  inCase(-3.0), inCase(-1.2), inCase(0.6),
+  onRack(-1.0), onRack(0.0), onRack(1.0), onRack(2.0), onRack(3.0), onRack(4.0),
 ];
+const STAND = 1.15; // how far in front of an item the player stands to look at it
 export const INSIDE_SPAWN = { x: 0, z: 2.4, ry: Math.PI };
 
 // Camera framing for looking at an item on its shelf, or for talking to the clerk from where the player stands.
 export function itemFocus(itemId: string) {
   const shop = SHOP_LIST.find((s) => s.items.some((it) => it.id === itemId))!;
   const i = shop.items.findIndex((it) => it.id === itemId), s = SLOTS[i];
-  return { x: s.x, y: (i < 3 ? GONDOLA.h : CASE.h) + 0.22, z: s.z, yaw: s.face, pitch: 0.32, dist: 1.8, hidePlayer: true };
+  const tall = shop.items[i].model === "box";
+  return { x: s.x, y: s.y + (tall ? 0.4 : 0.22), z: s.z, yaw: s.face, pitch: tall ? 0.2 : 0.32, dist: tall ? 2 : 1.8, hidePlayer: true };
 }
 export function clerkFocus(px: number, pz: number) {
   return { x: CLERK_POS.x, y: 1.15, z: CLERK_POS.z, yaw: Math.atan2(px - CLERK_POS.x, pz - CLERK_POS.z) + 0.8, pitch: 0.14, dist: 4 };
@@ -127,7 +142,7 @@ export function shopInteractables(shop: Shop): Interactable[] {
     { kind: "clerk", id: "clerk", x: COUNTER.x, z: COUNTER.z + COUNTER.hd + 0.7, r: 1.5, shop: shop.id },
     ...shop.items.map((it, i) => {
       const s = SLOTS[i];
-      return { kind: "item" as const, id: it.id, x: s.x - 1.15, z: s.z, r: 0.9, shop: shop.id, item: it.id };
+      return { kind: "item" as const, id: it.id, x: s.x + Math.sin(s.face) * STAND, z: s.z + Math.cos(s.face) * STAND, r: 0.9, shop: shop.id, item: it.id };
     }),
   ];
 }
