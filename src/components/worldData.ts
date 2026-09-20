@@ -47,7 +47,7 @@ export const phase = (t: number) => {
 };
 
 export type Activity = "idle" | "walk" | "run" | "jump";
-export type SceneId = "street" | "konbini" | "retro";
+export type SceneId = "street" | "timesq" | "konbini" | "retro"; // "street" is Shibuya
 
 // A walkable space: collisions, ground height and how far the follow camera may pull back.
 export type Env = {
@@ -70,5 +70,6 @@ export const store = {
   focus: null as null | { x: number; y: number; z: number; yaw: number; pitch: number; dist: number; hidePlayer?: boolean },
   npcs: [] as { x: number; z: number }[],
   cars: [] as { x: number; z: number; hx: number; hz: number }[],
-  got: COINS.map(() => false),
+  got: {} as Record<string, boolean[]>, // collected coins, per city
+  city: "street" as string, // city the player is in (or whose shop they are inside)
 };
