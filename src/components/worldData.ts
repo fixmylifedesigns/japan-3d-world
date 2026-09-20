@@ -1,6 +1,6 @@
 // Shared layout + tiny runtime store used by both the 3D scene and the HUD.
 export type Face = "n" | "s" | "e" | "w";
-export type Building = { x: number; z: number; w: number; d: number; h: number; color: string; faces: Face[]; round?: boolean };
+export type Building = { x: number; z: number; w: number; d: number; h: number; color: string; faces: Face[]; round?: boolean; ads?: string[] };
 
 export const ROAD = 6; // half-width of both roads
 export const BOUND = 38; // walkable area half-size
@@ -47,7 +47,7 @@ export const phase = (t: number) => {
 };
 
 export type Activity = "idle" | "walk" | "run" | "jump";
-export type SceneId = "street" | "timesq" | "konbini" | "retro"; // "street" is Shibuya
+export type SceneId = "street" | "timesq" | "konbini" | "retro" | "gacha" | "deli" | "pizza"; // "street" is Shibuya
 
 // A walkable space: collisions, ground height and how far the follow camera may pull back.
 export type Env = {
