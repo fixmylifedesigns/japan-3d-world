@@ -30,6 +30,11 @@ export function Minimap({ caption, city }: { caption: string; city: City }) {
         g.beginPath(); g.moveTo(X(a), Y(b)); g.lineTo(X(c2), Y(d)); g.stroke();
       }
       g.setLineDash([]);
+      if (city.plaza) {
+        const { a: [ax, az], b: [bx, bz], w } = city.plaza;
+        g.strokeStyle = "#a9a39b"; g.lineWidth = w * S; g.lineCap = "butt";
+        g.beginPath(); g.moveTo(X(ax), Y(az)); g.lineTo(X(bx), Y(bz)); g.stroke();
+      }
       for (const b of city.buildings) {
         g.fillStyle = b.color; g.strokeStyle = "rgba(60,60,80,.18)"; g.lineWidth = 1;
         g.beginPath();
