@@ -100,6 +100,12 @@ export const UI = {
   history: { ja: "歴史", kana: "れきし", romaji: "Rekishi", en: "History", es: "Historia", zh: "历史", fr: "Histoire" },
   story: { ja: "くわしい話は近日公開", kana: "くわしい はなしは きんじつ こうかい", romaji: "Kuwashii hanashi wa kinjitsu kōkai", en: "Full story coming soon", es: "Historia completa próximamente", zh: "完整故事即将推出", fr: "Histoire complète bientôt" },
   talkTo: { ja: "{name}と話す", kana: "{name}と はなす", romaji: "{name} to hanasu", en: "Talk to {name}", es: "Hablar con {name}", zh: "和{name}说话", fr: "Parler à {name}" },
+  music: { ja: "音楽", kana: "おんがく", romaji: "Ongaku", en: "Music", es: "Música", zh: "音乐", fr: "Musique" },
+  play: { ja: "再生", kana: "さいせい", romaji: "Saisei", en: "Play", es: "Reproducir", zh: "播放", fr: "Lecture" },
+  pause: { ja: "一時停止", kana: "いちじ ていし", romaji: "Ichiji teishi", en: "Pause", es: "Pausa", zh: "暂停", fr: "Pause" },
+  nextTrack: { ja: "次の曲", kana: "つぎの きょく", romaji: "Tsugi no kyoku", en: "Next track", es: "Siguiente pista", zh: "下一首", fr: "Piste suivante" },
+  prevTrack: { ja: "前の曲", kana: "まえの きょく", romaji: "Mae no kyoku", en: "Previous track", es: "Pista anterior", zh: "上一首", fr: "Piste précédente" },
+  volume: { ja: "音量", kana: "おんりょう", romaji: "Onryō", en: "Volume", es: "Volumen", zh: "音量", fr: "Volume" },
 } satisfies Record<string, L>;
 export type UIKey = keyof typeof UI;
 export const t = (key: UIKey, lang: Lang, vars?: Record<string, string | number>) => pick(UI[key], lang, vars);

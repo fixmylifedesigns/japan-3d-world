@@ -24,6 +24,7 @@ export type City = {
   props: Prop[];
   coins: [number, number][];
   scramble: boolean; // diagonal crosswalks and diagonal pedestrian routes
+  music?: string; // folder under public/music whose songs play here
   plaza?: Plaza;
   vehicles: CityVehicle[]; // one per traffic lane
   spawn: Spawn;
@@ -50,6 +51,7 @@ const SHIBUYA: City = {
   props: [],
   coins: COINS,
   scramble: true,
+  music: "japan",
   vehicles: [
     { kind: "taxi", color: "#f6c945" },
     { kind: "car", color: "#f39ab7" },
@@ -117,6 +119,7 @@ const TIMES_SQUARE: City = {
   ],
   coins: [[0, 0], [0, -12], [-12, 0], [12, 0], [0, 12], [-20, -8.2], [20, 8.2], [-8.2, 18], [30, -8], [-32, 8.2], [18, -8], [-9, -22]],
   scramble: false,
+  music: "newyork",
   vehicles: [
     { kind: "taxi", color: "#f6c945" },
     { kind: "taxi", color: "#f6c945" },

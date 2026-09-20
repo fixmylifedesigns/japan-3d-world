@@ -198,6 +198,33 @@ button.info:hover b { text-decoration: underline; }
 .mini .qty { position: absolute; top: 7px; right: 7px; font-size: 10px; font-weight: 800; background: var(--ink); color: #fff; border-radius: 999px; padding: 1px 6px; }
 .mini .mname { font-size: 11px; font-weight: 700; color: #fff; line-height: 1.2; min-height: 2.4em; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3); }
 
+/* ---------- music player ---------- */
+.musicbtn { position: relative; width: 34px; height: 34px; display: grid; place-items: center; border: 0; background: none; border-radius: 10px; color: var(--ink); }
+.musicbtn:hover { background: rgba(47, 53, 66, 0.06); }
+.musicbtn[aria-expanded="true"] { background: rgba(47, 53, 66, 0.1); }
+.musicbtn.on { color: var(--go); }
+.musicbtn .bars { position: absolute; right: 3px; bottom: 3px; display: flex; align-items: flex-end; gap: 1px; height: 8px; }
+.musicbtn .bars i { width: 2px; height: 3px; border-radius: 1px; background: var(--go); animation: eq .9s ease-in-out infinite; }
+.musicbtn .bars i:nth-child(2) { animation-delay: .15s; }
+.musicbtn .bars i:nth-child(3) { animation-delay: .3s; }
+@keyframes eq { 50% { height: 8px; } }
+.musicpanel { position: absolute; right: 52px; top: 50%; transform: translateY(-50%); width: 206px; display: flex; flex-direction: column; gap: 8px; z-index: 6; }
+.musicpanel header { display: flex; align-items: center; justify-content: space-between; }
+.musicpanel header b { font-size: 13px; }
+.musicpanel .x { border: 0; background: none; font-size: 18px; line-height: 1; color: var(--muted); padding: 0 2px; }
+.musicpanel .track { margin: 0; font-size: 13px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.musicpanel .transport { display: flex; align-items: center; justify-content: center; gap: 10px; }
+.musicpanel .transport button { width: 32px; height: 32px; border-radius: 50%; border: 1px solid var(--edge); background: #f6f3ec; display: grid; place-items: center; }
+.musicpanel .transport button:hover { background: #ece6d9; }
+.musicpanel .transport .big { width: 42px; height: 42px; border: 0; background: var(--go); color: #fff; }
+.musicpanel .transport .big:hover { background: #26674a; }
+.musicpanel .vol { display: flex; align-items: center; gap: 8px; font-size: 11px; color: var(--muted); }
+.musicpanel .vol input { flex: 1; accent-color: var(--go); }
+.musicpanel .tracklist { list-style: none; margin: 0; padding: 0; max-height: 132px; overflow-y: auto; display: flex; flex-direction: column; gap: 2px; }
+.musicpanel .tracklist button { width: 100%; text-align: left; border: 0; background: none; border-radius: 8px; padding: 5px 8px; font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.musicpanel .tracklist button:hover { background: rgba(47, 53, 66, 0.06); }
+.musicpanel .tracklist button.on { background: var(--go); color: #fff; font-weight: 700; }
+
 /* ---------- guide (Hana) ---------- */
 .guidebtn { position: relative; border: 0; padding: 0; background: none; border-radius: 50%; box-shadow: var(--shadow); transition: transform .15s; }
 .guidebtn:hover { transform: scale(1.06); }
@@ -279,6 +306,7 @@ button.place:hover { background: #fff; }
   .map canvas { width: 96px; height: 96px; }
   .map figcaption { display: none; }
   .bc { left: auto; right: 124px; transform: none; }
+  .musicpanel { right: 46px; width: min(206px, calc(100vw - 70px)); }
   .quest { width: 200px; }
   .hint { display: none; }
 }
