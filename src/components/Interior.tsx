@@ -3,7 +3,7 @@
 // so each store looks different while the room, counter and displays stay in the same places.
 import { useFrame } from "@react-three/fiber";
 import { RoundedBox } from "@react-three/drei";
-import { useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 import { Chibi, JP, aspect, canvasTex, hSign, repeated, rng, shade, std, type Anim } from "./art";
 import { CASE, CLERK_POS, COUNTER, GONDOLA, RACK, ROOM, SLOTS, type Item, type Shop } from "./shops";
@@ -279,6 +279,41 @@ function Disc({ color, label }: { color: string; label: string }) {
     </group>
   );
 }
+// Boxed game: the box-art image stands on the shelf as a cut-out. Until the image loads (or if it is missing)
+// a plain colored box stands in so the slot is never empty.
+function BoxArt({ item }: { item: Item }) {
+  const [tex, setTex] = useState<THREE.Texture | null>(null);
+  useEffect(() => {
+    if (!item.image) return;
+    let alive = true;
+    new THREE.TextureLoader().load(item.image, (t) => {
+      if (!alive) return;
+      t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 8;
+      setTex(t);
+    }, undefined, () => {});
+    return () => { alive = false; };
+  }, [item.image]);
+  const h = 0.62;
+  if (!tex) {
+    return (
+      <mesh position={[0, 0.27, 0]} castShadow>
+        <boxGeometry args={[0.4, 0.54, 0.12]} />
+        <meshStandardMaterial color={item.color} roughness={0.6} />
+      </mesh>
+    );
+  }
+  const img = tex.image as { width: number; height: number };
+  const w = h * (img.width / img.height);
+  return (
+    <group rotation={[-0.06, 0, 0]}>
+      <mesh position={[0, h / 2, 0]} castShadow>
+        <planeGeometry args={[w, h]} />
+        <meshStandardMaterial map={tex} transparent alphaTest={0.4} roughness={0.55} side={THREE.DoubleSide} />
+      </mesh>
+    </group>
+  );
+}
+
 function ItemModel({ item }: { item: Item }) {
   switch (item.model) {
     case "onigiri": return <group>{[-0.2, 0, 0.2].map((x) => <group key={x} position={[x, 0, 0]}><Onigiri color={item.color} /></group>)}</group>;
@@ -288,6 +323,7 @@ function ItemModel({ item }: { item: Item }) {
     case "cart": return <Cart color={item.color} label={item.label ?? item.name} />;
     case "console": return <Console color={item.color} />;
     case "disc": return <Disc color={item.color} label={item.label ?? item.name} />;
+    case "box": return <BoxArt item={item} />;
   }
 }
 
@@ -296,7 +332,6 @@ function ItemDisplay({ item, shop, slot }: { item: Item; shop: Shop; slot: numbe
   const lift = useRef<THREE.Group>(null!);
   const ring = useRef<THREE.MeshBasicMaterial>(null!);
   const tag = tagTex(item, shop);
-  const top = slot < 3 ? GONDOLA.h : CASE.h;
   useFrame(({ clock }, dt) => {
     const near = store.near === item.id;
     const k = 1 - Math.exp(-dt * 10);
@@ -305,13 +340,13 @@ function ItemDisplay({ item, shop, slot }: { item: Item; shop: Shop; slot: numbe
     ring.current.opacity += ((near ? 0.6 : 0) - ring.current.opacity) * k;
   });
   return (
-    <group position={[s.x, top, s.z]} rotation={[0, s.face, 0]}>
+    <group position={[s.x, s.y, s.z]} rotation={[0, s.face, 0]}>
       <mesh position={[0, 0.005, 0]} rotation={[-Math.PI / 2, 0, 0]}>
         <ringGeometry args={[0.4, 0.43, 40]} />
         <meshBasicMaterial ref={ring} color={shop.theme.accent} transparent opacity={0} depthWrite={false} />
       </mesh>
       <group ref={lift}><ItemModel item={item} /></group>
-      <mesh position={[0, -0.14, 0.505]}>
+      <mesh position={[0, -0.14, s.edge + 0.005]}>
         <planeGeometry args={[0.62, 0.25]} />
         <meshStandardMaterial map={tag} roughness={0.7} />
       </mesh>
