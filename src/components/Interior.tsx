@@ -43,7 +43,9 @@ export function interiorEnv(): Env {
     if (tp > 1e-3) best = Math.min(best, (ROOM.h - 0.35 - ty) / tp);
     return Math.max(1.2, best / cp);
   };
-  return { resolve, ground: () => 0, boom, dist: 5, maxDist: 7.5, pitch: 0.48 };
+  // Indoors there is nothing above worth looking at, and the room is too small for the camera to back away,
+  // so keep the old limit here rather than letting the view tilt up into the character.
+  return { resolve, ground: () => 0, boom, dist: 5, maxDist: 7.5, pitch: 0.48, minPitch: 0.06 };
 }
 
 /* ---------- textures ---------- */
