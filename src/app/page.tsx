@@ -8,6 +8,7 @@ import { PLACE_NAME, SHOP_NAMES, cardName } from "@/components/cards";
 import { isJapanese, pick, t, useLang, type UIKey } from "@/components/i18n";
 import type { Choice } from "@/components/dialogue";
 import { applySave, loadSave, writeSave } from "@/components/save";
+import { GuideButton, GuideIntro, introSeen } from "@/components/Guide";
 import { Avatar, Icon, Joystick, Minimap } from "@/components/Hud";
 
 const START_WALLET = 10;
@@ -55,6 +56,7 @@ export default function Home() {
   useEffect(() => {
     const saved = loadSave();
     if (saved) { applySave(saved); sceneRef.current = saved.scene; setScene(saved.scene); }
+    if (!introSeen()) setPanel({ kind: "guide" }); // first visit: Hana introduces the project
     const save = () => writeSave(sceneRef.current);
     const onHide = () => { if (document.visibilityState === "hidden") save(); };
     const timer = setInterval(save, 1000);
@@ -148,6 +150,7 @@ export default function Home() {
             </div>
           )}
           <LangPicker lang={lang} setLang={setLang} />
+          <GuideButton lang={lang} onOpen={() => setPanel({ kind: "guide" })} />
         </div>
 
         <div className="pill place">
@@ -209,6 +212,8 @@ export default function Home() {
             onIndex={(id) => setPanel({ kind: "cards", id })} onBack={() => setPanel({ kind: "binder" })} onClose={() => setPanel(null)}
           />
         )}
+
+        {panel?.kind === "guide" && <GuideIntro lang={lang} setLang={setLang} onClose={() => setPanel(null)} />}
 
         <div className="card mood">
           <Avatar />
