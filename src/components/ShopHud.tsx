@@ -11,6 +11,7 @@ export type Panel =
   | { kind: "item"; id: string } // card viewer inside a shop, with Buy
   | { kind: "binder" } // the player's card collection
   | { kind: "cards"; id: string } // card viewer over the whole collection
+  | { kind: "guide" } // Hana's introduction
   | null;
 
 const Coin = ({ n }: { n: number }) => <span className="price"><span className="coin sm" />{n}</span>;

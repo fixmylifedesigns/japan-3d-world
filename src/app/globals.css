@@ -192,6 +192,36 @@ button.info:hover b { text-decoration: underline; }
 .mini .qty { position: absolute; top: 7px; right: 7px; font-size: 10px; font-weight: 800; background: var(--ink); color: #fff; border-radius: 999px; padding: 1px 6px; }
 .mini .mname { font-size: 11px; font-weight: 700; color: #fff; line-height: 1.2; min-height: 2.4em; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3); }
 
+/* ---------- guide (Hana) ---------- */
+.guidebtn { position: relative; border: 0; padding: 0; background: none; border-radius: 50%; box-shadow: var(--shadow); transition: transform .15s; }
+.guidebtn:hover { transform: scale(1.06); }
+.gface { display: block; border-radius: 50%; border: 3px solid #fff; background: #f3e9e2; object-fit: cover; }
+.gface.fallback { display: grid; place-items: center; font-weight: 800; font-size: 22px; color: #fff; background: #c97b8e; }
+.gbadge { position: absolute; right: -2px; bottom: -2px; width: 20px; height: 20px; border-radius: 50%; background: var(--go); color: #fff; font-size: 12px; font-weight: 800; display: grid; place-items: center; border: 2px solid #fff; }
+.guidewrap { position: fixed; inset: 0; z-index: 30; display: grid; place-items: center; padding: 16px; background: rgba(30, 36, 48, 0.42); backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px); animation: gfade .2s ease-out; }
+.guide { position: relative; width: min(460px, 100%); max-height: calc(100dvh - 32px); overflow-y: auto; border-radius: 24px; padding: 18px 22px 18px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 10px; animation: gpop .25s ease-out; }
+.gskip { position: absolute; top: 12px; right: 12px; border: 0; background: none; color: var(--muted); font-size: 12px; padding: 4px 8px; border-radius: 8px; }
+.gskip:hover { background: rgba(47, 53, 66, 0.06); }
+.gportrait { width: 150px; height: 170px; margin-top: 4px; display: grid; place-items: end center; overflow: hidden; border-radius: 20px 20px 50% 50% / 20px 20px 18% 18%; background: radial-gradient(circle at 50% 45%, #fff6f1, #f4e4ea 70%); }
+.gportrait img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 12%; }
+.gname { display: flex; flex-direction: column; line-height: 1.2; }
+.gname b { font-size: 17px; }
+.gname small { color: var(--muted); font-size: 12px; }
+.gline { margin: 2px 0 0; font-size: 16px; line-height: 1.65; min-height: 5em; }
+.glangs { display: flex; flex-direction: column; gap: 6px; width: 100%; }
+.glangs small { color: var(--muted); font-size: 12px; }
+.glangs div { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; }
+.glangs button { border: 1px solid var(--edge); background: #f6f3ec; border-radius: 999px; padding: 5px 12px; font-size: 13px; }
+.glangs button[aria-pressed="true"] { background: var(--go); color: #fff; border-color: transparent; font-weight: 700; }
+.gdots { display: flex; gap: 5px; }
+.gdots i { width: 6px; height: 6px; border-radius: 50%; background: rgba(47, 53, 66, 0.2); transition: width .2s, background .2s; }
+.gdots i.on { width: 16px; border-radius: 3px; background: var(--ink); }
+.guide footer { display: flex; gap: 8px; justify-content: center; width: 100%; margin-top: 2px; }
+.guide footer button { border: 1px solid var(--edge); background: #f6f3ec; border-radius: 999px; padding: 9px 18px; font-size: 14px; font-weight: 600; }
+.guide footer button.primary { border: 0; background: var(--go); color: #fff; font-weight: 700; min-width: 120px; }
+@keyframes gfade { from { opacity: 0; } }
+@keyframes gpop { from { opacity: 0; transform: translateY(10px) scale(.97); } }
+
 .touch { display: none; }
 @media (pointer: coarse) {
   .touch { display: block; }
