@@ -5,41 +5,17 @@ import { useEffect, useMemo, useRef, type MutableRefObject } from "react";
 import * as THREE from "three";
 import {
   BUILDINGS, TREES, SIGNAL_POLES, COINS, ROAD, BOUND, groundY, phase, store,
-  type Activity, type Building, type Face,
+  type Activity, type Building, type Env, type Face, type SceneId,
 } from "./worldData";
+import { SHOPS as SHOPS_BY_ID, SHOP_LIST, shopInteractables, streetInteractables, type Interactable, type Shop } from "./shops";
+import { InteriorRoom, interiorEnv } from "./Interior";
+import { Chibi, PALETTE, aspect, canvasTex, hSign, repeated, rng, shade, std, vSign, type Anim, type Look } from "./art";
 
 /* ---------- canvas textures (no external assets, JP text renders with system fonts) ---------- */
-const JP = '"Hiragino Maru Gothic ProN","Hiragino Sans","Noto Sans JP","Yu Gothic","Meiryo",sans-serif';
-const PALETTE = ["#ee5d7f", "#3f7fd8", "#f2b632", "#36a878", "#ee8a3c", "#8a6bd6", "#e2508f", "#2f9fb0"];
 const VERT = ["ゲーム", "みんなのまち", "カラオケ", "ファッション", "ラーメン", "本と音楽", "コスメ", "たべる", "パン", "カフェ"];
 const SHOPS = ["CAFE", "BOOKS", "RAMEN", "BAKERY", "GAMES", "FLOWERS", "RECORDS", "TEA"];
 const PANELS = ["本と音楽", "たべる", "コスメ", "ゲーム", "カフェ", "くすり"];
 
-const cache = new Map<string, THREE.CanvasTexture>();
-function canvasTex(key: string, w: number, h: number, draw: (g: CanvasRenderingContext2D) => void) {
-  let t = cache.get(key);
-  if (t) return t;
-  const c = document.createElement("canvas");
-  c.width = w; c.height = h;
-  draw(c.getContext("2d")!);
-  t = new THREE.CanvasTexture(c);
-  t.colorSpace = THREE.SRGBColorSpace;
-  t.anisotropy = 8;
-  cache.set(key, t);
-  return t;
-}
-function repeated(base: THREE.Texture, rx: number, ry: number) {
-  const t = base.clone();
-  t.wrapS = t.wrapT = THREE.RepeatWrapping;
-  t.repeat.set(rx, ry);
-  t.needsUpdate = true;
-  return t;
-}
-function rng(seed: number) {
-  let a = seed * 9301 + 49297;
-  return () => ((a = (a * 9301 + 49297) % 233280) / 233280);
-}
-const shade = (hex: string, l: number) => "#" + new THREE.Color(hex).offsetHSL(0, 0, l).getHexString();
 
 const facadeTex = (color: string) =>
   canvasTex("facade" + color, 128, 128, (g) => {
@@ -76,35 +52,38 @@ const storeTex = () =>
     g.beginPath(); g.moveTo(30, 184); g.lineTo(90, 40); g.lineTo(110, 40); g.lineTo(50, 184); g.fill();
   });
 
-function vSign(text: string, bg: string) {
-  const chars = [...text];
-  return canvasTex(`v${text}${bg}`, 96, chars.length * 88 + 40, (g) => {
-    g.fillStyle = bg; g.fillRect(0, 0, 96, chars.length * 88 + 40);
-    g.strokeStyle = "rgba(255,255,255,.55)"; g.lineWidth = 4;
-    g.strokeRect(8, 8, 80, chars.length * 88 + 24);
-    g.fillStyle = "#fff"; g.font = `800 64px ${JP}`;
-    g.textAlign = "center"; g.textBaseline = "middle";
-    chars.forEach((ch, i) => {
-      const y = 20 + 44 + i * 88;
-      if (ch === "ー") { g.save(); g.translate(48, y); g.rotate(Math.PI / 2); g.fillText(ch, 0, 0); g.restore(); }
-      else g.fillText(ch, 48, y);
-    });
+// Storefront glass for enterable shops: a bright konbini window full of shelves, or a dark retro window with pixel posters.
+const shopFrontTex = (shop: Shop) =>
+  canvasTex(`front-${shop.id}`, 256, 192, (g) => {
+    const r = rng(shop.id === "retro" ? 17 : 9), t = shop.theme, retro = shop.id === "retro";
+    g.fillStyle = retro ? "#2f2748" : "#f4f4f0"; g.fillRect(0, 0, 256, 192);
+    g.fillStyle = t.band; g.fillRect(0, 8, 256, 10);
+    g.fillStyle = t.trim; g.fillRect(0, 20, 256, 6);
+    const gr = g.createLinearGradient(0, 36, 0, 184);
+    gr.addColorStop(0, retro ? "#3d2f66" : "#eaf6fb"); gr.addColorStop(1, retro ? "#1b1530" : "#cfe7f2");
+    g.fillStyle = gr; g.fillRect(10, 36, 236, 148);
+    if (retro) {
+      for (let k = 0; k < 3; k++) {
+        const ox = 22 + k * 78, cols = ["#ff5fa2", "#44d7e8", "#ffd84a"];
+        g.fillStyle = "#15111f"; g.fillRect(ox - 4, 56, 64, 84);
+        for (let y = 0; y < 6; y++) for (let x = 0; x < 3; x++) if (r() < 0.55) {
+          g.fillStyle = cols[k]; g.fillRect(ox + 6 + x * 8, 66 + y * 8, 8, 8); g.fillRect(ox + 6 + (5 - x) * 8, 66 + y * 8, 8, 8);
+        }
+      }
+      g.fillStyle = t.band; g.fillRect(10, 160, 236, 4);
+    } else {
+      for (const y of [84, 128, 172]) {
+        for (let x = 16; x < 240; x += 12 + Math.floor(r() * 6)) {
+          g.fillStyle = PALETTE[Math.floor(r() * PALETTE.length)];
+          g.fillRect(x, y - 22, 9, 20);
+        }
+        g.fillStyle = "#b8c4cc"; g.fillRect(10, y, 236, 4);
+      }
+    }
+    g.fillStyle = retro ? "#15111f" : "#9aa3ad"; g.fillRect(124, 36, 8, 148);
+    g.fillStyle = "rgba(255,255,255,.3)";
+    g.beginPath(); g.moveTo(30, 184); g.lineTo(80, 36); g.lineTo(98, 36); g.lineTo(48, 184); g.fill();
   });
-}
-function hSign(text: string, bg: string, fg = "#fff") {
-  const n = [...text].length;
-  const w = Math.max(n * 80 + 60, 220);
-  return canvasTex(`h${text}${bg}${fg}`, w, 110, (g) => {
-    g.fillStyle = bg; g.fillRect(0, 0, w, 110);
-    g.fillStyle = fg; g.font = `800 ${/[A-Z]/.test(text) ? 58 : 66}px ${JP}`;
-    g.textAlign = "center"; g.textBaseline = "middle";
-    g.fillText(text, w / 2, 58);
-  });
-}
-const aspect = (t: THREE.Texture) => {
-  const img = t.image as HTMLCanvasElement;
-  return img.height / img.width;
-};
 
 /* ---------- buildings ---------- */
 function faceFrame(b: Building, f: Face): [number, number, number, number] {
@@ -114,15 +93,18 @@ function faceFrame(b: Building, f: Face): [number, number, number, number] {
   return [b.x - b.w / 2, b.z, -Math.PI / 2, b.d];
 }
 
-function FaceDeco({ b, face, seed }: { b: Building; face: Face; seed: number }) {
+function FaceDeco({ b, face, seed, shop }: { b: Building; face: Face; seed: number; shop?: Shop }) {
   const [px, pz, rot, fw] = faceFrame(b, face);
   const accent = PALETTE[seed % PALETTE.length];
   const shopMats = useMemo(() => {
     const wood = new THREE.MeshStandardMaterial({ color: "#a8784f", roughness: 0.8 });
-    const front = new THREE.MeshStandardMaterial({ map: repeated(storeTex(), Math.max(1, Math.round(fw / 4)), 1), roughness: 0.6, emissive: "#ffe2a8", emissiveIntensity: 0.12 });
+    const front = new THREE.MeshStandardMaterial({ map: repeated(shop ? shopFrontTex(shop) : storeTex(), Math.max(1, Math.round(fw / 4)), 1), roughness: 0.6, emissive: "#ffe2a8", emissiveIntensity: shop ? 0.2 : 0.12 });
+    if (shop) wood.color.set(shop.id === "retro" ? "#2f2748" : "#f4f4f0");
     return [wood, wood, wood, wood, front, wood];
-  }, [fw]);
-  const shopTex = hSign(SHOPS[seed % SHOPS.length], shade(accent, -0.12));
+  }, [fw, shop]);
+  const shopTex = shop ? hSign(shop.sign.text, shop.sign.bg, shop.sign.fg) : hSign(SHOPS[seed % SHOPS.length], shade(accent, -0.12));
+  const signW = shop ? 4.4 : Math.min(3.2, fw * 0.4);
+  const signX = shop ? shop.doorOffset : fw * 0.18;
 
   const avail = b.h - 6.2;
   const banners = Array.from({ length: fw >= 12 ? 3 : 2 }, (_, j) => {
@@ -142,12 +124,13 @@ function FaceDeco({ b, face, seed }: { b: Building; face: Face; seed: number }) 
       </mesh>
       <mesh position={[0, 3.45, 0.6]} rotation={[0.28, 0, 0]} castShadow>
         <boxGeometry args={[fw - 0.4, 0.12, 1.05]} />
-        <meshStandardMaterial color={accent} roughness={0.7} />
+        <meshStandardMaterial color={shop ? shop.theme.trim : accent} roughness={0.7} />
       </mesh>
-      <mesh position={[fw * 0.18, 4.25, 0.05]}>
-        <planeGeometry args={[Math.min(3.2, fw * 0.4), Math.min(3.2, fw * 0.4) * aspect(shopTex)]} />
+      <mesh position={[signX, 4.25, 0.05]}>
+        <planeGeometry args={[signW, signW * aspect(shopTex)]} />
         <meshStandardMaterial map={shopTex} roughness={0.6} />
       </mesh>
+      {shop && <ShopDoor shop={shop} />}
       {banners.map((s, j) => (
         <mesh key={j} position={[s.x, s.y, 0.12]} castShadow>
           <boxGeometry args={[1.25, s.h, 0.12]} />
@@ -165,6 +148,44 @@ function FaceDeco({ b, face, seed }: { b: Building; face: Face; seed: number }) 
           <meshStandardMaterial map={panel} roughness={0.6} />
         </mesh>
       )}
+    </group>
+  );
+}
+
+// Enterable shop door, drawn in the facade's local space (x along the facade, z outward).
+function ShopDoor({ shop }: { shop: Shop }) {
+  const x = shop.doorOffset, t = shop.theme;
+  const marker = useRef<THREE.Mesh>(null!);
+  const mat = useRef<THREE.MeshStandardMaterial>(null!);
+  useFrame(({ clock }) => {
+    const near = store.near === `door-${shop.id}`;
+    marker.current.position.y = 3.0 + Math.sin(clock.elapsedTime * 2.4) * 0.12;
+    marker.current.rotation.y = clock.elapsedTime * 1.6;
+    marker.current.scale.setScalar(near ? 1.25 : 1);
+    mat.current.emissiveIntensity = near ? 1.1 : 0.55;
+  });
+  return (
+    <group position={[x, 0, 0]}>
+      <mesh position={[0, 1.4, 0.32]} castShadow>
+        <boxGeometry args={[1.9, 2.8, 0.14]} />
+        <meshStandardMaterial color={shade(shop.sign.bg === "#ffffff" ? t.trim : shop.sign.bg, -0.05)} roughness={0.6} />
+      </mesh>
+      <mesh position={[0, 1.32, 0.4]}>
+        <planeGeometry args={[1.5, 2.5]} />
+        <meshStandardMaterial color={t.light} emissive={t.light} emissiveIntensity={0.55} roughness={0.2} metalness={0.1} />
+      </mesh>
+      <mesh position={[0, 1.32, 0.41]}>
+        <planeGeometry args={[0.06, 2.5]} />
+        <meshStandardMaterial color="#9aa3ad" />
+      </mesh>
+      <mesh position={[0, 0.16, 1.0]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
+        <planeGeometry args={[1.9, 1.1]} />
+        <meshStandardMaterial color={t.accent} roughness={0.95} />
+      </mesh>
+      <mesh ref={marker} position={[0, 3.0, 1.0]} castShadow>
+        <octahedronGeometry args={[0.22, 0]} />
+        <meshStandardMaterial ref={mat} color={t.accent} emissive={t.accent} emissiveIntensity={0.55} />
+      </mesh>
     </group>
   );
 }
@@ -193,7 +214,7 @@ function BoxBuilding({ b, i }: { b: Building; i: number }) {
         <cylinderGeometry args={[0.8, 0.8, 1.4, 16]} />
         <meshStandardMaterial color="#c7ccd4" />
       </mesh>
-      {b.faces.map((f, k) => <FaceDeco key={f} b={b} face={f} seed={i * 3 + k} />)}
+      {b.faces.map((f, k) => <FaceDeco key={f} b={b} face={f} seed={i * 3 + k} shop={SHOP_LIST.find((s) => s.building === i && s.face === f)} />)}
     </group>
   );
 }
@@ -424,74 +445,6 @@ function Vending({ x, z, rot }: { x: number; z: number; rot: number }) {
   );
 }
 
-/* ---------- characters ---------- */
-type Look = { skin: string; hair: string; hat?: string; top: string; pants: string; shoes: string; bag?: string };
-type Anim = { speed: number; phase: number; air: boolean };
-const std = (c: string) => <meshStandardMaterial color={c} roughness={0.85} />;
-
-function Chibi({ look, anim }: { look: Look; anim: MutableRefObject<Anim> }) {
-  const legL = useRef<THREE.Group>(null!), legR = useRef<THREE.Group>(null!);
-  const armL = useRef<THREE.Group>(null!), armR = useRef<THREE.Group>(null!);
-  const body = useRef<THREE.Group>(null!);
-  useFrame((_, dt) => {
-    const a = anim.current;
-    const amt = Math.min(1, a.speed / 4);
-    const sw = Math.sin(a.phase) * amt * 0.75;
-    const k = 1 - Math.exp(-dt * 18);
-    const to = (g: THREE.Group, v: number) => { g.rotation.x += (v - g.rotation.x) * k; };
-    to(legL.current, a.air ? -0.6 : sw); to(legR.current, a.air ? 0.35 : -sw);
-    to(armL.current, a.air ? -2.5 : -sw * 0.9); to(armR.current, a.air ? -2.5 : sw * 0.9);
-    body.current.position.y = a.air ? 0 : Math.abs(Math.cos(a.phase)) * 0.06 * amt;
-    body.current.rotation.x = a.speed > 6 ? 0.12 : 0;
-  });
-  return (
-    <group ref={body}>
-      {[legL, legR].map((r, i) => (
-        <group key={i} ref={r} position={[i ? 0.15 : -0.15, 0.5, 0]}>
-          <RoundedBox args={[0.24, 0.42, 0.28]} radius={0.08} position={[0, -0.2, 0]} castShadow>{std(look.pants)}</RoundedBox>
-          <RoundedBox args={[0.27, 0.14, 0.36]} radius={0.06} position={[0, -0.44, 0.04]} castShadow>{std(look.shoes)}</RoundedBox>
-        </group>
-      ))}
-      <RoundedBox args={[0.58, 0.2, 0.36]} radius={0.08} position={[0, 0.54, 0]} castShadow>{std(look.pants)}</RoundedBox>
-      <RoundedBox args={[0.64, 0.52, 0.42]} radius={0.14} position={[0, 0.84, 0]} castShadow>{std(look.top)}</RoundedBox>
-      {[armL, armR].map((r, i) => (
-        <group key={i} ref={r} position={[i ? 0.39 : -0.39, 1.04, 0]}>
-          <RoundedBox args={[0.17, 0.46, 0.2]} radius={0.07} position={[0, -0.2, 0]} castShadow>{std(look.top)}</RoundedBox>
-          <mesh position={[0, -0.46, 0]}><sphereGeometry args={[0.09, 12, 10]} />{std(look.skin)}</mesh>
-        </group>
-      ))}
-      {look.bag && (
-        <group position={[0, 0.88, -0.31]}>
-          <RoundedBox args={[0.5, 0.58, 0.22]} radius={0.09} castShadow>{std(look.bag)}</RoundedBox>
-          <RoundedBox args={[0.34, 0.2, 0.06]} radius={0.03} position={[0, -0.12, -0.12]}>{std(shade(look.bag, 0.08))}</RoundedBox>
-        </group>
-      )}
-      <group position={[0, 1.44, 0]}>
-        <RoundedBox args={[0.82, 0.72, 0.74]} radius={0.2} smoothness={4} castShadow>{std(look.skin)}</RoundedBox>
-        {[-0.15, 0.15].map((x) => (
-          <mesh key={x} position={[x, -0.03, 0.372]}><planeGeometry args={[0.075, 0.12]} /><meshBasicMaterial color="#2b2521" /></mesh>
-        ))}
-        {[-0.26, 0.26].map((x) => (
-          <mesh key={x} position={[x, -0.13, 0.371]}><planeGeometry args={[0.12, 0.05]} /><meshBasicMaterial color="#f29a9a" transparent opacity={0.7} /></mesh>
-        ))}
-        <RoundedBox args={[0.88, 0.36, 0.8]} radius={0.16} position={[0, 0.22, -0.02]} castShadow>{std(look.hair)}</RoundedBox>
-        <RoundedBox args={[0.88, 0.62, 0.3]} radius={0.12} position={[0, -0.02, -0.25]} castShadow>{std(look.hair)}</RoundedBox>
-        <RoundedBox args={[0.86, 0.16, 0.14]} radius={0.06} position={[0, 0.2, 0.33]}>{std(look.hair)}</RoundedBox>
-        {[-0.43, 0.43].map((x) => (
-          <RoundedBox key={x} args={[0.08, 0.42, 0.5]} radius={0.03} position={[x, 0.04, -0.02]}>{std(look.hair)}</RoundedBox>
-        ))}
-        {look.hat && (
-          <group>
-            <RoundedBox args={[0.92, 0.34, 0.84]} radius={0.16} position={[0, 0.38, -0.01]} castShadow>{std(look.hat)}</RoundedBox>
-            <RoundedBox args={[0.96, 0.15, 0.88]} radius={0.07} position={[0, 0.25, -0.01]} castShadow>{std(shade(look.hat, -0.04))}</RoundedBox>
-            <mesh position={[0, 0.6, -0.02]} castShadow><sphereGeometry args={[0.11, 12, 10]} />{std(look.hat)}</mesh>
-          </group>
-        )}
-      </group>
-    </group>
-  );
-}
-
 const PLAYER_LOOK: Look = { skin: "#ffdcc4", hair: "#5a3a2c", hat: "#f7f4ee", top: "#f1ece2", pants: "#4d6c9c", shoes: "#6b4a3a", bag: "#34414f" };
 const R = 0.42;
 const TREE_S = TREES.map((_, i) => 0.9 + ((i * 37) % 10) / 30);
@@ -528,7 +481,9 @@ const angleLerp = (a: number, b: number, t: number) => {
   return a + d * t;
 };
 
-function Player({ runRef, onActivity }: { runRef: MutableRefObject<boolean>; onActivity: (a: Activity) => void }) {
+const STREET_ENV: Env = { resolve, ground: groundY, boom: boomLength, dist: 8.5, maxDist: 18 };
+
+function Player({ env, runRef, onActivity }: { env: Env; runRef: MutableRefObject<boolean>; onActivity: (a: Activity) => void }) {
   const g = useRef<THREE.Group>(null!);
   const anim = useRef<Anim>({ speed: 0, phase: 0, air: false });
   const keys = useRef<Record<string, boolean>>({});
@@ -545,6 +500,7 @@ function Player({ runRef, onActivity }: { runRef: MutableRefObject<boolean>; onA
     const dt = Math.min(rawDt, 0.05), k = keys.current, inp = store.input, p = store.player, s = st.current;
     let ix = (k.KeyD || k.ArrowRight ? 1 : 0) - (k.KeyA || k.ArrowLeft ? 1 : 0) + inp.joyX;
     let iz = (k.KeyS || k.ArrowDown ? 1 : 0) - (k.KeyW || k.ArrowUp ? 1 : 0) + inp.joyY;
+    if (inp.locked) { ix = 0; iz = 0; }
     const len = Math.hypot(ix, iz);
     if (len > 1) { ix /= len; iz /= len; }
     const yaw = store.camYaw;
@@ -555,12 +511,12 @@ function Player({ runRef, onActivity }: { runRef: MutableRefObject<boolean>; onA
     const blend = 1 - Math.exp(-dt * 12);
     s.vx += (mx * speed - s.vx) * blend;
     s.vz += (mz * speed - s.vz) * blend;
-    [p.x, p.z] = resolve(p.x + s.vx * dt, p.z + s.vz * dt);
+    [p.x, p.z] = env.resolve(p.x + s.vx * dt, p.z + s.vz * dt);
     if (len > 0.05) p.ry = angleLerp(p.ry, Math.atan2(mx, mz), 1 - Math.exp(-dt * 14));
 
-    const gy = groundY(p.x, p.z);
+    const gy = env.ground(p.x, p.z);
     const grounded = p.y <= gy + 0.001;
-    if ((k.Space || inp.jump) && grounded) s.vy = 7.2;
+    if ((k.Space || inp.jump) && grounded && !inp.locked) s.vy = 7.2;
     inp.jump = false;
     s.vy -= 22 * dt;
     p.y += s.vy * dt;
@@ -574,6 +530,7 @@ function Player({ runRef, onActivity }: { runRef: MutableRefObject<boolean>; onA
     if (act !== s.act) { s.act = act; onActivity(act); }
     g.current.position.set(p.x, p.y, p.z);
     g.current.rotation.y = p.ry;
+    g.current.visible = !store.focus?.hidePlayer;
   });
   return (
     <group ref={g}>
@@ -829,9 +786,9 @@ function boomLength(tx: number, ty: number, tz: number, yaw: number, pitch: numb
   return Math.max(1.5, (best / reach) * dist - (best < reach ? 0.3 : 0));
 }
 
-function CameraRig() {
+function CameraRig({ env }: { env: Env }) {
   const { camera, gl } = useThree();
-  const s = useRef({ pitch: 0.3, dist: 8.5, cur: 8.5, drag: false, lx: 0, ly: 0, tgt: new THREE.Vector3(store.player.x, 1.5, store.player.z) });
+  const s = useRef({ pitch: env.pitch ?? 0.3, saved: null as number | null, dist: env.dist, cur: env.dist, drag: false, lx: 0, ly: 0, tgt: new THREE.Vector3(store.player.x, 1.5, store.player.z) });
   useEffect(() => {
     const el = gl.domElement, st = s.current;
     el.style.touchAction = "none";
@@ -843,7 +800,7 @@ function CameraRig() {
       st.lx = e.clientX; st.ly = e.clientY;
     };
     const up = () => { st.drag = false; el.style.cursor = "grab"; };
-    const wheel = (e: WheelEvent) => { e.preventDefault(); st.dist = Math.max(4, Math.min(18, st.dist + e.deltaY * 0.01)); };
+    const wheel = (e: WheelEvent) => { e.preventDefault(); st.dist = Math.max(3, Math.min(env.maxDist, st.dist + e.deltaY * 0.01)); };
     el.style.cursor = "grab";
     el.addEventListener("pointerdown", down); el.addEventListener("pointermove", move);
     el.addEventListener("pointerup", up); el.addEventListener("pointercancel", up);
@@ -853,16 +810,24 @@ function CameraRig() {
       el.removeEventListener("pointerup", up); el.removeEventListener("pointercancel", up);
       el.removeEventListener("wheel", wheel);
     };
-  }, [gl]);
+  }, [gl, env]);
   useFrame((_, rawDt) => {
     const dt = Math.min(rawDt, 0.05), st = s.current, inp = store.input, p = store.player;
-    if (inp.zoom) { st.dist = Math.max(4, Math.min(18, st.dist + inp.zoom)); inp.zoom = 0; }
+    if (inp.zoom) { st.dist = Math.max(3, Math.min(env.maxDist, st.dist + inp.zoom)); inp.zoom = 0; }
     if (inp.recenter) {
       store.camYaw = angleLerp(store.camYaw, p.ry + Math.PI, 1 - Math.exp(-dt * 8));
       if (Math.abs(angleLerp(store.camYaw, p.ry + Math.PI, 1) - store.camYaw) < 0.01) inp.recenter = false;
     }
-    st.tgt.lerp(new THREE.Vector3(p.x, p.y + 1.5, p.z), 1 - Math.exp(-dt * 10));
-    const want = boomLength(st.tgt.x, st.tgt.y, st.tgt.z, store.camYaw, st.pitch, st.dist);
+    const f = store.focus, kf = 1 - Math.exp(-dt * 5);
+    if (f) {
+      if (st.saved === null) st.saved = st.pitch;
+      store.camYaw = angleLerp(store.camYaw, f.yaw, kf);
+      st.pitch += (f.pitch - st.pitch) * kf;
+    } else if (st.saved !== null) {
+      st.pitch = st.saved; st.saved = null;
+    }
+    st.tgt.lerp(f ? new THREE.Vector3(f.x, f.y, f.z) : new THREE.Vector3(p.x, p.y + 1.5, p.z), 1 - Math.exp(-dt * (f ? 5 : 10)));
+    const want = env.boom(st.tgt.x, st.tgt.y, st.tgt.z, store.camYaw, st.pitch, f ? f.dist : st.dist);
     st.cur = want < st.cur ? want : st.cur + (want - st.cur) * (1 - Math.exp(-dt * 4));
     const cp = Math.cos(st.pitch);
     camera.position.set(
@@ -875,8 +840,27 @@ function CameraRig() {
   return null;
 }
 
+/* ---------- interactions ---------- */
+// Finds the closest interactable the player is standing near and reports changes to the HUD.
+function Interactions({ list, onNear }: { list: Interactable[]; onNear: (it: Interactable | null) => void }) {
+  useEffect(() => () => { store.near = null; onNear(null); }, [list, onNear]);
+  useFrame(() => {
+    const p = store.player;
+    let best: Interactable | null = null, bd = Infinity;
+    for (const it of list) {
+      const d = Math.hypot(p.x - it.x, p.z - it.z);
+      if (d < it.r && d < bd) { best = it; bd = d; }
+    }
+    const id = best ? best.id : null;
+    if (id !== store.near) { store.near = id; onNear(best); }
+  });
+  return null;
+}
+
 /* ---------- scene ---------- */
-function Scene({ runRef, onCoin, onActivity }: { runRef: MutableRefObject<boolean>; onCoin: () => void; onActivity: (a: Activity) => void }) {
+type SceneProps = { scene: SceneId; runRef: MutableRefObject<boolean>; onCoin: () => void; onActivity: (a: Activity) => void; onNear: (it: Interactable | null) => void };
+
+function StreetScene({ onCoin }: { onCoin: () => void }) {
   return (
     <>
       <fog attach="fog" args={[HORIZON, 48, 110]} />
@@ -890,18 +874,36 @@ function Scene({ runRef, onCoin, onActivity }: { runRef: MutableRefObject<boolea
       {VEHICLES.map((v, i) => <Vehicle key={i} v={v} idx={i} />)}
       {ROUTES.map((_, i) => <Npc key={i} i={i} />)}
       <Coins onCoin={onCoin} />
-      <Player runRef={runRef} onActivity={onActivity} />
-      <CameraRig />
     </>
   );
 }
 
-export default function World({ running, onCoin, onActivity }: { running: boolean; onCoin: () => void; onActivity: (a: Activity) => void }) {
+const STREET_INTERACTABLES = streetInteractables();
+
+function Scene({ scene, runRef, onCoin, onActivity, onNear }: SceneProps) {
+  const inside = scene !== "street";
+  const env = useMemo(() => (inside ? interiorEnv() : STREET_ENV), [inside]);
+  const list = useMemo(() => (inside ? shopInteractables(SHOPS_BY_ID[scene]) : STREET_INTERACTABLES), [inside, scene]);
+  return (
+    <>
+      {inside ? <InteriorRoom shop={SHOPS_BY_ID[scene]} /> : <StreetScene onCoin={onCoin} />}
+      <Player key={`p-${scene}`} env={env} runRef={runRef} onActivity={onActivity} />
+      <CameraRig key={`c-${scene}`} env={env} />
+      <Interactions list={list} onNear={onNear} />
+    </>
+  );
+}
+
+export default function World({ scene, running, onCoin, onActivity, onNear }: { scene: SceneId; running: boolean; onCoin: () => void; onActivity: (a: Activity) => void; onNear: (it: Interactable | null) => void }) {
   const runRef = useRef(running);
   runRef.current = running;
-  const cb = useRef({ onCoin, onActivity });
-  cb.current = { onCoin, onActivity };
-  const handlers = useMemo(() => ({ coin: () => cb.current.onCoin(), act: (a: Activity) => cb.current.onActivity(a) }), []);
+  const cb = useRef({ onCoin, onActivity, onNear });
+  cb.current = { onCoin, onActivity, onNear };
+  const handlers = useMemo(() => ({
+    coin: () => cb.current.onCoin(),
+    act: (a: Activity) => cb.current.onActivity(a),
+    near: (it: Interactable | null) => cb.current.onNear(it),
+  }), []);
   return (
     <Canvas
       shadows
@@ -909,7 +911,7 @@ export default function World({ running, onCoin, onActivity }: { running: boolea
       camera={{ fov: 50, near: 0.1, far: 400, position: [0, 6, 20] }}
       gl={{ antialias: true, toneMapping: THREE.NeutralToneMapping }}
     >
-      <Scene runRef={runRef} onCoin={handlers.coin} onActivity={handlers.act} />
+      <Scene scene={scene} runRef={runRef} onCoin={handlers.coin} onActivity={handlers.act} onNear={handlers.near} />
     </Canvas>
   );
 }
