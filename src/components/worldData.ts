@@ -63,6 +63,7 @@ export const store = {
   camYaw: -0.05,
   input: { joyX: 0, joyY: 0, jump: false, zoom: 0, recenter: false, locked: false },
   near: null as string | null,
+  viewInset: 0, // px of screen covered by a HUD panel at the bottom; the focused thing is framed above it
   // When set, the camera frames this point instead of following the player (used for items and conversations).
   focus: null as null | { x: number; y: number; z: number; yaw: number; pitch: number; dist: number; hidePlayer?: boolean },
   npcs: [] as { x: number; z: number }[],

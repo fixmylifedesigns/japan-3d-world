@@ -10,7 +10,7 @@ import type { Choice } from "@/components/dialogue";
 import { Avatar, Icon, Joystick, Minimap } from "@/components/Hud";
 
 const START_WALLET = 10;
-const COIN_VALUE = 3;
+const COIN_VALUE = 8;
 
 const World = dynamic(() => import("@/components/World"), { ssr: false });
 
@@ -44,9 +44,19 @@ export default function Home() {
   useEffect(() => {
     store.input.locked = panel !== null;
     const p = store.player;
-    store.focus = panel?.kind === "item" ? itemFocus(panel.id) : panel?.kind === "talk" || panel?.kind === "menu" ? clerkFocus(p.x, p.z) : null;
+    store.focus = panel?.kind === "item" ? { ...itemFocus(panel.id), dist: itemFocus(panel.id).dist * (innerWidth < innerHeight ? 1.45 : 1) } : panel?.kind === "talk" || panel?.kind === "menu" ? clerkFocus(p.x, p.z) : null;
   }, [panel]);
   useEffect(() => { store.focus = null; }, [scene]);
+  // Tell the 3D view how much of the screen the open panel covers, so it can frame the item above it.
+  useEffect(() => {
+    const measure = () => {
+      const el = document.querySelector(".hud .sheet, .hud .dialog");
+      store.viewInset = el ? Math.max(0, innerHeight - el.getBoundingClientRect().top) : 0;
+    };
+    const raf = requestAnimationFrame(measure);
+    addEventListener("resize", measure);
+    return () => { cancelAnimationFrame(raf); removeEventListener("resize", measure); store.viewInset = 0; };
+  }, [panel]);
   useEffect(() => {
     if (!toast) return;
     const tm = setTimeout(() => setToast(null), 2200);
@@ -102,7 +112,7 @@ export default function Home() {
   }, []);
 
   return (
-    <main lang={isJapanese(lang) || lang === "romaji" ? "ja" : lang}>
+    <main lang={isJapanese(lang) || lang === "romaji" ? "ja" : lang} translate="no" className="notranslate">
       <World scene={scene} running={running} onCoin={onCoin} onActivity={setActivity} onNear={setNear} />
 
       <div className={panel ? "hud busy" : "hud"}>
