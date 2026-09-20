@@ -6,7 +6,8 @@ import { BUILDINGS, COINS, TREES, type Building } from "./worldData";
 
 export type CityId = "street" | "timesq"; // "street" is Shibuya (kept for saved games)
 export type CityStyle = "tokyo" | "nyc";
-export type Prop = { kind: "steps" | "subway" | "hotdog" | "lamp"; x: number; z: number; rot: number };
+export type Prop = { kind: "steps" | "subway" | "hotdog" | "lamp" | "statue" | "planter" | "table"; x: number; z: number; rot: number };
+export type Plaza = { a: [number, number]; b: [number, number]; w: number }; // pedestrian strip from a to b
 export type Spawn = { x: number; y: number; z: number; ry: number; camYaw: number };
 export type CityVehicle = { kind: "car" | "taxi" | "bus" | "van"; color: string };
 
@@ -23,6 +24,7 @@ export type City = {
   props: Prop[];
   coins: [number, number][];
   scramble: boolean; // diagonal crosswalks and diagonal pedestrian routes
+  plaza?: Plaza;
   vehicles: CityVehicle[]; // one per traffic lane
   spawn: Spawn;
 };
@@ -66,44 +68,53 @@ const TIMES_SQUARE: City = {
   jp: "ニューヨーク",
   region: { ja: "ニューヨーク", kana: "ニューヨーク", romaji: "Nyūyōku", en: "New York", es: "Nueva York", zh: "纽约", fr: "New York" },
   blurb: {
-    ja: "ニューヨークの42丁目。大きな看板と黄色いタクシーの街。お店は近日オープン！",
-    kana: "ニューヨークの 42ちょうめ。おおきな かんばんと きいろい タクシーの まち。おみせは きんじつ オープン！",
-    romaji: "Nyūyōku no 42-chōme. Ōkina kanban to kiiroi takushī no machi. Omise wa kinjitsu ōpun!",
-    en: "42nd Street in New York: giant billboards and yellow cabs. Shops opening soon!",
-    es: "La calle 42 de Nueva York: pantallas gigantes y taxis amarillos. ¡Tiendas muy pronto!",
-    zh: "纽约的42街：巨大的广告牌和黄色出租车。商店即将开业！",
-    fr: "La 42e Rue à New York : panneaux géants et taxis jaunes. Boutiques bientôt !",
+    ja: "ニューヨークの42丁目。大きな看板と黄色いタクシーの街。デリとピザ屋があるよ。",
+    kana: "ニューヨークの 42ちょうめ。おおきな かんばんと きいろい タクシーの まち。デリと ピザやが あるよ。",
+    romaji: "Nyūyōku no 42-chōme. Ōkina kanban to kiiroi takushī no machi. Deri to piza-ya ga aru yo.",
+    en: "42nd Street in New York: giant billboards, yellow cabs, a deli and a pizza shop.",
+    es: "La calle 42 de Nueva York: pantallas gigantes, taxis amarillos, un deli y una pizzería.",
+    zh: "纽约的42街：巨大的广告牌、黄色出租车，还有熟食店和披萨店。",
+    fr: "La 42e Rue à New York : panneaux géants, taxis jaunes, un deli et une pizzeria.",
   },
+  // Layout follows the real Times Square: 42nd Street runs east-west, 7th Avenue north-south, and Broadway cuts
+  // diagonally across as a pedestrian plaza, crossing 7th Avenue further north (the "bowtie"). One Times Square fills
+  // the narrow wedge at 42nd Street between 7th Avenue and Broadway; the red steps sit at the north end (Duffy Square).
   buildings: [
-    { x: -16, z: -17, w: 12, d: 14, h: 48, color: "#9aa4ae", faces: ["s", "e"] },
-    { x: -16, z: -31, w: 12, d: 10, h: 40, color: "#b8b0a4", faces: ["e"] },
+    { x: -16, z: -17, w: 12, d: 14, h: 48, color: "#9aa4ae", faces: ["s", "e"], ads: ["hana"] },
     { x: -31, z: -31, w: 12, d: 12, h: 30, color: "#8f9aa8", faces: [] },
-    { x: 16, z: -17, w: 12, d: 14, h: 56, color: "#7d8794", faces: ["s", "w"] },
+    { x: -30, z: -16, w: 12, d: 12, h: 36, color: "#b8b0a4", faces: ["s"] },
+    { x: 18, z: -30, w: 10, d: 10, h: 44, color: "#7d8794", faces: ["w"], ads: ["fml"] },
     { x: 31, z: -16, w: 12, d: 12, h: 38, color: "#c9c2b6", faces: ["s"] },
-    { x: 16, z: -32, w: 12, d: 10, h: 44, color: "#a39a8e", faces: ["w"] },
     { x: 31, z: -31, w: 12, d: 12, h: 32, color: "#6f7c8c", faces: [] },
-    { x: -16, z: 17, w: 12, d: 14, h: 34, color: "#c9c2b6", faces: ["n", "e"] },
     { x: -30, z: 16, w: 12, d: 12, h: 28, color: "#8f9aa8", faces: ["n"] },
+    { x: -16, z: 17, w: 12, d: 14, h: 34, color: "#c9c2b6", faces: ["n", "e"] }, // deli on 42nd St
     { x: -16, z: 31, w: 12, d: 10, h: 42, color: "#9aa4ae", faces: ["e"] },
     { x: -31, z: 31, w: 12, d: 12, h: 26, color: "#b8b0a4", faces: [] },
-    { x: 16, z: 17, w: 12, d: 14, h: 46, color: "#a39a8e", faces: ["n", "w"] },
-    { x: 31, z: 16, w: 12, d: 12, h: 30, color: "#7d8794", faces: ["n"] },
     { x: 16, z: 31, w: 12, d: 10, h: 38, color: "#c9c2b6", faces: ["w"] },
+    { x: 16, z: 17, w: 12, d: 14, h: 46, color: "#a39a8e", faces: ["n", "w"] }, // pizza on 42nd St
     { x: 31, z: 31, w: 12, d: 12, h: 28, color: "#8f9aa8", faces: [] },
-    // Narrow tower of stacked screens closing the end of the avenue.
-    { x: 0, z: -47, w: 10, d: 8, h: 62, color: "#5f6875", faces: ["s"] },
+    // One Times Square: the narrow tower of screens in the wedge between 7th Avenue and Broadway.
+    { x: 9, z: -4, w: 4.5, d: 5, h: 64, color: "#5f6875", faces: ["s", "n"], ads: ["hana", "fml"] },
+    // Billboard wall closing the view up 7th Avenue.
+    { x: -4, z: -50, w: 14, d: 8, h: 50, color: "#6f7c8c", faces: ["s"], ads: ["fml"] },
   ],
   trees: [],
   vending: [],
+  plaza: { a: [33, 10], b: [-22, -40], w: 7 },
   props: [
-    { kind: "steps", x: -29, z: -15, rot: 0 }, // red bleacher steps where a building would stand
+    { kind: "steps", x: -11, z: -31, rot: 0.69 }, // red steps in Duffy Square, looking back at One Times Square
+    { kind: "statue", x: -8.1, z: -27.5, rot: 0.69 },
     { kind: "subway", x: -8.1, z: 24, rot: 0 },
-    { kind: "hotdog", x: -20, z: 8.0, rot: 0 },
+    { kind: "hotdog", x: -26, z: 8.0, rot: 0 },
+    { kind: "planter", x: 12.5, z: -11, rot: 0 },
+    { kind: "table", x: 15, z: -7, rot: 0 },
+    { kind: "table", x: 14, z: -14, rot: 0 },
+    { kind: "planter", x: -16, z: -36, rot: 0 },
     ...[-30, -20, 20, 30].flatMap((d) => [
       { kind: "lamp" as const, x: d, z: -6.6, rot: 0 }, { kind: "lamp" as const, x: d, z: 6.6, rot: 0 },
     ]),
   ],
-  coins: [[0, 0], [0, -12], [-12, 0], [12, 0], [0, 12], [-20, -8.2], [20, 8.2], [-8.2, 18], [30, -8], [-30, 8]],
+  coins: [[0, 0], [0, -12], [-12, 0], [12, 0], [0, 12], [-20, -8.2], [20, 8.2], [-8.2, 18], [30, -8], [-32, 8.2], [15, -10], [-9, -22]],
   scramble: false,
   vehicles: [
     { kind: "taxi", color: "#f6c945" },

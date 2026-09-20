@@ -139,6 +139,117 @@ export const CONVERSATIONS: Record<ShopId, Conversation> = {
       },
     },
   },
+  gacha: {
+    start: "greet",
+    nodes: {
+      greet: {
+        text: {
+          ja: "いらっしゃいませ！ガチャは1回2コインから。何が出るかはお楽しみ！",
+          kana: "いらっしゃいませ！ガチャは 1かい 2コインから。なにが でるかは おたのしみ！",
+          romaji: "Irasshaimase! Gacha wa ikkai ni-koin kara. Nani ga deru ka wa otanoshimi!",
+          en: "Welcome! Capsules start at 2 coins a turn. What comes out is a surprise!",
+          es: "¡Bienvenido! Las cápsulas cuestan desde 2 monedas. ¡Lo que sale es una sorpresa!",
+          zh: "欢迎光临！扭蛋每次2枚硬币起。扭出什么全看运气！",
+          fr: "Bienvenue ! Les capsules commencent à 2 pièces. La surprise fait partie du jeu !",
+        },
+        choices: [
+          { label: { ja: "どんなのがある？", kana: "どんなのが ある？", romaji: "Donna no ga aru?", en: "What do you have?", es: "¿Qué tienen?", zh: "有哪些？", fr: "Qu'avez-vous ?" }, action: "menu" },
+          { label: { ja: "おすすめは？", kana: "おすすめは？", romaji: "Osusume wa?", en: "Any favorites?", es: "¿Alguna favorita?", zh: "有推荐的吗？", fr: "Un favori ?" }, next: "recommend" },
+          { label: { ja: "見てるだけです。", kana: "みてる だけです。", romaji: "Miteru dake desu.", en: "Just looking.", es: "Solo estoy mirando.", zh: "随便看看。", fr: "Je regarde seulement." }, action: "close" },
+        ],
+      },
+      recommend: {
+        text: {
+          ja: "すしネコがいちばん人気！だるまは、願いごとをしながら回してね。",
+          kana: "すしネコが いちばん にんき！だるまは、ねがいごとを しながら まわしてね。",
+          romaji: "Sushi Neko ga ichiban ninki! Daruma wa, negaigoto o shinagara mawashite ne.",
+          en: "Sushi Cat is the most popular! For the daruma, make a wish while you turn the crank.",
+          es: "¡El gato sushi es el más popular! Con el daruma, pide un deseo mientras giras la manivela.",
+          zh: "寿司猫最受欢迎！扭达摩的时候记得许个愿哦。",
+          fr: "Le chat sushi est le plus populaire ! Pour le daruma, faites un vœu en tournant la manivelle.",
+        },
+        choices: [{ label: C.look, action: "menu" }, { label: C.bye, action: "close" }],
+      },
+      thanks: {
+        text: { ja: "やった！いいのが出たね！", kana: "やった！いいのが でたね！", romaji: "Yatta! Ii no ga deta ne!", en: "Yay! You got a good one!", es: "¡Bien! ¡Te salió uno bueno!", zh: "太好了！扭到好东西了！", fr: "Super ! Vous en avez eu un bien !" },
+        choices: [{ label: C.more, action: "menu" }, { label: C.bye, action: "close" }],
+      },
+    },
+  },
+  deli: {
+    start: "greet",
+    nodes: {
+      greet: {
+        text: {
+          ja: "よう、いらっしゃい！何にする？ロールのベーコンエッグチーズが鉄板だよ。",
+          kana: "よう、いらっしゃい！なんに する？ロールの ベーコンエッグチーズが てっぱんだよ。",
+          romaji: "Yō, irasshai! Nan ni suru? Rōru no bēkon eggu chīzu ga teppan da yo.",
+          en: "Hey, welcome in! What can I get you? Bacon, egg and cheese on a roll is the move.",
+          es: "¡Hola, pasa! ¿Qué te pongo? El bacon, huevo y queso en pan es lo mejor.",
+          zh: "嘿，欢迎！要点什么？面包夹培根鸡蛋芝士是必点。",
+          fr: "Salut, entrez ! Je vous sers quoi ? Le bacon-œuf-fromage dans un petit pain, c'est le bon choix.",
+        },
+        choices: [
+          { label: { ja: "メニューを見せて。", kana: "メニューを みせて。", romaji: "Menyū o misete.", en: "Let me see the menu.", es: "Déjame ver el menú.", zh: "给我看看菜单。", fr: "Montrez-moi le menu." }, action: "menu" },
+          { label: { ja: "チョップドチーズって何？", kana: "チョップドチーズって なに？", romaji: "Choppudo chīzu tte nani?", en: "What's a chopped cheese?", es: "¿Qué es un chopped cheese?", zh: "碎牛肉芝士是什么？", fr: "C'est quoi, un chopped cheese ?" }, next: "recommend" },
+          { label: { ja: "また今度。", kana: "また こんど。", romaji: "Mata kondo.", en: "Maybe later.", es: "Quizás luego.", zh: "下次吧。", fr: "Peut-être plus tard." }, action: "close" },
+        ],
+      },
+      recommend: {
+        text: {
+          ja: "ひき肉と玉ねぎを鉄板で刻んで、チーズをとかしてロールにはさむんだ。ニューヨークの味だよ。",
+          kana: "ひきにくと たまねぎを てっぱんで きざんで、チーズを とかして ロールに はさむんだ。ニューヨークの あじだよ。",
+          romaji: "Hikiniku to tamanegi o teppan de kizande, chīzu o tokashite rōru ni hasamu n da. Nyūyōku no aji da yo.",
+          en: "Ground beef and onions chopped on the grill, cheese melted on top, all on a roll. Pure New York.",
+          es: "Carne picada y cebolla en la plancha, queso fundido encima, todo en un pan. Puro Nueva York.",
+          zh: "牛肉末和洋葱在铁板上剁碎，盖上融化的芝士，夹进面包里。地道纽约味。",
+          fr: "Bœuf haché et oignons hachés sur la plaque, fromage fondu, le tout dans un pain. Du pur New York.",
+        },
+        choices: [{ label: C.look, action: "menu" }, { label: C.later, action: "close" }],
+      },
+      thanks: {
+        text: { ja: "まいど！よい一日を！", kana: "まいど！よい いちにちを！", romaji: "Maido! Yoi ichinichi o!", en: "Thanks, boss! Have a good one!", es: "¡Gracias, jefe! ¡Que tengas buen día!", zh: "谢啦！祝你愉快！", fr: "Merci, chef ! Bonne journée !" },
+        choices: [{ label: C.more, action: "menu" }, { label: C.bye, action: "close" }],
+      },
+    },
+  },
+  pizza: {
+    start: "greet",
+    nodes: {
+      greet: {
+        text: {
+          ja: "いらっしゃい！焼きたてのピザがあるよ。一切れでもOK！",
+          kana: "いらっしゃい！やきたての ピザが あるよ。ひときれでも OK！",
+          romaji: "Irasshai! Yakitate no piza ga aru yo. Hitokire demo ōkē!",
+          en: "Hi there! Fresh pies just came out of the oven. Slices are fine!",
+          es: "¡Hola! Acaban de salir pizzas del horno. ¡Se venden por porción!",
+          zh: "你好！刚出炉的披萨，单块也卖哦！",
+          fr: "Bonjour ! Les pizzas sortent du four. On vend à la part !",
+        },
+        choices: [
+          { label: { ja: "メニューを見せて。", kana: "メニューを みせて。", romaji: "Menyū o misete.", en: "Let me see the menu.", es: "Déjame ver el menú.", zh: "给我看看菜单。", fr: "Montrez-moi le menu." }, action: "menu" },
+          { label: { ja: "どうやって食べるの？", kana: "どうやって たべるの？", romaji: "Dō yatte taberu no?", en: "How do I eat it?", es: "¿Cómo se come?", zh: "要怎么吃？", fr: "Comment on la mange ?" }, next: "recommend" },
+          { label: { ja: "また来ます。", kana: "また きます。", romaji: "Mata kimasu.", en: "I'll come back.", es: "Vuelvo luego.", zh: "我再来。", fr: "Je repasserai." }, action: "close" },
+        ],
+      },
+      recommend: {
+        text: {
+          ja: "ニューヨーク流は、半分に折って食べるの。ペパロニのカリカリが最高だよ。",
+          kana: "ニューヨークりゅうは、はんぶんに おって たべるの。ペパロニの カリカリが さいこうだよ。",
+          romaji: "Nyūyōku-ryū wa, hanbun ni otte taberu no. Peparoni no karikari ga saikō da yo.",
+          en: "New York style: fold it in half and eat. The crispy pepperoni is the best part.",
+          es: "Al estilo Nueva York: dóblala por la mitad. El pepperoni crujiente es lo mejor.",
+          zh: "纽约吃法是对折着吃。酥脆的辣香肠最棒了。",
+          fr: "À la new-yorkaise : on la plie en deux. Le pepperoni croustillant, c'est le meilleur.",
+        },
+        choices: [{ label: C.look, action: "menu" }, { label: C.bye, action: "close" }],
+      },
+      thanks: {
+        text: { ja: "熱いから気をつけてね！", kana: "あついから きを つけてね！", romaji: "Atsui kara ki o tsukete ne!", en: "Careful, it's hot!", es: "¡Cuidado, que quema!", zh: "小心烫哦！", fr: "Attention, c'est chaud !" },
+        choices: [{ label: C.more, action: "menu" }, { label: C.bye, action: "close" }],
+      },
+    },
+  },
 };
 
 // Hook for the upcoming voice/audio work: called every time a line is shown, with the language on screen.

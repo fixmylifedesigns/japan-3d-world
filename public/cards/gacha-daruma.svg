@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <ellipse cx="100" cy="176" rx="56" ry="8" fill="#000" opacity=".12"/>
+  <path d="M100 24c40 0 64 36 64 80 0 42-26 70-64 70s-64-28-64-70c0-44 24-80 64-80z" fill="#e8433a" stroke="#b92e27" stroke-width="3"/>
+  <ellipse cx="100" cy="86" rx="40" ry="34" fill="#fdf1e0"/>
+  <circle cx="84" cy="84" r="11" fill="#fff" stroke="#2b2521" stroke-width="3"/><circle cx="84" cy="84" r="5" fill="#2b2521"/>
+  <circle cx="116" cy="84" r="11" fill="#fff" stroke="#2b2521" stroke-width="3"/>
+  <path d="M72 70q12-8 22 0M106 70q12-8 22 0" stroke="#2b2521" stroke-width="3" fill="none"/>
+  <path d="M92 104q8 5 16 0" stroke="#2b2521" stroke-width="3" fill="none" stroke-linecap="round"/>
+  <path d="M70 136q30 18 60 0" stroke="#ffd84a" stroke-width="6" fill="none" stroke-linecap="round"/>
+  <text x="100" y="160" font-family="sans-serif" font-size="22" font-weight="900" text-anchor="middle" fill="#ffd84a">福</text>
+</svg>
