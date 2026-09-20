@@ -12,6 +12,7 @@ import type { Choice } from "@/components/dialogue";
 import { applySave, loadSave, writeSave } from "@/components/save";
 import { GuideButton, GuideIntro, introSeen } from "@/components/Guide";
 import { Avatar, Icon, Joystick, Minimap } from "@/components/Hud";
+import { MusicPlayer, useTracks } from "@/components/Music";
 
 const START_WALLET = 10;
 const COIN_VALUE = 8;
@@ -41,6 +42,7 @@ export default function Home() {
   const onCoin = useCallback(() => { const c = store.city; setFound((f) => ({ ...f, [c]: (f[c] ?? 0) + 1 })); setWallet((w) => w + COIN_VALUE); }, []);
   const shop = isCity(scene) ? null : SHOPS[scene];
   const cityId: CityId = isCity(scene) ? scene : SHOPS[scene].city;
+  const tracks = useTracks(CITIES[cityId].music);
   const city = CITIES[cityId];
   const coins = found[cityId] ?? 0, totalCoins = city.coins.length;
   const done = coins >= totalCoins;
@@ -188,6 +190,7 @@ export default function Home() {
           <button aria-label="Zoom in" onClick={() => { store.input.zoom = -2; }}>{Icon.plus}</button>
           <button aria-label="Zoom out" onClick={() => { store.input.zoom = 2; }}>{Icon.minus}</button>
           <button aria-label="Put camera behind character" onClick={() => { store.input.recenter = true; }}>{Icon.focus}</button>
+          <MusicPlayer tracks={tracks} lang={lang} />
           <button aria-label={t("controls", lang)} aria-expanded={helpOpen} onClick={() => setHelpOpen((o) => !o)}>{Icon.help}</button>
         </div>
 
