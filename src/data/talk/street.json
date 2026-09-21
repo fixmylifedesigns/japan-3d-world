@@ -1,0 +1,147 @@
+{
+  "names": [
+    { "ja": "ユイ", "kana": "ユイ", "romaji": "Yui", "en": "Yui", "who": "f" },
+    { "ja": "ハルト", "kana": "ハルト", "romaji": "Haruto", "en": "Haruto", "who": "m" },
+    { "ja": "ミサキ", "kana": "ミサキ", "romaji": "Misaki", "en": "Misaki", "who": "f" },
+    { "ja": "テツさん", "kana": "テツさん", "romaji": "Tetsu-san", "en": "Tetsu", "who": "old" },
+    { "ja": "ソウタ", "kana": "ソウタ", "romaji": "Sōta", "en": "Sota", "who": "m" },
+    { "ja": "リコ", "kana": "リコ", "romaji": "Riko", "en": "Riko", "who": "f" },
+    { "ja": "ダイキ", "kana": "ダイキ", "romaji": "Daiki", "en": "Daiki", "who": "m" },
+    { "ja": "カナ", "kana": "カナ", "romaji": "Kana", "en": "Kana", "who": "f" }
+  ],
+
+  "greetings": [
+    { "id": "tk-greet-lost", "text": { "ja": "ねえねえ、どしたの？迷子？", "kana": "ねえねえ、どしたの？まいご？", "romaji": "Nē nē, doshita no? Maigo?", "en": "Hey hey, what's up? Are you lost?", "es": "Oye, oye, ¿qué pasa? ¿Te perdiste?", "zh": "嘿嘿，怎么啦？迷路了吗？", "fr": "Hé, hé, qu'est-ce qu'il y a ? Tu es perdu ?" } },
+    { "id": "tk-greet-edo", "who": "old", "text": { "ja": "おう、そこのあんた！なんか用かい？", "kana": "おう、そこの あんた！なんか ようかい？", "romaji": "Ō, soko no anta! Nanka yō kai?", "en": "Oi, you there! Need somethin'?", "es": "¡Eh, tú! ¿Necesitas algo?", "zh": "喂，那边的！有啥事儿？", "fr": "Eh, toi là ! Tu veux quelque chose ?" } },
+    { "id": "tk-greet-hat", "text": { "ja": "え、ヤバ！その帽子、超かわいいじゃん！", "kana": "え、ヤバ！その ぼうし、ちょう かわいいじゃん！", "romaji": "E, yaba! Sono bōshi, chō kawaii jan!", "en": "Whoa, no way! That hat is super cute!", "es": "¡Uy, qué fuerte! ¡Ese gorro es superlindo!", "zh": "哇，绝了！你这帽子超可爱的！", "fr": "Oh là là ! Ton bonnet est trop mignon !" } },
+    { "id": "tk-greet-rush", "text": { "ja": "あ、ども〜。今ちょっと急いでるけど、なに？", "kana": "あ、ども〜。いま ちょっと いそいでるけど、なに？", "romaji": "A, domo~. Ima chotto isoideru kedo, nani?", "en": "Oh, hey. I'm kind of in a rush, but what's up?", "es": "Ah, hola. Voy con algo de prisa, pero ¿qué pasa?", "zh": "啊，你好～我现在有点赶时间，什么事？", "fr": "Ah, salut. Je suis un peu pressé, mais c'est quoi ?" } },
+    { "id": "tk-greet-first", "text": { "ja": "こんちは！観光？渋谷はじめて？", "kana": "こんちは！かんこう？しぶや はじめて？", "romaji": "Konchiwa! Kankō? Shibuya hajimete?", "en": "Hiya! Sightseeing? First time in Shibuya?", "es": "¡Holaaa! ¿De turismo? ¿Primera vez en Shibuya?", "zh": "你好呀！来观光的？第一次来涩谷吗？", "fr": "Coucou ! Tu fais du tourisme ? C'est ta première fois à Shibuya ?" } },
+    { "id": "tk-greet-hachiko", "text": { "ja": "しーっ！今、ハチ公と目が合った気がする…", "kana": "しーっ！いま、ハチこうと めが あった きが する…", "romaji": "Shī! Ima, Hachikō to me ga atta ki ga suru…", "en": "Shhh! I think Hachikō just made eye contact with me…", "es": "¡Shhh! Creo que Hachikō acaba de mirarme a los ojos…", "zh": "嘘！我感觉八公刚才跟我对视了……", "fr": "Chut ! Je crois qu'Hachikō vient de me regarder dans les yeux…" } }
+  ],
+
+  "start": ["howAreYou", "directions", "food", "story", "bye"],
+
+  "questions": {
+    "howAreYou": {
+      "ask": { "ja": "元気？", "kana": "げんき？", "romaji": "Genki?", "en": "How are you?", "es": "¿Cómo estás?", "zh": "你好吗？", "fr": "Ça va ?" },
+      "answers": [
+        { "id": "tk-hay-boba", "next": ["whyThree"], "text": { "ja": "超元気！さっきタピオカ3杯飲んだから。", "kana": "ちょう げんき！さっき タピオカ 3ばい のんだから。", "romaji": "Chō genki! Sakki tapioka sanbai nonda kara.", "en": "Super good! I just drank three bubble teas.", "es": "¡Superbién! Acabo de tomarme tres tés de burbujas.", "zh": "超好！我刚喝了三杯珍珠奶茶。", "fr": "Super bien ! Je viens de boire trois bubble teas." } },
+        { "id": "tk-hay-lasttrain", "next": ["whyNotHome"], "text": { "ja": "ぶっちゃけ最悪。終電逃して、ずっと渋谷にいる。今日で3日目。", "kana": "ぶっちゃけ さいあく。しゅうでん のがして、ずっと しぶやに いる。きょうで 3かめ。", "romaji": "Butchake saiaku. Shūden nogashite, zutto Shibuya ni iru. Kyō de mikkame.", "en": "Honestly? The worst. I missed the last train and I've been in Shibuya ever since. Today's day three.", "es": "Sinceramente, fatal. Perdí el último tren y sigo en Shibuya desde entonces. Hoy es el tercer día.", "zh": "说实话，糟透了。我错过了末班车，一直待在涩谷。今天是第三天了。", "fr": "Franchement ? Horrible. J'ai raté le dernier train et je suis coincé à Shibuya depuis. C'est le troisième jour." } },
+        { "id": "tk-hay-edokko", "who": "old", "next": ["edokko"], "text": { "ja": "あたぼうよ！江戸っ子は風邪なんか引かねえ。", "kana": "あたぼうよ！えどっこは かぜなんか ひかねえ。", "romaji": "Atabō yo! Edokko wa kaze nanka hikanē.", "en": "Course I am! A real Edokko never catches a cold.", "es": "¡Pues claro! Un auténtico edokko nunca se resfría.", "zh": "那还用说！地道的江户人才不会感冒。", "fr": "Évidemment ! Un vrai Edokko n'attrape jamais froid." } },
+        { "id": "tk-hay-robot", "who": "f", "next": ["howKnow"], "text": { "ja": "まあまあかな。てか聞いて！彼氏がロボットだったの。", "kana": "まあまあかな。てか きいて！かれしが ロボットだったの。", "romaji": "Māmā ka na. Teka kiite! Kareshi ga robotto datta no.", "en": "So-so. Actually, listen! My boyfriend turned out to be a robot.", "es": "Más o menos. Oye, escucha: ¡mi novio resultó ser un robot!", "zh": "还行吧。话说你听我说！我男朋友居然是个机器人。", "fr": "Bof. Enfin, écoute ! Mon copain était en fait un robot." } },
+        { "id": "tk-hay-karaoke", "next": ["whatSong"], "text": { "ja": "眠い…。きのうカラオケで朝まで歌ってた。", "kana": "ねむい…。きのう カラオケで あさまで うたってた。", "romaji": "Nemui…. Kinō karaoke de asa made utatteta.", "en": "Sleepy… I sang karaoke till sunrise last night.", "es": "Tengo sueño… Anoche estuve cantando karaoke hasta el amanecer.", "zh": "好困……昨天在卡拉OK唱到了天亮。", "fr": "J'ai sommeil… Hier, j'ai fait du karaoké jusqu'à l'aube." } }
+      ]
+    },
+
+    "directions": {
+      "ask": { "ja": "駅ってどっち？", "kana": "えきって どっち？", "romaji": "Eki tte dotchi?", "en": "Which way's the station?", "es": "¿Por dónde queda la estación?", "zh": "车站在哪边？", "fr": "La gare, c'est par où ?" },
+      "answers": [
+        { "id": "tk-dir-construction", "text": { "ja": "あっち！…いや、こっちかも。渋谷駅っていつも工事中だから、誰もわかんないの。", "kana": "あっち！…いや、こっちかも。しぶやえきって いつも こうじちゅうだから、だれも わかんないの。", "romaji": "Atchi! …Iya, kotchi kamo. Shibuya-eki tte itsumo kōjichū da kara, dare mo wakannai no.", "en": "That way! …Or maybe this way. Shibuya Station is always under construction, so nobody really knows.", "es": "¡Por allá! …O quizá por aquí. La estación de Shibuya siempre está en obras, así que nadie lo sabe.", "zh": "那边！……不对，可能是这边。涩谷站一直在施工，谁都搞不清楚。", "fr": "Par là ! …Ou peut-être par ici. La gare de Shibuya est toujours en travaux, personne ne sait vraiment." } },
+        { "id": "tk-dir-hachiko", "text": { "ja": "ハチ公の前だよ。犬の銅像ね。待ち合わせの人がいっぱいいるとこ。", "kana": "ハチこうの まえだよ。いぬの どうぞうね。まちあわせの ひとが いっぱい いる とこ。", "romaji": "Hachikō no mae da yo. Inu no dōzō ne. Machiawase no hito ga ippai iru toko.", "en": "It's by Hachikō — the dog statue. Where everybody waits to meet up.", "es": "Está junto a Hachikō, la estatua del perro. Donde todo el mundo queda.", "zh": "在八公前面哦，就是那座狗的铜像。很多人在那儿等人。", "fr": "C'est devant Hachikō, la statue du chien. Là où tout le monde se donne rendez-vous." } },
+        { "id": "tk-dir-everything", "text": { "ja": "駅？ここ全部、実は駅の一部だよ。", "kana": "えき？ここ ぜんぶ、じつは えきの いちぶだよ。", "romaji": "Eki? Koko zenbu, jitsu wa eki no ichibu da yo.", "en": "The station? All of this is secretly part of the station.", "es": "¿La estación? Todo esto es, en secreto, parte de la estación.", "zh": "车站？其实这里全都是车站的一部分。", "fr": "La gare ? En fait, tout ça, c'est secrètement la gare." } },
+        { "id": "tk-dir-walk", "who": "old", "text": { "ja": "知らねえな。俺ぁ40年歩きっぱなしでな、電車なんざ乗らねえんだ。", "kana": "しらねえな。おれぁ 40ねん あるきっぱなしでな、でんしゃなんざ のらねえんだ。", "romaji": "Shiranē na. Orā yonjū-nen arukippanashi de na, densha nanza noranē n da.", "en": "Dunno. I've been walkin' for forty years — never ride trains.", "es": "Ni idea. Llevo cuarenta años caminando; yo no me subo a trenes.", "zh": "不知道。我走了四十年路，从来不坐电车。", "fr": "Aucune idée. Ça fait quarante ans que je marche, je prends jamais le train." } }
+      ]
+    },
+
+    "food": {
+      "ask": { "ja": "おすすめのごはんある？", "kana": "おすすめの ごはん ある？", "romaji": "Osusume no gohan aru?", "en": "Any food you'd recommend?", "es": "¿Me recomiendas algo de comer?", "zh": "有推荐的吃的吗？", "fr": "Tu me conseilles quoi à manger ?" },
+      "answers": [
+        { "id": "tk-food-ramen", "next": ["whichRamen"], "text": { "ja": "ラーメン一択っしょ！", "kana": "ラーメン いったくっしょ！", "romaji": "Rāmen ittaku ssho!", "en": "Ramen, obviously. No contest!", "es": "¡Ramen, obvio! No hay discusión.", "zh": "那当然是拉面啊！没得选！", "fr": "Des ramens, évidemment ! Y a pas débat." } },
+        { "id": "tk-food-karaage", "text": { "ja": "コンビニの唐揚げ。マジで、あれが東京の本気。", "kana": "コンビニの からあげ。マジで、あれが とうきょうの ほんき。", "romaji": "Konbini no karaage. Maji de, are ga Tōkyō no honki.", "en": "The fried chicken at the konbini. Seriously, that's Tokyo going all out.", "es": "El pollo frito del konbini. En serio, ahí Tokio lo da todo.", "zh": "便利店的炸鸡块。说真的，那才是东京的真本事。", "fr": "Le poulet frit du konbini. Sérieux, c'est Tokyo à son meilleur." } },
+        { "id": "tk-food-monja", "text": { "ja": "もんじゃ焼き！見た目はアレだけど、うまいから。", "kana": "もんじゃやき！みためは アレだけど、うまいから。", "romaji": "Monjayaki! Mitame wa are da kedo, umai kara.", "en": "Monjayaki! It looks kinda weird, but trust me, it's delicious.", "es": "¡Monjayaki! Tiene una pinta rara, pero está buenísimo.", "zh": "文字烧！看着有点那啥，但真的好吃。", "fr": "Du monjayaki ! Ça a une drôle de tête, mais c'est délicieux." } },
+        { "id": "tk-food-moyashi", "text": { "ja": "寿司…って言いたいけど、今月ピンチだから、もやし。", "kana": "すし…って いいたいけど、こんげつ ピンチだから、もやし。", "romaji": "Sushi… tte iitai kedo, kongetsu pinchi da kara, moyashi.", "en": "I wanna say sushi… but I'm broke this month, so: bean sprouts.", "es": "Quisiera decir sushi… pero este mes ando sin dinero, así que: brotes de soja.", "zh": "我很想说寿司……但这个月手头紧，所以是豆芽。", "fr": "J'aimerais dire sushis… mais je suis fauché ce mois-ci, alors : pousses de soja." } }
+      ]
+    },
+
+    "story": {
+      "ask": { "ja": "なんかおもしろい話ある？", "kana": "なんか おもしろい はなし ある？", "romaji": "Nanka omoshiroi hanashi aru?", "en": "Got any fun stories?", "es": "¿Tienes alguna historia divertida?", "zh": "有什么好玩的事吗？", "fr": "T'as une histoire marrante ?" },
+      "answers": [
+        { "id": "tk-story-faces", "who": "f", "next": ["really"], "text": { "ja": "この交差点、一回で3000人くらい渡るんだって。あたし、全員の顔覚えてる。", "kana": "この こうさてん、いっかいで 3000にん くらい わたるんだって。あたし、ぜんいんの かお おぼえてる。", "romaji": "Kono kōsaten, ikkai de sanzen-nin kurai wataru n datte. Atashi, zen'in no kao oboeteru.", "en": "They say around 3,000 people cross here at once. I remember every single face.", "es": "Dicen que aquí cruzan unas 3.000 personas a la vez. Yo me acuerdo de todas las caras.", "zh": "听说这个路口一次能有三千人过马路。我记得每个人的脸。", "fr": "Il paraît qu'environ 3 000 personnes traversent ici d'un coup. Je me souviens de chaque visage." } },
+        { "id": "tk-story-crow", "next": ["andThen"], "text": { "ja": "きのう、カラスにSuica盗まれた。", "kana": "きのう、カラスに Suica ぬすまれた。", "romaji": "Kinō, karasu ni Suica nusumareta.", "en": "Yesterday a crow stole my Suica card.", "es": "Ayer un cuervo me robó la tarjeta Suica.", "zh": "昨天一只乌鸦偷走了我的Suica卡。", "fr": "Hier, un corbeau m'a volé ma carte Suica." } },
+        { "id": "tk-story-river", "who": "old", "text": { "ja": "てやんでえ、知ってっか？昔ここにはな、川が流れてたんだよ。今も地面の下にあるんだぜ。", "kana": "てやんでえ、しってっか？むかし ここには な、かわが ながれてたんだよ。いまも じめんの したに あるんだぜ。", "romaji": "Teyandē, shittekka? Mukashi koko ni wa na, kawa ga nagareteta n da yo. Ima mo jimen no shita ni aru n da ze.", "en": "Well, whaddaya know? A river used to run right here. It's still down there, under the street.", "es": "¿A que no lo sabías? Antes por aquí pasaba un río. Todavía sigue ahí, bajo la calle.", "zh": "嘿，你知道吗？以前这里有条河，现在还在地底下流着呢。", "fr": "Tu savais ? Avant, une rivière coulait ici. Elle est toujours là, sous la rue." } },
+        { "id": "tk-story-dream", "who": "m", "text": { "ja": "スクランブル交差点って、実はぼくがデザインしたんだ。…夢の中でね。", "kana": "スクランブル こうさてんって、じつは ぼくが デザイン したんだ。…ゆめの なかでね。", "romaji": "Sukuranburu kōsaten tte, jitsu wa boku ga dezain shita n da. …Yume no naka de ne.", "en": "I actually designed the scramble crossing. …In a dream.", "es": "En realidad, yo diseñé el cruce de Shibuya. …En un sueño.", "zh": "其实这个全向十字路口是我设计的。……在梦里。", "fr": "En fait, c'est moi qui ai dessiné ce carrefour. …Dans un rêve." } }
+      ]
+    },
+
+    "bye": {
+      "ask": { "ja": "じゃあね！", "kana": "じゃあね！", "romaji": "Jā ne!", "en": "See you!", "es": "¡Nos vemos!", "zh": "回见！", "fr": "À plus !" },
+      "answers": [
+        { "id": "tk-bye-matane", "end": true, "text": { "ja": "またね〜！", "kana": "またね〜！", "romaji": "Mata ne~!", "en": "See ya~!", "es": "¡Nos vemooos!", "zh": "下次见～！", "fr": "À la prochaine !" } },
+        { "id": "tk-bye-edo", "who": "old", "end": true, "text": { "ja": "おう、気ぃつけて行きな！", "kana": "おう、きぃ つけて いきな！", "romaji": "Ō, kī tsukete ikina!", "en": "Alright, watch yourself out there!", "es": "¡Venga, ve con cuidado!", "zh": "好嘞，路上小心！", "fr": "Allez, fais attention à toi !" } },
+        { "id": "tk-bye-hachi", "end": true, "text": { "ja": "バイバイ！ハチ公によろしくね！", "kana": "バイバイ！ハチこうに よろしくね！", "romaji": "Bai bai! Hachikō ni yoroshiku ne!", "en": "Bye-bye! Say hi to Hachikō for me!", "es": "¡Chao! ¡Salúdame a Hachikō!", "zh": "拜拜！替我向八公问好！", "fr": "Bye-bye ! Passe le bonjour à Hachikō !" } },
+        { "id": "tk-bye-already", "end": true, "text": { "ja": "え、もう？…まあいっか。", "kana": "え、もう？…まあ いっか。", "romaji": "E, mō? …Mā ikka.", "en": "What, already? …Eh, whatever.", "es": "¿Qué, ya? …Bueno, da igual.", "zh": "啊，这就走了？……算了。", "fr": "Quoi, déjà ? …Bon, tant pis." } }
+      ]
+    },
+
+    "whyThree": {
+      "ask": { "ja": "なんで3杯も？", "kana": "なんで 3ばいも？", "romaji": "Nande sanbai mo?", "en": "Why three?!", "es": "¿¡Por qué tres!?", "zh": "为什么喝三杯？！", "fr": "Pourquoi trois ?!" },
+      "answers": [
+        { "id": "tk-three-me", "text": { "ja": "1杯目は自分用、2杯目も自分用、3杯目も自分用。", "kana": "1ぱいめは じぶんよう、2はいめも じぶんよう、3ばいめも じぶんよう。", "romaji": "Ippaime wa jibun-yō, nihaime mo jibun-yō, sanbaime mo jibun-yō.", "en": "The first one was for me. The second was for me. The third was also for me.", "es": "El primero era para mí. El segundo, para mí. El tercero, también para mí.", "zh": "第一杯是给自己的，第二杯也是，第三杯还是。", "fr": "Le premier, c'était pour moi. Le deuxième aussi. Le troisième aussi." } },
+        { "id": "tk-three-stamp", "text": { "ja": "スタンプカード、あと3個で満タンだったの。", "kana": "スタンプカード、あと 3こで まんタンだったの。", "romaji": "Sutanpu kādo, ato sanko de mantan datta no.", "en": "My stamp card was three stamps from full.", "es": "A mi tarjeta de sellos le faltaban tres para llenarse.", "zh": "我的集点卡还差三个章就集满了。", "fr": "Il me manquait trois tampons pour remplir ma carte de fidélité." } },
+        { "id": "tk-three-idk", "text": { "ja": "わかんない。気づいたら3杯。", "kana": "わかんない。きづいたら 3ばい。", "romaji": "Wakannai. Kizuitara sanbai.", "en": "No idea. Next thing I knew, three.", "es": "Ni idea. Cuando me di cuenta, ya iban tres.", "zh": "不知道。回过神来就三杯了。", "fr": "Aucune idée. Le temps de réaliser, j'en étais à trois." } }
+      ]
+    },
+
+    "whyNotHome": {
+      "ask": { "ja": "え、なんで帰らないの？", "kana": "え、なんで かえらないの？", "romaji": "E, nande kaeranai no?", "en": "Wait, why don't you just go home?", "es": "Espera, ¿por qué no te vas a casa?", "zh": "等等，你为什么不回家？", "fr": "Attends, pourquoi tu rentres pas chez toi ?" },
+      "answers": [
+        { "id": "tk-home-forgot", "text": { "ja": "帰り方、忘れちゃった。", "kana": "かえりかた、わすれちゃった。", "romaji": "Kaerikata, wasurechatta.", "en": "I forgot how.", "es": "Se me olvidó cómo.", "zh": "我忘了怎么回去了。", "fr": "J'ai oublié comment." } },
+        { "id": "tk-home-comfy", "text": { "ja": "渋谷、居心地よすぎて。", "kana": "しぶや、いごこち よすぎて。", "romaji": "Shibuya, igokochi yosugite.", "en": "Shibuya's just too comfy.", "es": "Shibuya es demasiado cómodo.", "zh": "涩谷待着太舒服了。", "fr": "Shibuya, c'est trop confortable." } },
+        { "id": "tk-home-key", "text": { "ja": "家の鍵をハチ公にあずけたら、返してくれないの。", "kana": "いえの かぎを ハチこうに あずけたら、かえして くれないの。", "romaji": "Ie no kagi o Hachikō ni azuketara, kaeshite kurenai no.", "en": "I left my house key with Hachikō and he won't give it back.", "es": "Le dejé las llaves de casa a Hachikō y no me las devuelve.", "zh": "我把家门钥匙寄放在八公那儿，它不肯还我。", "fr": "J'ai confié mes clés à Hachikō et il veut pas me les rendre." } }
+      ]
+    },
+
+    "edokko": {
+      "ask": { "ja": "江戸っ子って何？", "kana": "えどっこって なに？", "romaji": "Edokko tte nani?", "en": "What's an Edokko?", "es": "¿Qué es un edokko?", "zh": "江户人是什么意思？", "fr": "C'est quoi, un Edokko ?" },
+      "answers": [
+        { "id": "tk-edo-three", "text": { "ja": "三代続けて東京生まれ。それが江戸っ子よ。", "kana": "さんだい つづけて とうきょう うまれ。それが えどっこよ。", "romaji": "Sandai tsuzukete Tōkyō umare. Sore ga edokko yo.", "en": "Three generations born in Tokyo. That's an Edokko.", "es": "Tres generaciones nacidas en Tokio. Eso es un edokko.", "zh": "连续三代都在东京出生，这就是江户人。", "fr": "Trois générations nées à Tokyo. Ça, c'est un Edokko." } },
+        { "id": "tk-edo-money", "text": { "ja": "江戸っ子は呵越しの銭は持たねえ！…だから財布がいつも空っぽなんだ。", "kana": "えどっこは よいごしの ぜには もたねえ！…だから さいふが いつも からっぽなんだ。", "romaji": "Edokko wa yoigoshi no zeni wa motanē! …Dakara saifu ga itsumo karappo nan da.", "en": "An Edokko never keeps money overnight! …Which is why my wallet's always empty.", "es": "¡Un edokko nunca guarda dinero para el día siguiente! …Por eso mi cartera siempre está vacía.", "zh": "江户人从不留隔夜钱！……所以我的钱包永远是空的。", "fr": "Un Edokko ne garde jamais d'argent jusqu'au lendemain ! …C'est pour ça que mon portefeuille est toujours vide." } }
+      ]
+    },
+
+    "howKnow": {
+      "ask": { "ja": "え、なんでわかったの？", "kana": "え、なんで わかったの？", "romaji": "E, nande wakatta no?", "en": "Wait, how'd you find out?", "es": "Espera, ¿cómo te enteraste?", "zh": "等等，你怎么发现的？", "fr": "Attends, comment t'as su ?" },
+      "answers": [
+        { "id": "tk-know-charge", "text": { "ja": "充電してるとこ、見ちゃった。", "kana": "じゅうでん してる とこ、みちゃった。", "romaji": "Jūden shiteru toko, michatta.", "en": "I caught him charging.", "es": "Lo pillé cargándose.", "zh": "我撞见他在充电。", "fr": "Je l'ai surpris en train de se recharger." } },
+        { "id": "tk-know-error", "text": { "ja": "くしゃみしたら「エラー」って言ったの。", "kana": "くしゃみ したら「エラー」って いったの。", "romaji": "Kushami shitara \"erā\" tte itta no.", "en": "He sneezed and said \"ERROR.\"", "es": "Estornudó y dijo «ERROR».", "zh": "他打喷嚏的时候说了一句“错误”。", "fr": "Il a éternué et il a dit « ERREUR »." } },
+        { "id": "tk-know-rain", "text": { "ja": "雨の日だけ、ぜったい外に出ないの。", "kana": "あめの ひだけ、ぜったい そとに でないの。", "romaji": "Ame no hi dake, zettai soto ni denai no.", "en": "He never goes outside when it rains. Never.", "es": "Los días de lluvia no sale de casa. Nunca.", "zh": "只有下雨天，他绝对不出门。", "fr": "Les jours de pluie, il ne sort jamais. Jamais." } }
+      ]
+    },
+
+    "whatSong": {
+      "ask": { "ja": "何歌ったの？", "kana": "なに うたったの？", "romaji": "Nani utatta no?", "en": "What'd you sing?", "es": "¿Qué cantaste?", "zh": "你唱了什么？", "fr": "T'as chanté quoi ?" },
+      "answers": [
+        { "id": "tk-song-40", "text": { "ja": "同じ曲を40回。", "kana": "おなじ きょくを 40かい。", "romaji": "Onaji kyoku o yonjukkai.", "en": "The same song. Forty times.", "es": "La misma canción. Cuarenta veces.", "zh": "同一首歌，唱了四十遍。", "fr": "La même chanson. Quarante fois." } },
+        { "id": "tk-song-enka", "text": { "ja": "ぜんぶ演歌。10時間。", "kana": "ぜんぶ えんか。10じかん。", "romaji": "Zenbu enka. Jū-jikan.", "en": "Only enka. For ten hours.", "es": "Solo enka. Diez horas.", "zh": "全是演歌，唱了十个小时。", "fr": "Que de l'enka. Pendant dix heures." } },
+        { "id": "tk-song-sleep", "text": { "ja": "歌ってない。マイク持ったまま寝てた。", "kana": "うたってない。マイク もった まま ねてた。", "romaji": "Utattenai. Maiku motta mama neteta.", "en": "I didn't. I fell asleep holding the mic.", "es": "No canté nada. Me dormí con el micro en la mano.", "zh": "我没唱，拿着麦克风就睡着了。", "fr": "J'ai rien chanté. Je me suis endormi avec le micro dans la main." } }
+      ]
+    },
+
+    "really": {
+      "ask": { "ja": "え、マジで？", "kana": "え、マジで？", "romaji": "E, maji de?", "en": "Wait, seriously?", "es": "Espera, ¿en serio?", "zh": "等等，真的假的？", "fr": "Attends, sérieux ?" },
+      "answers": [
+        { "id": "tk-really-lie", "text": { "ja": "うそ。ウケる。", "kana": "うそ。ウケる。", "romaji": "Uso. Ukeru.", "en": "Nope. LOL.", "es": "Mentira. Jajaja.", "zh": "骗你的。笑死。", "fr": "Non. MDR." } },
+        { "id": "tk-really-you", "text": { "ja": "マジ。あなたの顔も、もう覚えたから。", "kana": "マジ。あなたの かおも、もう おぼえたから。", "romaji": "Maji. Anata no kao mo, mō oboeta kara.", "en": "Seriously. I've already memorized your face too.", "es": "En serio. Tu cara también ya me la sé.", "zh": "真的。你的脸我也已经记住了。", "fr": "Sérieux. Ton visage aussi, je l'ai déjà retenu." } },
+        { "id": "tk-really-two", "text": { "ja": "…ほんとは2人しか覚えてない。", "kana": "…ほんとは 2にんしか おぼえてない。", "romaji": "…Honto wa futari shika oboetenai.", "en": "…Honestly, I only remember two.", "es": "…La verdad, solo me acuerdo de dos.", "zh": "……其实我只记得两个人。", "fr": "…En vrai, je m'en souviens que de deux." } }
+      ]
+    },
+
+    "andThen": {
+      "ask": { "ja": "それで、どうなったの？", "kana": "それで、どう なったの？", "romaji": "Sorede, dō natta no?", "en": "And then what happened?", "es": "¿Y qué pasó después?", "zh": "然后呢？怎么样了？", "fr": "Et ensuite, il s'est passé quoi ?" },
+      "answers": [
+        { "id": "tk-crow-gate", "text": { "ja": "カラスがそのまま改札通ってった。", "kana": "カラスが そのまま かいさつ とおってった。", "romaji": "Karasu ga sono mama kaisatsu tōtteta.", "en": "The crow walked right through the ticket gate.", "es": "El cuervo pasó el torniquete como si nada.", "zh": "那只乌鸦就那样直接刷卡进站了。", "fr": "Le corbeau a passé le portique comme si de rien n'était." } },
+        { "id": "tk-crow-train", "text": { "ja": "たぶん今も、どっかで電車乗ってると思う。", "kana": "たぶん いまも、どっかで でんしゃ のってると おもう。", "romaji": "Tabun ima mo, dokka de densha notteru to omou.", "en": "I think it's still riding trains somewhere.", "es": "Creo que todavía anda en tren por ahí.", "zh": "我觉得它现在还在哪儿坐电车呢。", "fr": "Je pense qu'il prend encore le train quelque part." } },
+        { "id": "tk-crow-rich", "text": { "ja": "残高5000円。あのカラス、今けっこう金持ち。", "kana": "ざんだか 5000えん。あの カラス、いま けっこう かねもち。", "romaji": "Zandaka gosen-en. Ano karasu, ima kekkō kanemochi.", "en": "It had ¥5,000 on it. That crow's loaded now.", "es": "Tenía 5.000 yenes cargados. Ese cuervo ahora está forrado.", "zh": "卡里有五千日元。那只乌鸦现在挺有钱的。", "fr": "Il y avait 5 000 yens dessus. Ce corbeau est blindé maintenant." } }
+      ]
+    },
+
+    "whichRamen": {
+      "ask": { "ja": "何ラーメン？", "kana": "なに ラーメン？", "romaji": "Nani rāmen?", "en": "What kind?", "es": "¿De qué tipo?", "zh": "什么拉面？", "fr": "Quel genre ?" },
+      "answers": [
+        { "id": "tk-ramen-shoyu", "text": { "ja": "醤油！東京はやっぱ醤油っしょ。", "kana": "しょうゆ！とうきょうは やっぱ しょうゆっしょ。", "romaji": "Shōyu! Tōkyō wa yappa shōyu ssho.", "en": "Shoyu! Tokyo's all about soy sauce ramen.", "es": "¡Shoyu! En Tokio manda el ramen de soja.", "zh": "酱油！东京当然是酱油拉面啦。", "fr": "Shoyu ! À Tokyo, c'est le ramen à la sauce soja." } },
+        { "id": "tk-ramen-abura", "text": { "ja": "油そば。スープないけど、ラーメンだから。", "kana": "あぶらそば。スープ ないけど、ラーメンだから。", "romaji": "Abura soba. Sūpu nai kedo, rāmen da kara.", "en": "Abura soba. No soup, but it still counts as ramen.", "es": "Abura soba. No lleva caldo, pero cuenta como ramen.", "zh": "油拌面。没有汤，但也算拉面。", "fr": "Abura soba. Y a pas de bouillon, mais ça compte comme ramen." } },
+        { "id": "tk-ramen-cup", "text": { "ja": "カップ麺。3分待てるなら、ね。", "kana": "カップめん。3ぷん まてるなら、ね。", "romaji": "Kappu-men. Sanpun materu nara, ne.", "en": "Cup noodles. If you can wait three whole minutes.", "es": "Fideos instantáneos. Si aguantas tres minutos enteros.", "zh": "杯面。前提是你能等三分钟。", "fr": "Des nouilles instantanées. Si t'arrives à attendre trois minutes." } }
+      ]
+    }
+  }
+}
