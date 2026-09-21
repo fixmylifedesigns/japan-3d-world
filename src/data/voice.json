@@ -11,5 +11,12 @@
       "lang": "en",
       "voices": { "f": "g6xIsTj2HwM6VR4iXFCw", "m": "PAbPFVA4obZowUI1zdq9" }
     }
+  },
+  "shops": {
+    "konbini": { "lang": "ja", "voice": "qbfQuoRJv1T3ei3qV4bc" },
+    "retro": { "lang": "ja", "voice": "pUgmTF2V1ptIKsYb6qON" },
+    "gacha": { "lang": "ja", "voice": "qbfQuoRJv1T3ei3qV4bc" },
+    "deli": { "lang": "en", "voice": "IoWn77TsmQnza94sYlfg" },
+    "pizza": { "lang": "en", "voice": "0zj1iWvloMkAXydIFsJR" }
   }
 }
