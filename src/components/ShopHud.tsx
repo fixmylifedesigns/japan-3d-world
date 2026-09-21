@@ -4,6 +4,8 @@ import { CONVERSATIONS, speak, type Choice } from "./dialogue";
 import { CARDS, CARD_IDS, CITY_SET, CLERK_NAMES, SET_NAME, SHOP_NAMES, cardName } from "./cards";
 import { LANGS, isJapanese, pick, t, type Lang } from "./i18n";
 import { ITEMS, SHOPS, type Interactable, type ShopId } from "./shops";
+import type { CityId } from "./cities";
+import { npcName, type TalkLine } from "./talk";
 
 export type Panel =
   | { kind: "talk"; shop: ShopId; node: string }
@@ -13,6 +15,7 @@ export type Panel =
   | { kind: "cards"; id: string } // card viewer over the whole collection
   | { kind: "guide" } // Hana's introduction
   | { kind: "travel" } // city picker
+  | { kind: "npc"; npc: number; city: CityId; line: TalkLine; choices: string[]; asked?: string } // talking to a passerby
   | null;
 
 const Coin = ({ n }: { n: number }) => <span className="price"><span className="coin sm" />{n}</span>;
@@ -22,6 +25,7 @@ export function promptText(it: Interactable, lang: Lang) {
   if (it.kind === "door") return t("promptEnter", lang, { shop: pick(SHOP_NAMES[it.shop], lang) });
   if (it.kind === "exit") return t("promptExit", lang);
   if (it.kind === "clerk") return t("promptTalk", lang, { name: pick(CLERK_NAMES[it.shop], lang) });
+  if (it.kind === "npc") return t("promptTalk", lang, { name: pick(npcName(it.city, it.npc), lang) });
   return t("promptLook", lang, { item: cardName(it.item, lang) });
 }
 

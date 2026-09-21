@@ -960,6 +960,13 @@ function Npc({ i, route }: { i: number; route: (typeof ROUTES)[number] }) {
   })());
   useFrame(({ clock }, rawDt) => {
     const dt = Math.min(rawDt, 0.05), s = st.current, p = store.player;
+    if (store.talk === i) {
+      // In a conversation: stand still and face the player until it ends.
+      s.ry = angleLerp(s.ry, Math.atan2(p.x - s.x, p.z - s.z), 1 - Math.exp(-dt * 8));
+      anim.current.speed += (0 - anim.current.speed) * Math.min(1, dt * 8);
+      g.current.rotation.y = s.ry;
+      return;
+    }
     const [tx, tz] = s.toB ? route.b : route.a;
     const dx = tx - s.x, dz = tz - s.z, d = Math.hypot(dx, dz);
     let v = 0;
@@ -1173,7 +1180,7 @@ function CameraRig({ env }: { env: Env }) {
   const { camera, gl, size } = useThree();
   const inset = useRef(0);
   useEffect(() => () => (camera as THREE.PerspectiveCamera).clearViewOffset(), [camera]);
-  const s = useRef({ pitch: env.pitch ?? 0.3, saved: null as number | null, dragEnd: 0, dist: env.dist, cur: env.dist, drag: false, lx: 0, ly: 0, tgt: new THREE.Vector3(store.player.x, 1.5, store.player.z) });
+  const s = useRef({ pitch: env.pitch ?? 0.3, saved: null as number | null, sideFor: null as object | null, sideYaw: 0, dragEnd: 0, dist: env.dist, cur: env.dist, drag: false, lx: 0, ly: 0, tgt: new THREE.Vector3(store.player.x, 1.5, store.player.z) });
   useEffect(() => {
     const el = gl.domElement, st = s.current;
     el.style.touchAction = "none";
@@ -1214,7 +1221,18 @@ function CameraRig({ env }: { env: Env }) {
     }
     if (f) {
       if (st.saved === null) st.saved = st.pitch;
-      store.camYaw = angleLerp(store.camYaw, f.yaw, kf);
+      // `anySide` framings (street conversations) may swing round if a wall would crowd the camera: try the other
+      // shoulder, then the other person's side, and take the first angle with a clear view (else the roomiest).
+      if (f.anySide && st.sideFor !== f) {
+        st.sideFor = f;
+        let room = -1;
+        for (const y of [f.yaw, f.yaw - 1.5, f.yaw + Math.PI, f.yaw + Math.PI - 1.5]) {
+          const r = env.boom(f.x, f.y, f.z, y, f.pitch, f.dist);
+          if (r >= f.dist * 0.95) { st.sideYaw = y; break; }
+          if (r > room) { room = r; st.sideYaw = y; }
+        }
+      }
+      store.camYaw = angleLerp(store.camYaw, f.anySide ? st.sideYaw : f.yaw, kf);
       st.pitch += (f.pitch - st.pitch) * kf;
     } else if (st.saved !== null) {
       st.pitch = st.saved; st.saved = null;
@@ -1244,17 +1262,30 @@ function CameraRig({ env }: { env: Env }) {
 
 /* ---------- interactions ---------- */
 // Finds the closest interactable the player is standing near and reports changes to the HUD.
-function Interactions({ list, onNear }: { list: Interactable[]; onNear: (it: Interactable | null) => void }) {
-  useEffect(() => () => { store.near = null; onNear(null); }, [list, onNear]);
+// On the street that includes everyone walking around (`npcCity`), since any of them can be talked to.
+const NPC_REACH = 1.6;
+function Interactions({ list, npcCity, onNear }: { list: Interactable[]; npcCity?: CityId; onNear: (it: Interactable | null) => void }) {
+  useEffect(() => () => { store.near = null; onNear(null); }, [list, npcCity, onNear]);
   useFrame(() => {
     const p = store.player;
-    let best: Interactable | null = null, bd = Infinity;
+    let best: Interactable | null = null, bd = Infinity, who = -1;
     for (const it of list) {
       const d = Math.hypot(p.x - it.x, p.z - it.z);
       if (d < it.r && d < bd) { best = it; bd = d; }
     }
-    const id = best ? best.id : null;
-    if (id !== store.near) { store.near = id; onNear(best); }
+    if (npcCity) {
+      for (let i = 0; i < store.npcs.length; i++) {
+        const n = store.npcs[i];
+        if (!n) continue;
+        const d = Math.hypot(p.x - n.x, p.z - n.z);
+        if (d < NPC_REACH && d < bd) { best = null; who = i; bd = d; }
+      }
+    }
+    const id = who >= 0 ? `npc-${who}` : best ? best.id : null;
+    if (id === store.near) return;
+    store.near = id;
+    const n = store.npcs[who];
+    onNear(who >= 0 && npcCity ? { kind: "npc", id: id!, x: n.x, z: n.z, r: NPC_REACH, npc: who, city: npcCity } : best);
   });
   return null;
 }
@@ -1266,6 +1297,10 @@ function StreetScene({ city, onCoin }: { city: City; onCoin: () => void }) {
   const nyc = city.style === "nyc";
   // Diagonal crossings only exist where the city has a scramble crossing.
   const routes = ROUTES.filter((r) => city.scramble || r.a[0] === r.b[0] || r.a[1] === r.b[1]);
+  useEffect(() => {
+    store.npcs.length = routes.length;
+    return () => { store.npcs.length = 0; };
+  }, [routes.length]);
   return (
     <>
       <fog attach="fog" args={[HORIZON, 48, 110]} />
@@ -1296,7 +1331,7 @@ function Scene({ scene, runRef, onCoin, onActivity, onNear }: SceneProps) {
       {isCity(scene) ? <StreetScene key={scene} city={city} onCoin={onCoin} /> : <InteriorRoom shop={SHOPS_BY_ID[scene]} />}
       <Player key={`p-${scene}`} env={env} runRef={runRef} onActivity={onActivity} />
       <CameraRig key={`c-${scene}`} env={env} />
-      <Interactions list={list} onNear={onNear} />
+      <Interactions list={list} npcCity={isCity(scene) ? scene : undefined} onNear={onNear} />
     </>
   );
 }

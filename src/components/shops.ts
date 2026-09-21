@@ -195,7 +195,8 @@ export type Interactable =
   | { kind: "door"; id: string; x: number; z: number; r: number; shop: ShopId }
   | { kind: "exit"; id: string; x: number; z: number; r: number; shop: ShopId }
   | { kind: "clerk"; id: string; x: number; z: number; r: number; shop: ShopId }
-  | { kind: "item"; id: string; x: number; z: number; r: number; shop: ShopId; item: string };
+  | { kind: "item"; id: string; x: number; z: number; r: number; shop: ShopId; item: string }
+  | { kind: "npc"; id: string; x: number; z: number; r: number; npc: number; city: CityId }; // anyone walking around
 
 export function streetInteractables(city: CityId): Interactable[] {
   return SHOP_LIST.filter((s) => s.city === city).map((s) => {

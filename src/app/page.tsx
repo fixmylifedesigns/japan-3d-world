@@ -13,6 +13,8 @@ import { applySave, loadSave, writeSave } from "@/components/save";
 import { GuideButton, GuideIntro, introSeen } from "@/components/Guide";
 import { Avatar, Icon, Joystick, Minimap } from "@/components/Hud";
 import { MusicPlayer, useTracks } from "@/components/Music";
+import { NpcTalkPanel } from "@/components/NpcTalk";
+import { choicesAfter, greet, npcFocus, reply } from "@/components/talk";
 
 const START_WALLET = 10;
 const COIN_VALUE = 8;
@@ -53,7 +55,8 @@ export default function Home() {
   useEffect(() => {
     store.input.locked = panel !== null;
     const p = store.player;
-    store.focus = panel?.kind === "item" ? { ...itemFocus(panel.id), dist: itemFocus(panel.id).dist * (innerWidth < innerHeight ? 1.45 : 1) } : panel?.kind === "talk" || panel?.kind === "menu" ? clerkFocus(p.x, p.z) : null;
+    store.focus = panel?.kind === "item" ? { ...itemFocus(panel.id), dist: itemFocus(panel.id).dist * (innerWidth < innerHeight ? 1.45 : 1) } : panel?.kind === "talk" || panel?.kind === "menu" ? clerkFocus(p.x, p.z) : panel?.kind === "npc" ? npcFocus(p.x, p.z, store.npcs[panel.npc]) : null;
+    store.talk = panel?.kind === "npc" ? panel.npc : null;
   }, [panel]);
   useEffect(() => { store.focus = null; }, [scene]);
 
@@ -101,6 +104,11 @@ export default function Home() {
       sceneRef.current = home; setPanel(null); setScene(home);
     } else if (it.kind === "clerk") {
       setPanel({ kind: "talk", shop: it.shop, node: "greet" });
+    } else if (it.kind === "npc") {
+      const n = store.npcs[it.npc];
+      if (n) p.ry = Math.atan2(n.x - p.x, n.z - p.z); // turn to face them
+      const line = greet(it.city, it.npc);
+      setPanel({ kind: "npc", npc: it.npc, city: it.city, line, choices: choicesAfter(it.city, line) });
     } else {
       setPanel({ kind: "item", id: it.item });
     }
@@ -232,6 +240,13 @@ export default function Home() {
           />
         )}
 
+        {panel?.kind === "npc" && (
+          <NpcTalkPanel
+            city={panel.city} npc={panel.npc} line={panel.line} choices={panel.choices} asked={panel.asked} lang={lang}
+            onAsk={(q) => { const line = reply(panel.city, panel.npc, q); setPanel({ ...panel, line, asked: q, choices: choicesAfter(panel.city, line, q) }); }}
+            onClose={() => setPanel(null)}
+          />
+        )}
         {panel?.kind === "travel" && <TravelPanel current={cityId} lang={lang} onGo={travel} onClose={() => setPanel(null)} />}
         {panel?.kind === "guide" && <GuideIntro lang={lang} setLang={setLang} onClose={() => setPanel(null)} />}
 
