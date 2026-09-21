@@ -87,6 +87,10 @@ The clips are made with ElevenLabs by `scripts/build-voices.mjs`:
 Only new or changed lines are generated on later runs, and clips for deleted lines are removed. Lines without a
 clip just stay silent, so the game works before any voices exist.
 
+Shop clerks are voiced the same way: each shop has one voice and its city's language under `shops` in
+`src/data/voice.json`, and their lines come straight from `src/components/dialogue.ts`. Reading that file needs
+Node 22.6 or newer; `npm run voices` turns on Node's TypeScript support for it.
+
 ## Adding a city
 
 Add `<cityId>.json` here, then add it to the `TALK` map at the top of `src/components/talk.ts`.

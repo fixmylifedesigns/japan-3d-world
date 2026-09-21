@@ -1,4 +1,4 @@
-// Generates the voice clips for street conversations with ElevenLabs.
+// Generates the voice clips for street conversations and shop clerks with ElevenLabs.
 //
 // Each city is voiced in its own language only (Tokyo in Japanese, New York in English), whatever language the
 // player reads the text in. Every line is recorded once per kind of speaker that can say it (woman, man, old man),
@@ -9,6 +9,10 @@
 //   npm run voices -- --city street   only one city
 //   npm run voices -- --force         regenerate everything
 //
+// Clerks (src/components/dialogue.ts) each have one voice and speak their shop's city language; their clips go to
+// public/voice/shops/<shop id>/<node id>.mp3 (`--city shops` does only them). Reading dialogue.ts needs Node's
+// TypeScript support, which `npm run voices` switches on.
+//
 // Needs ELEVENLABS_API_KEY in the environment or in .env.local (never commit the key; .env* is gitignored).
 // Settings and voice ids live in src/data/voice.json. Output: public/voice/<city>/<kind>/<line id>.mp3 plus
 // public/voice/manifest.json, which the game reads to know which clips exist. A clip is only regenerated when its
@@ -16,7 +20,7 @@
 import { createHash } from "node:crypto";
 import { existsSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const OUT = join(root, "public", "voice");
@@ -38,8 +42,11 @@ function apiKey() {
   return null;
 }
 
+const hashOf = (voice, lang, text) =>
+  createHash("sha1").update(JSON.stringify([cfg.model, cfg.format, cfg.settings, voice, lang, text])).digest("hex").slice(0, 10);
+
 // Every clip the config asks for, with the text it should say.
-function wanted() {
+async function wanted() {
   const clips = [];
   const missing = new Set();
   for (const [city, c] of Object.entries(cfg.cities)) {
@@ -55,8 +62,24 @@ function wanted() {
         const voice = c.voices[kind];
         if (!voice) { missing.add(`${city}/${kind}`); continue; }
         if (clips.some((x) => x.key === `${city}/${kind}/${line.id}`)) continue;
-        const hash = createHash("sha1").update(JSON.stringify([cfg.model, cfg.format, cfg.settings, voice, c.lang, text])).digest("hex").slice(0, 10);
-        clips.push({ key: `${city}/${kind}/${line.id}`, city, kind, id: line.id, lang: c.lang, voice, text, hash });
+        clips.push({ key: `${city}/${kind}/${line.id}`, city, kind, id: line.id, lang: c.lang, voice, text, hash: hashOf(voice, c.lang, text) });
+      }
+    }
+  }
+  // Shop clerks: every line of their conversation, in one voice per shop.
+  if (cfg.shops && (!onlyCity || onlyCity === "shops")) {
+    let CONVERSATIONS;
+    try {
+      ({ CONVERSATIONS } = await import(pathToFileURL(join(root, "src", "components", "dialogue.ts")).href));
+    } catch (e) {
+      console.error(`Couldn't read src/components/dialogue.ts (${e.message}). Run this with \`npm run voices\` on Node 22.6 or newer.`);
+      process.exit(1);
+    }
+    for (const [shop, s] of Object.entries(cfg.shops)) {
+      if (!s.voice) { missing.add(`shops/${shop}`); continue; }
+      for (const [id, node] of Object.entries(CONVERSATIONS[shop]?.nodes ?? {})) {
+        const text = node.text[s.lang];
+        clips.push({ key: `shops/${shop}/${id}`, city: "shops", kind: shop, id, lang: s.lang, voice: s.voice, text, hash: hashOf(s.voice, s.lang, text) });
       }
     }
   }
@@ -91,7 +114,7 @@ const saveManifest = () => {
   writeFileSync(MANIFEST, JSON.stringify({ clips: sorted }, null, 1) + "\n");
 };
 
-const { clips, missing } = wanted();
+const { clips, missing } = await wanted();
 const todo = clips.filter((c) => force || manifest.clips[c.key] !== c.hash || !existsSync(join(OUT, `${c.key}.mp3`)));
 const chars = todo.reduce((n, c) => n + c.text.length, 0);
 if (missing.length) console.log(`No voice id set in src/data/voice.json for: ${missing.join(", ")} (those clips are skipped)`);

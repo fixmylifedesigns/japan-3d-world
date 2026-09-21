@@ -4,7 +4,8 @@
 import { useEffect } from "react";
 import { CITIES, type CityId } from "./cities";
 import { pick, t, type Lang } from "./i18n";
-import { TALK, npcName, speakLine, stopVoice, type TalkLine } from "./talk";
+import { TALK, npcName, speakLine, type TalkLine } from "./talk";
+import { stopVoice } from "./voice";
 
 const FACES = ["#e8836f", "#6f8fbf", "#8ec5a4", "#c8b6e2", "#f2b632", "#5d7f6a", "#f19a7a", "#3f7fd8"];
 
