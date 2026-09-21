@@ -1,11 +1,12 @@
 "use client";
 import { useEffect, useRef, useState, type ReactNode } from "react";
-import { CONVERSATIONS, speak, type Choice } from "./dialogue";
+import { CONVERSATIONS, type Choice } from "./dialogue";
 import { CARDS, CARD_IDS, CITY_SET, CLERK_NAMES, SET_NAME, SHOP_NAMES, cardName } from "./cards";
 import { LANGS, isJapanese, pick, t, type Lang } from "./i18n";
 import { ITEMS, SHOPS, type Interactable, type ShopId } from "./shops";
 import type { CityId } from "./cities";
 import { npcName, type TalkLine } from "./talk";
+import { speakClerk } from "./voice";
 
 export type Panel =
   | { kind: "talk"; shop: ShopId; node: string }
@@ -62,7 +63,7 @@ export function LangPicker({ lang, setLang }: { lang: Lang; setLang: (l: Lang) =
 export function DialoguePanel({ shop, nodeId, lang, onChoice }: { shop: ShopId; nodeId: string; lang: Lang; onChoice: (c: Choice) => void }) {
   const node = CONVERSATIONS[shop].nodes[nodeId];
   const name = pick(CLERK_NAMES[shop], lang);
-  useEffect(() => { speak(node, lang); }, [node, lang]);
+  useEffect(() => { speakClerk(shop, nodeId); }, [shop, nodeId]); // in the shop's language, not the text language
   useEffect(() => {
     const k = (e: KeyboardEvent) => {
       const n = Number(e.key);
