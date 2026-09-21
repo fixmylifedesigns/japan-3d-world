@@ -5,11 +5,11 @@
   "cities": {
     "street": {
       "lang": "ja",
-      "voices": { "f": "", "m": "", "old": "" }
+      "voices": { "f": "8EkOjt4xTPGMclNlh1pk", "m": "7V2labMjY8jnJlxDRW75", "old": "" }
     },
     "timesq": {
       "lang": "en",
-      "voices": { "f": "", "m": "" }
+      "voices": { "f": "g6xIsTj2HwM6VR4iXFCw", "m": "PAbPFVA4obZowUI1zdq9" }
     }
   }
 }

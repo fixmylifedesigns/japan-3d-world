@@ -49,9 +49,12 @@ function wanted() {
     const lines = [...talk.greetings, ...Object.values(talk.questions).flatMap((q) => q.answers)];
     for (const line of lines) {
       const text = line.text[c.lang];
-      for (const kind of line.who ? [line.who].flat() : kinds) {
+      for (const tag of line.who ? [line.who].flat() : kinds) {
+        // No old-man voice yet? Old men use the man's voice (the game falls back the same way when playing).
+        const kind = c.voices[tag] ? tag : tag === "old" && c.voices.m ? "m" : tag;
         const voice = c.voices[kind];
         if (!voice) { missing.add(`${city}/${kind}`); continue; }
+        if (clips.some((x) => x.key === `${city}/${kind}/${line.id}`)) continue;
         const hash = createHash("sha1").update(JSON.stringify([cfg.model, cfg.format, cfg.settings, voice, c.lang, text])).digest("hex").slice(0, 10);
         clips.push({ key: `${city}/${kind}/${line.id}`, city, kind, id: line.id, lang: c.lang, voice, text, hash });
       }
