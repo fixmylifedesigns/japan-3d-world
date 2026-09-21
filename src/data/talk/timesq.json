@@ -1,0 +1,112 @@
+{
+  "names": [
+    { "ja": "トニー", "kana": "トニー", "romaji": "Tonī", "en": "Tony", "who": "m" },
+    { "ja": "キーシャ", "kana": "キーシャ", "romaji": "Kīsha", "en": "Keisha", "who": "f" },
+    { "ja": "ドレ", "kana": "ドレ", "romaji": "Dore", "en": "Dre", "who": "m" },
+    { "ja": "マリソル", "kana": "マリソル", "romaji": "Marisoru", "en": "Marisol", "who": "f" },
+    { "ja": "サル", "kana": "サル", "romaji": "Saru", "en": "Sal", "who": "m" },
+    { "ja": "ジェイレン", "kana": "ジェイレン", "romaji": "Jeiren", "en": "Jaylen", "who": "m" },
+    { "ja": "ローザ", "kana": "ローザ", "romaji": "Rōza", "en": "Rosa", "who": "f" },
+    { "ja": "ヴィニー", "kana": "ヴィニー", "romaji": "Vinī", "en": "Vinny", "who": "m" }
+  ],
+
+  "greetings": [
+    { "id": "ny-greet-yer", "text": { "ja": "ヤーッ！調子どうよ？", "kana": "ヤーッ！ちょうし どうよ？", "romaji": "Yā! Chōshi dō yo?", "en": "Yerrr! What's good?", "es": "¡Yeeerr! ¿Qué hay?", "zh": "耶——！最近咋样？", "fr": "Yèèèr ! Quoi de neuf ?" } },
+    { "id": "ny-greet-b", "text": { "ja": "よう、兄弟！大丈夫か？", "kana": "よう、きょうだい！だいじょうぶか？", "romaji": "Yō, kyōdai! Daijōbu ka?", "en": "Yo, B! You good?", "es": "¡Ey, bro! ¿Todo bien?", "zh": "哟，兄弟！你还好吧？", "fr": "Yo, frérot ! Ça va ?" } },
+    { "id": "ny-greet-lost", "who": "m", "text": { "ja": "おい、迷子か？めちゃくちゃ迷子な顔してんぞ。", "kana": "おい、まいごか？めちゃくちゃ まいごな かお してんぞ。", "romaji": "Oi, maigo ka? Mechakucha maigo na kao shiten zo.", "en": "Ayo, you lost? You look mad lost.", "es": "Oye, ¿te perdiste? Tienes cara de estar perdidísimo.", "zh": "哎，你迷路了？你看着超级迷茫啊。", "fr": "Hé, t'es perdu ? T'as vraiment l'air paumé." } },
+    { "id": "ny-greet-walkin", "text": { "ja": "おい、こっちは歩いてんだよ！", "kana": "おい、こっちは あるいてんだよ！", "romaji": "Oi, kotchi wa aruiten da yo!", "en": "Hey, I'm walkin' here!", "es": "¡Oye, que voy caminando!", "zh": "喂，我正走着呢！", "fr": "Hé, je marche, là !" } },
+    { "id": "ny-greet-pigeons", "text": { "ja": "マジで助かった。1時間ずっとハトとしゃべってたんだよ。", "kana": "マジで たすかった。1じかん ずっと ハトと しゃべってたんだよ。", "romaji": "Maji de tasukatta. Ichijikan zutto hato to shabettetan da yo.", "en": "Deadass, you just saved me. I been talkin' to pigeons for an hour.", "es": "En serio, me salvaste. Llevo una hora hablando con palomas.", "zh": "说真的，你救了我。我跟鸽子聊了整整一个小时。", "fr": "Sérieux, tu me sauves. Ça fait une heure que je parle aux pigeons." } },
+    { "id": "ny-greet-welcome", "text": { "ja": "よっ、元気？ようこそ、ニューヨークへ。", "kana": "よっ、げんき？ようこそ、ニューヨークへ。", "romaji": "Yo, genki? Yōkoso, Nyūyōku e.", "en": "What's good, fam? Welcome to the city.", "es": "¿Qué onda, familia? Bienvenido a la ciudad.", "zh": "咋样，家人？欢迎来到纽约。", "fr": "Ça dit quoi, la famille ? Bienvenue en ville." } }
+  ],
+
+  "start": ["howAreYou", "todo", "food", "subway", "bye"],
+
+  "questions": {
+    "howAreYou": {
+      "ask": { "ja": "調子どう？", "kana": "ちょうし どう？", "romaji": "Chōshi dō?", "en": "How you doin'?", "es": "¿Cómo te va?", "zh": "你最近怎么样？", "fr": "Ça va, toi ?" },
+      "answers": [
+        { "id": "ny-hay-cheating", "next": ["withWho"], "text": { "ja": "それ聞かないでくれ。彼女に浮気されてたって、今わかったんだよ。", "kana": "それ きかないでくれ。かのじょに うわき されてたって、いま わかったんだよ。", "romaji": "Sore kikanaide kure. Kanojo ni uwaki sareteta tte, ima wakattan da yo.", "en": "Don't even ask me that. I just found out my girl is cheatin' on me.", "es": "Ni me lo preguntes. Acabo de enterarme de que mi novia me está poniendo los cuernos.", "zh": "别问了。我刚发现我女朋友出轨了。", "fr": "Me demande même pas. Je viens d'apprendre que ma copine me trompe." } },
+        { "id": "ny-hay-slice", "who": "m", "text": { "ja": "最高だぜ。1ドルピザ食ったばっか。もう王様気分よ。", "kana": "さいこうだぜ。1ドル ピザ くった ばっか。もう おうさま きぶんよ。", "romaji": "Saikō da ze. Ichi-doru piza kutta bakka. Mō ōsama kibun yo.", "en": "Mad good, B. Just ate a dollar slice. I'm basically royalty.", "es": "De lujo, bro. Me acabo de comer una porción de a dólar. Soy prácticamente de la realeza.", "zh": "爽翻了，兄弟。刚吃了一块一美元披萨，感觉自己是国王。", "fr": "Trop bien, frérot. Je viens de manger une part à un dollar. Je suis carrément royal." } },
+        { "id": "ny-hay-plant", "next": ["whatPlant"], "text": { "ja": "もうキレそう。植物ひとつ置いただけで、大家に家賃上げられた。", "kana": "もう キレそう。しょくぶつ ひとつ おいた だけで、おおやに やちん あげられた。", "romaji": "Mō kiresō. Shokubutsu hitotsu oita dake de, ōya ni yachin agerareta.", "en": "I'm buggin', son. My landlord raised the rent 'cause I got a plant.", "es": "Estoy flipando, bro. Mi casero me subió el alquiler porque tengo una planta.", "zh": "我要疯了。我就放了一盆植物，房东就给我涨了房租。", "fr": "Je pète un câble. Mon proprio a augmenté le loyer parce que j'ai une plante." } },
+        { "id": "ny-hay-brick", "who": "m", "text": { "ja": "文句はない。…いや、ある。俺はニューヨーカーだからな。電車は遅れるし、外は凍えるし、知らねえ奴にベーグルにくしゃみされた。", "kana": "もんくは ない。…いや、ある。おれは ニューヨーカーだからな。でんしゃは おくれるし、そとは こごえるし、しらねえ やつに ベーグルに くしゃみ された。", "romaji": "Monku wa nai. …Iya, aru. Ore wa Nyūyōkā da kara na. Densha wa okureru shi, soto wa kogoeru shi, shiranē yatsu ni bēguru ni kushami sareta.", "en": "Can't complain. Nah, I can — I'm a New Yorker. Train was late, it's brick out here, and some guy sneezed on my bagel.", "es": "No me puedo quejar. Bueno, sí puedo: soy neoyorquino. El tren llegó tarde, hace un frío que pela y un tipo estornudó en mi bagel.", "zh": "没什么好抱怨的。……不对，有。我可是纽约人。地铁晚点，外面冻死人，还有个陌生人对着我的百吉饼打喷嚏。", "fr": "Je peux pas me plaindre. Enfin si, je suis new-yorkais. Le métro était en retard, il caille dehors et un type a éternué sur mon bagel." } },
+        { "id": "ny-hay-rat", "text": { "ja": "マジで聞いて、さっきネズミがピザ一切れ丸ごと持って、地下鉄の階段降りてった。なんか勇気もらったわ。", "kana": "マジで きいて、さっき ネズミが ピザ ひときれ まるごと もって、ちかてつの かいだん おりてった。なんか ゆうき もらったわ。", "romaji": "Maji de kiite, sakki nezumi ga piza hitokire marugoto motte, chikatetsu no kaidan oritetta. Nanka yūki moratta wa.", "en": "Yo, on God, I just saw a rat carry a whole slice down the subway stairs. I'm inspired.", "es": "Te lo juro, acabo de ver una rata bajar las escaleras del metro con una porción de pizza entera. Me siento inspirado.", "zh": "我发誓，我刚看到一只老鼠叼着一整块披萨下了地铁楼梯。我感觉被激励了。", "fr": "Je te jure, je viens de voir un rat descendre l'escalier du métro avec une part de pizza entière. Ça m'inspire." } }
+      ]
+    },
+
+    "todo": {
+      "ask": { "ja": "このへんで何する？", "kana": "この へんで なに する？", "romaji": "Kono hen de nani suru?", "en": "What's there to do around here?", "es": "¿Qué se puede hacer por aquí?", "zh": "这附近有什么好玩的？", "fr": "Qu'est-ce qu'il y a à faire par ici ?" },
+      "answers": [
+        { "id": "ny-todo-broadway", "text": { "ja": "ブロードウェイのショーを観な。もしくは着ぐるみの奴らがチップで揉めてんのを見る。そっちはタダだ。", "kana": "ブロードウェイの ショーを みな。もしくは きぐるみの やつらが チップで もめてんのを みる。そっちは タダだ。", "romaji": "Burōdowei no shō o mina. Moshikuwa kigurumi no yatsura ga chippu de momete n no o miru. Sotchi wa tada da.", "en": "Catch a Broadway show. Or watch the costume guys argue over tips — that one's free.", "es": "Ve a ver un show de Broadway. O mira a los disfrazados discutir por las propinas; eso es gratis.", "zh": "去看场百老汇演出。或者看那些穿玩偶服的人为了小费吵架——那个免费。", "fr": "Va voir un spectacle à Broadway. Ou regarde les mecs costumés se disputer les pourboires — ça, c'est gratuit." } },
+        { "id": "ny-todo-steps", "text": { "ja": "赤い階段に座って、ネオン眺めな。それが正解。", "kana": "あかい かいだんに すわって、ネオン ながめな。それが せいかい。", "romaji": "Akai kaidan ni suwatte, neon nagamena. Sore ga seikai.", "en": "Sit on the red steps and look at the lights. That's the move.", "es": "Siéntate en las escaleras rojas y mira las luces. Eso es lo que hay que hacer.", "zh": "坐在红色台阶上看灯光。这就对了。", "fr": "Assieds-toi sur les marches rouges et regarde les lumières. C'est ça, le plan." } },
+        { "id": "ny-todo-avoid", "who": "m", "text": { "ja": "何も。本物のニューヨーカーはタイムズスクエアに来ねえんだ。俺がいるのは、俺も迷子だから。", "kana": "なにも。ほんものの ニューヨーカーは タイムズスクエアに こねえんだ。おれが いるのは、おれも まいごだから。", "romaji": "Nani mo. Honmono no Nyūyōkā wa Taimuzu Sukuea ni konē n da. Ore ga iru no wa, ore mo maigo da kara.", "en": "Nothin'. Real New Yorkers avoid Times Square. I'm only here 'cause I'm lost too.", "es": "Nada. Los neoyorquinos de verdad evitan Times Square. Yo estoy aquí porque también me perdí.", "zh": "啥也别干。真正的纽约人都躲着时代广场。我在这儿是因为我也迷路了。", "fr": "Rien. Les vrais New-Yorkais évitent Times Square. Je suis là parce que moi aussi je suis perdu." } },
+        { "id": "ny-todo-stand", "text": { "ja": "歩道のど真ん中で立ち止まってみな。どうなるか見てろ。やれるもんならな。", "kana": "ほどうの どまんなかで たちどまって みな。どう なるか みてろ。やれるもんならな。", "romaji": "Hodō no domannaka de tachidomatte mina. Dō naru ka mitero. Yareru mon nara na.", "en": "Stop in the middle of the sidewalk. See what happens. I dare you.", "es": "Párate en medio de la acera. A ver qué pasa. Te reto.", "zh": "在人行道正中间停下来试试。看看会发生什么。你敢吗？", "fr": "Arrête-toi au milieu du trottoir. Tu vas voir. Chiche." } }
+      ]
+    },
+
+    "food": {
+      "ask": { "ja": "どこで食べたらいい？", "kana": "どこで たべたら いい？", "romaji": "Doko de tabetara ii?", "en": "Where should I eat?", "es": "¿Dónde debería comer?", "zh": "我该去哪儿吃？", "fr": "Je devrais manger où ?" },
+      "answers": [
+        { "id": "ny-food-fold", "text": { "ja": "1ドルピザ。半分に折って食え。フォークなんか使うなよ、恥ずかしいから。", "kana": "1ドル ピザ。はんぶんに おって くえ。フォークなんか つかうなよ、はずかしいから。", "romaji": "Ichi-doru piza. Hanbun ni otte kue. Fōku nanka tsukau na yo, hazukashii kara.", "en": "Dollar slice. Fold it. Don't you dare use a fork, don't embarrass me.", "es": "Porción de a dólar. Dóblala. Ni se te ocurra usar tenedor, no me hagas pasar vergüenza.", "zh": "一美元披萨。对折着吃。千万别用叉子，别给我丢人。", "fr": "Une part à un dollar. Plie-la. Et viens pas me prendre une fourchette, me fais pas honte." } },
+        { "id": "ny-food-chopped", "who": "m", "text": { "ja": "角の店で、チョップドチーズ。俺の紹介って言いな。向こうは俺のこと知らねえけど、言っとけ。", "kana": "かどの みせで、チョップドチーズ。おれの しょうかいって いいな。むこうは おれの こと しらねえけど、いっとけ。", "romaji": "Kado no mise de, choppudo chīzu. Ore no shōkai tte iina. Mukō wa ore no koto shiranē kedo, ittoke.", "en": "Bodega. Chopped cheese. Tell 'em I sent you. They don't know me, but tell 'em.", "es": "En la bodega. Un chopped cheese. Diles que vas de mi parte. No me conocen, pero díselo.", "zh": "去街角小店，点个碎牛肉芝士。就说是我介绍的。他们不认识我，但你照说就行。", "fr": "À l'épicerie du coin. Un chopped cheese. Dis que tu viens de ma part. Ils me connaissent pas, mais dis-le quand même." } },
+        { "id": "ny-food-bagel", "text": { "ja": "ベーグルにクリームチーズ。以上。焼きたてならトーストすんなよ、絶対に。", "kana": "ベーグルに クリームチーズ。いじょう。やきたてなら トースト すんなよ、ぜったいに。", "romaji": "Bēguru ni kurīmu chīzu. Ijō. Yakitate nara tōsuto sunna yo, zettai ni.", "en": "Bagel, schmear, done. And if it's fresh, don't you dare toast it.", "es": "Bagel con queso crema, y listo. Y si está recién hecho, ni se te ocurra tostarlo.", "zh": "百吉饼抹奶油奶酪，完事。要是刚出炉的，千万别烤。", "fr": "Bagel, cream cheese, point. Et s'il est frais, surtout le fais pas griller." } },
+        { "id": "ny-food-hotdog", "who": "m", "text": { "ja": "そこのホットドッグ屋台。あのお湯、1987年から沸きっぱなしだぜ。", "kana": "そこの ホットドッグ やたい。あの おゆ、1987ねんから わきっぱなしだぜ。", "romaji": "Soko no hottodoggu yatai. Ano oyu, sen-kyūhyaku-hachijūnana-nen kara wakippanashi da ze.", "en": "Hot dog cart, right there. That water's been boilin' since 1987.", "es": "El carrito de perritos calientes, ahí mismo. Esa agua lleva hirviendo desde 1987.", "zh": "就那边的热狗车。那锅水从1987年就一直开着。", "fr": "Le stand de hot-dogs, juste là. Cette eau bout depuis 1987." } }
+      ]
+    },
+
+    "subway": {
+      "ask": { "ja": "地下鉄ってどう乗るの？", "kana": "ちかてつって どう のるの？", "romaji": "Chikatetsu tte dō noru no?", "en": "How do I take the subway?", "es": "¿Cómo tomo el metro?", "zh": "地铁怎么坐？", "fr": "Comment on prend le métro ?" },
+      "answers": [
+        { "id": "ny-sub-pray", "text": { "ja": "タッチして、早歩きして、祈れ。", "kana": "タッチして、はやあるき して、いのれ。", "romaji": "Tatchi shite, hayaaruki shite, inore.", "en": "Tap in, walk fast, pray.", "es": "Pasa la tarjeta, camina rápido y reza.", "zh": "刷卡，快走，祈祷。", "fr": "Tu badges, tu marches vite, tu pries." } },
+        { "id": "ny-sub-lines", "text": { "ja": "ここから？1、2、3、7、N、Q、R、W、シャトル…いや、もう歩け。", "kana": "ここから？1、2、3、7、N、Q、R、W、シャトル…いや、もう あるけ。", "romaji": "Koko kara? Ichi, ni, san, nana, N, Q, R, W, shatoru… Iya, mō aruke.", "en": "From here? The 1, 2, 3, the 7, the N, Q, R, W, the shuttle… you know what, just walk.", "es": "¿Desde aquí? El 1, el 2, el 3, el 7, la N, la Q, la R, la W, el shuttle… ¿sabes qué? Camina.", "zh": "从这儿？1号、2号、3号、7号、N、Q、R、W，还有穿梭线……算了，你走路吧。", "fr": "D'ici ? Le 1, le 2, le 3, le 7, la N, la Q, la R, la W, la navette… tu sais quoi, marche." } },
+        { "id": "ny-sub-showtime", "next": ["showtime"], "text": { "ja": "とにかく「ショータイム」の連中と目を合わせるな。あいつら、ビビってんのを嗅ぎつけるから。", "kana": "とにかく「ショータイム」の れんちゅうと めを あわせるな。あいつら、ビビってんのを かぎつけるから。", "romaji": "Tonikaku \"shōtaimu\" no renchū to me o awaseru na. Aitsura, bibitte n no o kagitsukeru kara.", "en": "Just don't make eye contact with the showtime crew. They can smell fear.", "es": "Tú solo no mires a los ojos al grupo del «showtime». Huelen el miedo.", "zh": "千万别跟“表演时间”那帮人对视。他们能闻到恐惧的味道。", "fr": "Surtout, croise pas le regard de la bande du « showtime ». Ils sentent la peur." } }
+      ]
+    },
+
+    "bye": {
+      "ask": { "ja": "じゃ、行くわ。", "kana": "じゃ、いくわ。", "romaji": "Ja, iku wa.", "en": "Aight, I'm out.", "es": "Bueno, me voy.", "zh": "行，我撤了。", "fr": "Bon, j'y vais." },
+      "answers": [
+        { "id": "ny-bye-sayless", "end": true, "text": { "ja": "了解。気をつけてな。", "kana": "りょうかい。きを つけてな。", "romaji": "Ryōkai. Ki o tsukete na.", "en": "Say less. Stay safe out here.", "es": "Dicho está. Cuídate por ahí.", "zh": "懂了。在外面注意安全。", "fr": "Pas besoin d'en dire plus. Fais gaffe à toi." } },
+        { "id": "ny-bye-bet", "end": true, "text": { "ja": "おう、了解。また顔見せろよ。", "kana": "おう、りょうかい。また かお みせろよ。", "romaji": "Ō, ryōkai. Mata kao misero yo.", "en": "Aight, bet. Don't be a stranger.", "es": "Vale, trato hecho. No te pierdas.", "zh": "行，就这么说定了。常来啊。", "fr": "OK, ça marche. Te fais pas rare." } },
+        { "id": "ny-bye-pigeons", "end": true, "text": { "ja": "じゃあな！ハトにエサやるなよ、あいつら組合作ったから。", "kana": "じゃあな！ハトに エサ やるなよ、あいつら くみあい つくったから。", "romaji": "Jā na! Hato ni esa yaru na yo, aitsura kumiai tsukutta kara.", "en": "Peace! Don't feed the pigeons — they unionized.", "es": "¡Paz! No les des de comer a las palomas: se sindicalizaron.", "zh": "回见！别喂鸽子——它们成立工会了。", "fr": "Salut ! Nourris pas les pigeons — ils se sont syndiqués." } },
+        { "id": "ny-bye-forget", "end": true, "text": { "ja": "気にすんな。ほら、行った行った。", "kana": "きに すんな。ほら、いった いった。", "romaji": "Ki ni sunna. Hora, itta itta.", "en": "Fuhgeddaboudit. Go, go, go.", "es": "Olvídalo. Venga, venga, vete.", "zh": "别放在心上。走吧走吧。", "fr": "Laisse tomber. Allez, file, file." } }
+      ]
+    },
+
+    "withWho": {
+      "ask": { "ja": "え、相手は誰？", "kana": "え、あいては だれ？", "romaji": "E, aite wa dare?", "en": "Wait — with who?", "es": "Espera, ¿con quién?", "zh": "等等——跟谁？", "fr": "Attends — avec qui ?" },
+      "answers": [
+        { "id": "ny-who-dad", "next": ["yourDad"], "text": { "ja": "うちの父ちゃん。", "kana": "うちの とうちゃん。", "romaji": "Uchi no tōchan.", "en": "My dad.", "es": "Con mi papá.", "zh": "我爸。", "fr": "Mon père." } },
+        { "id": "ny-who-cat", "text": { "ja": "角の店の猫。あいつのこと、信じてたのに。", "kana": "かどの みせの ねこ。あいつの こと、しんじてたのに。", "romaji": "Kado no mise no neko. Aitsu no koto, shinjiteta noni.", "en": "The bodega cat. I trusted that cat, B.", "es": "Con el gato de la bodega. Confiaba en ese gato, bro.", "zh": "街角小店的那只猫。兄弟，我那么信任它。", "fr": "Avec le chat de l'épicerie. J'avais confiance en ce chat, frérot." } },
+        { "id": "ny-who-toaster", "text": { "ja": "うちのトースター。いつも彼女にアツかったんだよね…気づけって、自分。", "kana": "うちの トースター。いつも かのじょに アツかったんだよね…きづけって、じぶん。", "romaji": "Uchi no tōsutā. Itsumo kanojo ni atsukattan da yo ne… Kizuke tte, jibun.", "en": "My toaster. It was always hot for her. I shoulda known.", "es": "Con mi tostadora. Siempre se calentaba cuando ella estaba cerca. Debí darme cuenta.", "zh": "我家的烤面包机。它一见到她就发热……我早该发现的。", "fr": "Avec mon grille-pain. Il chauffait toujours quand elle était là. J'aurais dû m'en douter." } },
+        { "id": "ny-who-pigeon", "text": { "ja": "でっかいハトの着ぐるみの人。頭すら脱がないんだよ。", "kana": "でっかい ハトの きぐるみの ひと。あたま すら ぬがないんだよ。", "romaji": "Dekkai hato no kigurumi no hito. Atama sura nuganai n da yo.", "en": "The dude in the giant pigeon costume. He don't even take the head off.", "es": "Con el tipo del disfraz de paloma gigante. Ni siquiera se quita la cabeza.", "zh": "那个穿巨型鸽子玩偶服的家伙。他连头套都不摘。", "fr": "Avec le mec déguisé en pigeon géant. Il enlève même pas la tête." } }
+      ]
+    },
+
+    "yourDad": {
+      "ask": { "ja": "お父さんと！？", "kana": "おとうさんと！？", "romaji": "Otōsan to!?", "en": "Your DAD?!", "es": "¡¿Con tu PAPÁ?!", "zh": "跟你爸？！", "fr": "Ton PÈRE ?!" },
+      "answers": [
+        { "id": "ny-dad-thanks", "text": { "ja": "でしょ。今年の感謝祭、ヤバいことになるよ。", "kana": "でしょ。ことしの かんしゃさい、ヤバい ことに なるよ。", "romaji": "Desho. Kotoshi no kanshasai, yabai koto ni naru yo.", "en": "I know. Thanksgiving's gonna be crazy this year.", "es": "Lo sé. Este año el Día de Acción de Gracias va a ser una locura.", "zh": "对吧。今年的感恩节要炸了。", "fr": "Je sais. Thanksgiving va être n'importe quoi cette année." } },
+        { "id": "ny-dad-business", "text": { "ja": "父ちゃんは「ビジネスだ」って。何のビジネスよ、父ちゃん！？", "kana": "とうちゃんは「ビジネスだ」って。なんの ビジネスよ、とうちゃん！？", "romaji": "Tōchan wa \"bijinesu da\" tte. Nan no bijinesu yo, tōchan!?", "en": "He said it's \"strictly business.\" What business, Pop?!", "es": "Dice que es «solo negocios». ¿¡Qué negocios, papá!?", "zh": "他说这“纯属生意”。什么生意啊，老爸？！", "fr": "Il dit que c'est « juste du business ». Quel business, papa ?!" } },
+        { "id": "ny-dad-happy", "text": { "ja": "正直さ、あの二人幸せそうなんだよ。それがムカつく。", "kana": "しょうじき さ、あの ふたり しあわせ そうなんだよ。それが ムカつく。", "romaji": "Shōjiki sa, ano futari shiawase-sō nan da yo. Sore ga mukatsuku.", "en": "Honestly? They look happy together. I hate that.", "es": "¿Sinceramente? Se les ve felices juntos. Eso es lo que más me molesta.", "zh": "说实话？他们俩看起来挺幸福的。这才让我火大。", "fr": "Franchement ? Ils ont l'air heureux ensemble. C'est ça qui m'énerve." } }
+      ]
+    },
+
+    "whatPlant": {
+      "ask": { "ja": "どんな植物？", "kana": "どんな しょくぶつ？", "romaji": "Donna shokubutsu?", "en": "What kind of plant?", "es": "¿Qué tipo de planta?", "zh": "什么植物？", "fr": "Quel genre de plante ?" },
+      "answers": [
+        { "id": "ny-plant-gerald", "who": "m", "text": { "ja": "サボテン。名前はジェラルド。水もいらねえし、俺よりいい住人だよ。", "kana": "サボテン。なまえは ジェラルド。みずも いらねえし、おれより いい じゅうにんだよ。", "romaji": "Saboten. Namae wa Jerarudo. Mizu mo iranē shi, ore yori ii jūnin da yo.", "en": "A cactus named Gerald. He don't even need water. He's a better tenant than me.", "es": "Un cactus que se llama Gerald. Ni siquiera necesita agua. Es mejor inquilino que yo.", "zh": "一株叫杰拉德的仙人掌。它连水都不用喝，比我还像个好房客。", "fr": "Un cactus qui s'appelle Gerald. Il a même pas besoin d'eau. C'est un meilleur locataire que moi." } },
+        { "id": "ny-plant-tree", "text": { "ja": "木だよ、木。ガチの木。ワンルームに。", "kana": "きだよ、き。ガチの き。ワンルームに。", "romaji": "Ki da yo, ki. Gachi no ki. Wanrūmu ni.", "en": "It's a tree, B. A full tree. In a studio apartment.", "es": "Es un árbol, bro. Un árbol entero. En un estudio.", "zh": "是一棵树，兄弟。一整棵树。在一间单间公寓里。", "fr": "C'est un arbre, frérot. Un vrai arbre. Dans un studio." } },
+        { "id": "ny-plant-plastic", "text": { "ja": "プラスチック。それでもカウントされるらしい。", "kana": "プラスチック。それでも カウント されるらしい。", "romaji": "Purasuchikku. Sore demo kaunto sareru rashii.", "en": "Plastic. Still counts, apparently.", "es": "De plástico. Aun así cuenta, por lo visto.", "zh": "塑料的。但好像照样算数。", "fr": "En plastique. Apparemment, ça compte quand même." } }
+      ]
+    },
+
+    "showtime": {
+      "ask": { "ja": "ショータイムって何？", "kana": "ショータイムって なに？", "romaji": "Shōtaimu tte nani?", "en": "What's showtime?", "es": "¿Qué es el «showtime»?", "zh": "“表演时间”是什么？", "fr": "C'est quoi, le « showtime » ?" },
+      "answers": [
+        { "id": "ny-show-poles", "text": { "ja": "走ってる電車の手すりで、宙返りする奴らだよ。帽子は蹴られる。受け入れろ。", "kana": "はしってる でんしゃの てすりで、ちゅうがえり する やつらだよ。ぼうしは けられる。うけいれろ。", "romaji": "Hashitteru densha no tesuri de, chūgaeri suru yatsura da yo. Bōshi wa kerareru. Ukeirero.", "en": "Dudes flip off the train poles while it's movin'. Your hat's gettin' kicked. Accept it.", "es": "Unos tipos que dan volteretas en las barras del vagón en marcha. Te van a patear el gorro. Acéptalo.", "zh": "一群人在行驶的列车扶杆上翻跟头。你的帽子会被踢飞。认命吧。", "fr": "Des mecs qui font des saltos sur les barres du métro en marche. Ton bonnet va se prendre un coup. Accepte-le." } },
+        { "id": "ny-show-in", "text": { "ja": "ダンスショーだよ。お前も今から出演者な。おめでとう。", "kana": "ダンスショーだよ。おまえも いまから しゅつえんしゃな。おめでとう。", "romaji": "Dansu shō da yo. Omae mo ima kara shutsuensha na. Omedetō.", "en": "It's a dance show. You're in it now. Congrats.", "es": "Es un espectáculo de baile. Ahora formas parte de él. Felicidades.", "zh": "是个街舞表演。你现在也是演员了。恭喜。", "fr": "C'est un spectacle de danse. T'en fais partie maintenant. Félicitations." } },
+        { "id": "ny-show-twenty", "text": { "ja": "財布に20ドル札しかないのに、あいつらがこっちをガン見してくる瞬間のことだよ。", "kana": "さいふに 20ドルさつしか ないのに、あいつらが こっちを ガンみ してくる しゅんかんの ことだよ。", "romaji": "Saifu ni nijū-doru-satsu shika nai noni, aitsura ga kotchi o ganmi shite kuru shunkan no koto da yo.", "en": "It's when you realize you only got a twenty and they're lookin' right at you.", "es": "Es ese momento en que te das cuenta de que solo llevas un billete de veinte y te están mirando fijamente.", "zh": "就是你发现钱包里只有一张二十美元，而他们正死死盯着你的那一刻。", "fr": "C'est le moment où tu réalises que t'as qu'un billet de vingt et qu'ils te fixent." } }
+      ]
+    }
+  }
+}
