@@ -68,8 +68,9 @@ export const store = {
   near: null as string | null,
   viewInset: 0, // px of screen covered by a HUD panel at the bottom; the focused thing is framed above it
   // When set, the camera frames this point instead of following the player (used for items and conversations).
-  focus: null as null | { x: number; y: number; z: number; yaw: number; pitch: number; dist: number; hidePlayer?: boolean },
+  focus: null as null | { x: number; y: number; z: number; yaw: number; pitch: number; dist: number; hidePlayer?: boolean; anySide?: boolean },
   npcs: [] as { x: number; z: number }[],
+  talk: null as number | null, // passerby the player is talking to (index into npcs); they stop and face the player
   cars: [] as { x: number; z: number; hx: number; hz: number }[],
   got: {} as Record<string, boolean[]>, // collected coins, per city
   city: "street" as string, // city the player is in (or whose shop they are inside)
