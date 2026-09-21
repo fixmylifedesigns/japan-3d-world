@@ -15,6 +15,8 @@ import { Avatar, Icon, Joystick, Minimap } from "@/components/Hud";
 import { MusicPlayer, useTracks } from "@/components/Music";
 import { NpcTalkPanel } from "@/components/NpcTalk";
 import { choicesAfter, greet, npcFocus, reply } from "@/components/talk";
+import { STATION_NAME, STATION_SPAWN, SUBWAY_CITY, mapFocus, streetExit } from "@/components/subway";
+import { SubwayMapPanel } from "@/components/SubwayMap";
 
 const START_WALLET = 10;
 const COIN_VALUE = 8;
@@ -42,8 +44,9 @@ export default function Home() {
   const [bag, setBag] = useState<Record<string, number>>({});
   const [toast, setToast] = useState<string | null>(null);
   const onCoin = useCallback(() => { const c = store.city; setFound((f) => ({ ...f, [c]: (f[c] ?? 0) + 1 })); setWallet((w) => w + COIN_VALUE); }, []);
-  const shop = isCity(scene) ? null : SHOPS[scene];
-  const cityId: CityId = isCity(scene) ? scene : SHOPS[scene].city;
+  const subway = scene === "subway";
+  const shop = isCity(scene) || scene === "subway" ? null : SHOPS[scene];
+  const cityId: CityId = isCity(scene) ? scene : scene === "subway" ? SUBWAY_CITY : SHOPS[scene].city;
   const tracks = useTracks(CITIES[cityId].music);
   const city = CITIES[cityId];
   const coins = found[cityId] ?? 0, totalCoins = city.coins.length;
@@ -55,7 +58,7 @@ export default function Home() {
   useEffect(() => {
     store.input.locked = panel !== null;
     const p = store.player;
-    store.focus = panel?.kind === "item" ? { ...itemFocus(panel.id), dist: itemFocus(panel.id).dist * (innerWidth < innerHeight ? 1.45 : 1) } : panel?.kind === "talk" || panel?.kind === "menu" ? clerkFocus(p.x, p.z) : panel?.kind === "npc" ? npcFocus(p.x, p.z, store.npcs[panel.npc]) : null;
+    store.focus = panel?.kind === "item" ? { ...itemFocus(panel.id), dist: itemFocus(panel.id).dist * (innerWidth < innerHeight ? 1.45 : 1) } : panel?.kind === "talk" || panel?.kind === "menu" ? clerkFocus(p.x, p.z) : panel?.kind === "npc" ? npcFocus(p.x, p.z, store.npcs[panel.npc]) : panel?.kind === "map" ? { ...mapFocus(), dist: mapFocus().dist * (innerWidth < innerHeight ? 1.45 : 1) } : null;
     store.talk = panel?.kind === "npc" ? panel.npc : null;
   }, [panel]);
   useEffect(() => { store.focus = null; }, [scene]);
@@ -104,6 +107,14 @@ export default function Home() {
       sceneRef.current = home; setPanel(null); setScene(home);
     } else if (it.kind === "clerk") {
       setPanel({ kind: "talk", shop: it.shop, node: "greet" });
+    } else if (it.kind === "subway") {
+      if (it.action === "map") { setPanel({ kind: "map" }); return; }
+      const inside = it.action === "enter";
+      const s = inside ? { ...STATION_SPAWN, y: 0 } : { ...streetExit(), y: 0.15 };
+      Object.assign(p, { x: s.x, y: s.y, z: s.z, ry: s.ry });
+      store.camYaw = s.camYaw;
+      const next = inside ? "subway" : SUBWAY_CITY;
+      sceneRef.current = next; setPanel(null); setScene(next);
     } else if (it.kind === "npc") {
       const n = store.npcs[it.npc];
       if (n) p.ry = Math.atan2(n.x - p.x, n.z - p.z); // turn to face them
@@ -179,8 +190,8 @@ export default function Home() {
         </div>
 
         <button className="pill place" onClick={() => setPanel({ kind: "travel" })} aria-label={pick(TRAVEL_UI.title, lang)}>
-          {Icon.pin}<b>{shop ? shopName : pick(city.name, lang)}</b>
-          {!isJapanese(lang) && <span className="jp">{shop ? SHOP_NAMES[shop.id].ja : city.jp}</span>}
+          {Icon.pin}<b>{subway ? pick(STATION_NAME, lang) : shop ? shopName : pick(city.name, lang)}</b>
+          {!isJapanese(lang) && <span className="jp">{subway ? STATION_NAME.ja : shop ? SHOP_NAMES[shop.id].ja : city.jp}</span>}
           <span className="caret" aria-hidden>▾</span>
         </button>
 
@@ -247,6 +258,7 @@ export default function Home() {
             onClose={() => setPanel(null)}
           />
         )}
+        {panel?.kind === "map" && <SubwayMapPanel lang={lang} onClose={() => setPanel(null)} />}
         {panel?.kind === "travel" && <TravelPanel current={cityId} lang={lang} onGo={travel} onClose={() => setPanel(null)} />}
         {panel?.kind === "guide" && <GuideIntro lang={lang} setLang={setLang} onClose={() => setPanel(null)} />}
 

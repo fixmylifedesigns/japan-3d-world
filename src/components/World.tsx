@@ -9,6 +9,8 @@ import {
 } from "./worldData";
 import { SHOPS as SHOPS_BY_ID, SHOP_LIST, shopInteractables, streetInteractables, type Interactable, type Shop } from "./shops";
 import { InteriorRoom, interiorEnv } from "./Interior";
+import { SUBWAY_CITY, subwayEnv, subwayInteractables } from "./subway";
+import { SubwayStation } from "./SubwayStation";
 import { CITIES, isCity, type City, type CityId, type Plaza, type Prop } from "./cities";
 import { Chibi, PALETTE, aspect, canvasTex, hSign, repeated, rng, shade, std, vSign, type Anim, type Look } from "./art";
 
@@ -1321,14 +1323,14 @@ function StreetScene({ city, onCoin }: { city: City; onCoin: () => void }) {
 }
 
 function Scene({ scene, runRef, onCoin, onActivity, onNear }: SceneProps) {
-  const inside = !isCity(scene);
-  const city = CITIES[isCity(scene) ? scene : SHOPS_BY_ID[scene].city];
+  const inside = !isCity(scene), subway = scene === "subway";
+  const city = CITIES[isCity(scene) ? scene : scene === "subway" ? SUBWAY_CITY : SHOPS_BY_ID[scene].city];
   store.city = city.id;
-  const env = useMemo(() => (inside ? interiorEnv() : cityEnv(city)), [inside, city]);
-  const list = useMemo(() => (isCity(scene) ? streetInteractables(scene) : shopInteractables(SHOPS_BY_ID[scene])), [scene]);
+  const env = useMemo(() => (subway ? subwayEnv() : inside ? interiorEnv() : cityEnv(city)), [subway, inside, city]);
+  const list = useMemo(() => (isCity(scene) ? streetInteractables(scene) : scene === "subway" ? subwayInteractables() : shopInteractables(SHOPS_BY_ID[scene])), [scene]);
   return (
     <>
-      {isCity(scene) ? <StreetScene key={scene} city={city} onCoin={onCoin} /> : <InteriorRoom shop={SHOPS_BY_ID[scene]} />}
+      {isCity(scene) ? <StreetScene key={scene} city={city} onCoin={onCoin} /> : scene === "subway" ? <SubwayStation /> : <InteriorRoom shop={SHOPS_BY_ID[scene]} />}
       <Player key={`p-${scene}`} env={env} runRef={runRef} onActivity={onActivity} />
       <CameraRig key={`c-${scene}`} env={env} />
       <Interactions list={list} npcCity={isCity(scene) ? scene : undefined} onNear={onNear} />

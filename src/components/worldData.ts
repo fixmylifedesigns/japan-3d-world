@@ -47,7 +47,7 @@ export const phase = (t: number) => {
 };
 
 export type Activity = "idle" | "walk" | "run" | "jump";
-export type SceneId = "street" | "timesq" | "konbini" | "retro" | "gacha" | "deli" | "pizza"; // "street" is Shibuya
+export type SceneId = "street" | "timesq" | "konbini" | "retro" | "gacha" | "deli" | "pizza" | "subway"; // "street" is Shibuya; "subway" is Times Sq–42 St
 
 // A walkable space: collisions, ground height and how far the follow camera may pull back.
 export type Env = {

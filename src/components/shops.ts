@@ -3,6 +3,7 @@
 import { type Face } from "./worldData";
 import { CITIES, type CityId } from "./cities";
 import type { Look } from "./art";
+import { subwayStreetInteractables } from "./subway";
 
 export type ShopId = "konbini" | "retro" | "gacha" | "deli" | "pizza";
 export type ItemModel = "onigiri" | "bento" | "sando" | "handheld" | "cart" | "console" | "disc" | "box" | "roll" | "hero" | "bagel" | "slice" | "knots" | "gacha";
@@ -196,13 +197,17 @@ export type Interactable =
   | { kind: "exit"; id: string; x: number; z: number; r: number; shop: ShopId }
   | { kind: "clerk"; id: string; x: number; z: number; r: number; shop: ShopId }
   | { kind: "item"; id: string; x: number; z: number; r: number; shop: ShopId; item: string }
-  | { kind: "npc"; id: string; x: number; z: number; r: number; npc: number; city: CityId }; // anyone walking around
+  | { kind: "npc"; id: string; x: number; z: number; r: number; npc: number; city: CityId } // anyone walking around
+  | { kind: "subway"; id: string; x: number; z: number; r: number; action: "enter" | "exit" | "map" }; // subway stairs and the map board
 
 export function streetInteractables(city: CityId): Interactable[] {
-  return SHOP_LIST.filter((s) => s.city === city).map((s) => {
-    const { stand } = doorFrame(s);
-    return { kind: "door", id: `door-${s.id}`, x: stand[0], z: stand[1], r: 1.7, shop: s.id };
-  });
+  return [
+    ...SHOP_LIST.filter((s) => s.city === city).map((s): Interactable => {
+      const { stand } = doorFrame(s);
+      return { kind: "door", id: `door-${s.id}`, x: stand[0], z: stand[1], r: 1.7, shop: s.id };
+    }),
+    ...subwayStreetInteractables(city),
+  ];
 }
 export function shopInteractables(shop: Shop): Interactable[] {
   return [
