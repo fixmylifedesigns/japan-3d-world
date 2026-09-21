@@ -10,8 +10,8 @@
 //   npm run voices -- --force         regenerate everything
 //
 // Clerks (src/components/dialogue.ts) each have one voice and speak their shop's city language; their clips go to
-// public/voice/shops/<shop id>/<node id>.mp3 (`--city shops` does only them). Reading dialogue.ts needs Node's
-// TypeScript support, which `npm run voices` switches on.
+// public/voice/shops/<shop id>/<node id>.mp3 (`--city shops` does only them). dialogue.ts is read with the project's
+// own TypeScript package, so this works on any recent Node version.
 //
 // Needs ELEVENLABS_API_KEY in the environment or in .env.local (never commit the key; .env* is gitignored).
 // Settings and voice ids live in src/data/voice.json. Output: public/voice/<city>/<kind>/<line id>.mp3 plus
@@ -20,7 +20,7 @@
 import { createHash } from "node:crypto";
 import { existsSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
-import { fileURLToPath, pathToFileURL } from "node:url";
+import { fileURLToPath } from "node:url";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const OUT = join(root, "public", "voice");
@@ -70,9 +70,13 @@ async function wanted() {
   if (cfg.shops && (!onlyCity || onlyCity === "shops")) {
     let CONVERSATIONS;
     try {
-      ({ CONVERSATIONS } = await import(pathToFileURL(join(root, "src", "components", "dialogue.ts")).href));
+      // Turn dialogue.ts into plain JavaScript in memory (it only has type imports, which drop out) and load that.
+      const { default: ts } = await import("typescript");
+      const source = readFileSync(join(root, "src", "components", "dialogue.ts"), "utf8");
+      const js = ts.transpileModule(source, { compilerOptions: { module: ts.ModuleKind.ESNext, target: ts.ScriptTarget.ES2022 } }).outputText;
+      ({ CONVERSATIONS } = await import(`data:text/javascript;base64,${Buffer.from(js).toString("base64")}`));
     } catch (e) {
-      console.error(`Couldn't read src/components/dialogue.ts (${e.message}). Run this with \`npm run voices\` on Node 22.6 or newer.`);
+      console.error(`Couldn't read the clerk lines in src/components/dialogue.ts (${e.message}). Run \`npm install\` first.`);
       process.exit(1);
     }
     for (const [shop, s] of Object.entries(cfg.shops)) {
