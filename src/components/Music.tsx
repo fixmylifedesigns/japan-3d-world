@@ -1,10 +1,13 @@
 "use client";
-// Background music. Every place has its own folder under public/music (japan, newyork, ...); a build step
-// scans those folders and writes public/music/index.json, so dropping a file into a folder is all it takes
-// to add a song. The city picks its folder with the `music` field in cities.ts.
+// Background sound for wherever the player is. Every place has its own folder under public/music; a build step
+// scans those folders and writes public/music/index.json, so dropping a file into a folder is all it takes.
+//   streets:  the city's folder, set with the `music` field in cities.ts (japan, newyork)
+//   inside:   a folder named after the place: konbini, retro, gacha, deli, pizza, subway
+// Walking into a shop or down to the subway switches to that place's sound; a place with an empty folder is quiet.
 //
-// The button lives in the HUD rail above the help button and expands a small player. Nothing plays until
-// the player presses play (browsers block autoplay anyway, and silence is the right default for a game).
+// It's on by default and loops. Browsers only allow sound after the first click, tap or key press, so it starts
+// then. The button in the HUD rail opens a small player to pause it, skip tracks or change the volume; pausing is
+// remembered.
 import { useCallback, useEffect, useRef, useState } from "react";
 import { t, type Lang } from "./i18n";
 
@@ -12,6 +15,7 @@ export type Track = { src: string; title: string };
 type Library = { folders: Record<string, Track[]> };
 
 const VOLUME_KEY = "jw-music-volume";
+const ON_KEY = "jw-music-on";
 
 // Loads the generated index once and hands back the tracks for a folder.
 export function useTracks(folder: string | undefined) {
@@ -43,18 +47,33 @@ export function MusicPlayer({ tracks, lang }: { tracks: Track[]; lang: Lang }) {
   const audio = useRef<HTMLAudioElement>(null);
   const [open, setOpen] = useState(false);
   const [index, setIndex] = useState(0);
-  const [playing, setPlaying] = useState(false); // what the player asked for, not what the element is doing
+  const [playing, setPlaying] = useState(true); // what the player asked for, not what the element is doing
   const [volume, setVolume] = useState(0.6);
+  const toggle = (on: boolean) => {
+    setPlaying(on);
+    try { localStorage.setItem(ON_KEY, on ? "1" : "0"); } catch { /* storage unavailable */ }
+  };
 
   useEffect(() => {
     try {
       const raw = localStorage.getItem(VOLUME_KEY);
       const saved = raw === null ? NaN : Number(raw);
       if (Number.isFinite(saved) && saved >= 0 && saved <= 1) setVolume(saved);
+      if (localStorage.getItem(ON_KEY) === "0") setPlaying(false);
     } catch { /* storage unavailable */ }
   }, []);
 
-  // Changing city swaps the playlist; start it from the top.
+  // Browsers refuse to start sound before the first click, tap or key press; try again on each until it plays.
+  const wantRef = useRef(playing);
+  wantRef.current = playing;
+  useEffect(() => {
+    const kick = () => { const el = audio.current; if (wantRef.current && el?.paused && el.src) el.play().catch(() => {}); };
+    addEventListener("pointerdown", kick);
+    addEventListener("keydown", kick);
+    return () => { removeEventListener("pointerdown", kick); removeEventListener("keydown", kick); };
+  }, []);
+
+  // Changing place swaps the playlist; start it from the top.
   const list = tracks.map((tr) => tr.src).join("|");
   useEffect(() => { setIndex(0); }, [list]);
 
@@ -64,13 +83,13 @@ export function MusicPlayer({ tracks, lang }: { tracks: Track[]; lang: Lang }) {
   const track = tracks[at];
   useEffect(() => { if (audio.current) audio.current.volume = volume; }, [volume, at, list]);
 
-  // One place decides what the element does: if the player asked for music, whatever track is current plays.
-  // That keeps the music going across a track change, a city change and a walk into a shop.
+  // One place decides what the element does: if sound is on, whatever track is current plays. That keeps it going
+  // across a track change and every change of place. A blocked start is retried on the next interaction (above).
   const src = track?.src;
   useEffect(() => {
     const el = audio.current;
     if (!el || !src) return;
-    if (playing) el.play().catch(() => setPlaying(false));
+    if (playing) el.play().catch(() => {});
     else el.pause();
   }, [src, playing]);
 
@@ -100,7 +119,7 @@ export function MusicPlayer({ tracks, lang }: { tracks: Track[]; lang: Lang }) {
           <p className="track">{track.title}</p>
           <div className="transport">
             <button onClick={() => step(-1)} aria-label={t("prevTrack", lang)}>{Icon.prev}</button>
-            <button className="big" onClick={() => setPlaying((p) => !p)} aria-label={t(playing ? "pause" : "play", lang)}>
+            <button className="big" onClick={() => toggle(!playing)} aria-label={t(playing ? "pause" : "play", lang)}>
               {playing ? Icon.pause : Icon.play}
             </button>
             <button onClick={() => step(1)} aria-label={t("nextTrack", lang)}>{Icon.next}</button>
@@ -122,7 +141,7 @@ export function MusicPlayer({ tracks, lang }: { tracks: Track[]; lang: Lang }) {
                 <li key={tr.src}>
                   <button
                     className={i === at ? "on" : ""}
-                    onClick={() => { setIndex(i); setPlaying(true); }}
+                    onClick={() => { setIndex(i); toggle(true); }}
                   >
                     {tr.title}
                   </button>
@@ -137,6 +156,7 @@ export function MusicPlayer({ tracks, lang }: { tracks: Track[]; lang: Lang }) {
         ref={audio}
         src={track.src}
         onEnded={() => step(1)}
+        loop={tracks.length === 1}
         preload="none"
       />
     </>
