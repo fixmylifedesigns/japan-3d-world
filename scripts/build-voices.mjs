@@ -101,7 +101,8 @@ async function tts(key, clip) {
     if (res.ok) return Buffer.from(await res.arrayBuffer());
     const body = await res.text();
     if (res.status === 401) throw new Error(`ElevenLabs rejected the API key (401). ${body.slice(0, 200)}`);
-    if ((res.status === 429 || res.status >= 500) && attempt < 5) {
+    // 429: rate limit. 409: a voice from the Voice Library is still being added to the account on first use.
+    if ((res.status === 429 || res.status === 409 || res.status >= 500) && attempt < 5) {
       const wait = 1500 * attempt;
       console.log(`  ${res.status} on ${clip.key}, retrying in ${wait / 1000}s`);
       await new Promise((r) => setTimeout(r, wait));
