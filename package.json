@@ -6,10 +6,11 @@
     "node": "22.x"
   },
   "scripts": {
-    "dev": "npm run music && next dev",
-    "build": "npm run music && next build",
+    "dev": "npm run music && npm run talk && next dev",
+    "build": "npm run music && npm run talk && next build",
     "start": "next start",
-    "music": "node scripts/build-music.mjs"
+    "music": "node scripts/build-music.mjs",
+    "talk": "node scripts/check-talk.mjs"
   },
   "dependencies": {
     "@react-three/drei": "10.7.8",
