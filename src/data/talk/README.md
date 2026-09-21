@@ -88,8 +88,7 @@ Only new or changed lines are generated on later runs, and clips for deleted lin
 clip just stay silent, so the game works before any voices exist.
 
 Shop clerks are voiced the same way: each shop has one voice and its city's language under `shops` in
-`src/data/voice.json`, and their lines come straight from `src/components/dialogue.ts`. Reading that file needs
-Node 22.6 or newer; `npm run voices` turns on Node's TypeScript support for it.
+`src/data/voice.json`, and their lines come straight from `src/components/dialogue.ts`.
 
 ## Adding a city
 
