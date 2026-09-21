@@ -72,9 +72,20 @@ stops the build if:
 
 ## Voice
 
-Every line's `id` is unique so it can key an audio clip. `speakLine()` in `src/components/talk.ts` is called
-each time a line is shown, with the language on screen — that's where ElevenLabs (or recorded) audio plugs in,
-e.g. `/voice/<city>/<lang>/<id>.mp3`.
+People are voiced in their city's language only, whatever language the player reads the text in: Tokyo speaks
+Japanese (the `ja` text), New York speaks English (the `en` text). Each line is recorded once per kind of speaker
+that can say it (`f`, `m`, `old`), so every person gets a voice that fits them.
+
+The clips are made with ElevenLabs by `scripts/build-voices.mjs`:
+
+1. Put your API key in `.env.local` at the repo root (it is gitignored): `ELEVENLABS_API_KEY=sk_...`
+2. Pick a voice for each kind of speaker in the ElevenLabs Voice Library and paste its voice ID into
+   `src/data/voice.json` (the spoken language per city and the model/settings are there too).
+3. `npm run voices -- --dry` shows how many clips and characters it will use. `npm run voices` makes them.
+4. Commit `public/voice/` (the mp3s plus `manifest.json`).
+
+Only new or changed lines are generated on later runs, and clips for deleted lines are removed. Lines without a
+clip just stay silent, so the game works before any voices exist.
 
 ## Adding a city
 
