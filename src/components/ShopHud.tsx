@@ -16,6 +16,7 @@ export type Panel =
   | { kind: "guide" } // Hana's introduction
   | { kind: "travel" } // city picker
   | { kind: "npc"; npc: number; city: CityId; line: TalkLine; choices: string[]; asked?: string } // talking to a passerby
+  | { kind: "map" } // the subway map on the station wall
   | null;
 
 const Coin = ({ n }: { n: number }) => <span className="price"><span className="coin sm" />{n}</span>;
@@ -26,6 +27,7 @@ export function promptText(it: Interactable, lang: Lang) {
   if (it.kind === "exit") return t("promptExit", lang);
   if (it.kind === "clerk") return t("promptTalk", lang, { name: pick(CLERK_NAMES[it.shop], lang) });
   if (it.kind === "npc") return t("promptTalk", lang, { name: pick(npcName(it.city, it.npc), lang) });
+  if (it.kind === "subway") return t(it.action === "enter" ? "promptSubway" : it.action === "exit" ? "promptSubwayUp" : "promptMap", lang);
   return t("promptLook", lang, { item: cardName(it.item, lang) });
 }
 
