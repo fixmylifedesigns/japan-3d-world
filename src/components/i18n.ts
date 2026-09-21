@@ -60,7 +60,7 @@ export const UI = {
   helpJump: { ja: "ジャンプ", kana: "ジャンプ", romaji: "Janpu", en: "Jump", es: "Saltar", zh: "跳跃", fr: "Sauter" },
   helpLook: { ja: "まわりを見る", kana: "まわりを みる", romaji: "Mawari o miru", en: "Look around", es: "Mirar alrededor", zh: "环顾四周", fr: "Regarder autour" },
   helpZoom: { ja: "ズーム", kana: "ズーム", romaji: "Zūmu", en: "Zoom", es: "Zoom", zh: "缩放", fr: "Zoom" },
-  helpScroll: { ja: "ホイール", kana: "ホイール", romaji: "Hoīru", en: "Scroll", es: "Rueda", zh: "滚轮", fr: "Molette" },
+  helpScroll: { ja: "ホイール", kana: "ホイール", romaji: "Hoīru", en: "Scroll", es: "Rueda", zh: "滚轮", fr: "Molette" },
   helpUse: { ja: "話す・入る・見る", kana: "はなす・はいる・みる", romaji: "Hanasu · hairu · miru", en: "Talk, enter, look", es: "Hablar, entrar, mirar", zh: "交谈、进入、查看", fr: "Parler, entrer, regarder" },
   explore: { ja: "町を探検しよう", kana: "まちを たんけんしよう", romaji: "Machi o tanken shiyō", en: "Explore the neighborhood", es: "Explora el barrio", zh: "探索街区", fr: "Explorez le quartier" },
   adventure: { ja: "小さな冒険", kana: "ちいさな ぼうけん", romaji: "Chiisana bōken", en: "Your little adventure", es: "Tu pequeña aventura", zh: "你的小冒险", fr: "Votre petite aventure" },
