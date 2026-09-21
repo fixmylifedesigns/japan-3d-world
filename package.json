@@ -10,7 +10,8 @@
     "build": "npm run music && npm run talk && next build",
     "start": "next start",
     "music": "node scripts/build-music.mjs",
-    "talk": "node scripts/check-talk.mjs"
+    "talk": "node scripts/check-talk.mjs",
+    "voices": "node scripts/build-voices.mjs"
   },
   "dependencies": {
     "@react-three/drei": "10.7.8",

@@ -4,7 +4,7 @@
 import { useEffect } from "react";
 import { CITIES, type CityId } from "./cities";
 import { pick, t, type Lang } from "./i18n";
-import { TALK, npcName, speakLine, type TalkLine } from "./talk";
+import { TALK, npcName, speakLine, stopVoice, type TalkLine } from "./talk";
 
 const FACES = ["#e8836f", "#6f8fbf", "#8ec5a4", "#c8b6e2", "#f2b632", "#5d7f6a", "#f19a7a", "#3f7fd8"];
 
@@ -14,7 +14,7 @@ export function NpcTalkPanel({ city, npc, line, choices, asked, lang, onAsk, onC
 }) {
   const data = TALK[city];
   const name = pick(npcName(city, npc), lang);
-  useEffect(() => { speakLine(city, line, lang); }, [city, line, lang]);
+  useEffect(() => { speakLine(city, npc, line); return stopVoice; }, [city, npc, line]); // not on language change: the voice is always the city's language
   useEffect(() => {
     const k = (e: KeyboardEvent) => {
       const n = Number(e.key);
