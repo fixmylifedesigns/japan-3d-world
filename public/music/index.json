@@ -1,6 +1,22 @@
 {
   "folders": {
-    "japan": [],
-    "newyork": []
+    "deli": [],
+    "gacha": [],
+    "japan": [
+      {
+        "src": "/music/japan/Pedestrian%20Crossing%20(Laser%2C%20Cuckoo)%20Sounds.%20Tokyo%2C%20Japan.mp3",
+        "title": "Pedestrian Crossing (Laser, Cuckoo) Sounds. Tokyo, Japan"
+      }
+    ],
+    "konbini": [],
+    "newyork": [
+      {
+        "src": "/music/newyork/Sounds%20of%20New%20York%20City%20(59th%20Street%20at%20Lexington%2C%20Park%20and%205th%20Avenue).mp3",
+        "title": "Sounds of New York City (59th Street at Lexington, Park and 5th Avenue)"
+      }
+    ],
+    "pizza": [],
+    "retro": [],
+    "subway": []
   }
 }

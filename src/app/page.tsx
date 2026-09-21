@@ -47,7 +47,7 @@ export default function Home() {
   const subway = scene === "subway";
   const shop = isCity(scene) || scene === "subway" ? null : SHOPS[scene];
   const cityId: CityId = isCity(scene) ? scene : scene === "subway" ? SUBWAY_CITY : SHOPS[scene].city;
-  const tracks = useTracks(CITIES[cityId].music);
+  const tracks = useTracks(isCity(scene) ? CITIES[cityId].music : scene); // shops and the subway have their own sound
   const city = CITIES[cityId];
   const coins = found[cityId] ?? 0, totalCoins = city.coins.length;
   const done = coins >= totalCoins;
